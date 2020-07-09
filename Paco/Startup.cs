@@ -10,6 +10,8 @@ using Paco.Areas.Identity;
 using Paco.Data;
 using Paco.Data.Identity;
 using System;
+using Paco.Services;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 namespace Paco
 {
@@ -37,6 +39,55 @@ namespace Paco
             services.AddServerSideBlazor();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<User>>();
             services.AddSingleton<WeatherForecastService>();
+
+            services.AddScoped<IEmailSender>(configure => new EmailService());
+
+            services.AddRazorPages()
+                    .AddRazorPagesOptions(options =>
+                    {
+                        options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage");
+                        options.Conventions.AuthorizeAreaPage("Identity", "/Account/LogOut");
+                        options.Conventions.AuthorizeFolder("/");
+                    });
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = $"/Identity/Account/Login";
+                options.LogoutPath = $"/Identity/Account/LogOut";
+                options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
+            });
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Password settings.
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireNonAlphanumeric = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequiredLength = 6;
+                options.Password.RequiredUniqueChars = 1;
+
+                // Lockout settings.
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+
+                // User settings.
+                options.User.AllowedUserNameCharacters =
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+                options.User.RequireUniqueEmail = false;
+            });
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                // Cookie settings
+                options.Cookie.HttpOnly = true;
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+
+                options.LoginPath = "/Identity/Account/Login";
+                options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+                options.SlidingExpiration = true;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
