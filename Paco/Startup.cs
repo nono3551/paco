@@ -38,7 +38,7 @@ namespace Paco
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<User>>();
-            services.AddSingleton<WeatherForecastService>();
+            services.AddScoped<WeatherForecastService>();
 
             services.AddScoped<IEmailSender>(configure => new EmailService());
 
