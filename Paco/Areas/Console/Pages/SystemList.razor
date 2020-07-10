@@ -1,0 +1,51 @@
+﻿@using Paco.Data.Entities
+@inject ApplicationDbContext ApplicationDbContext
+@inject Paco.Services.SystemManagerService ManagerService
+
+@page "/systems/list"
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Hostname</th>
+            <th>Last Accessed</th>
+            <th>Refresh</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var system in _systems)
+        {
+        <tr>
+            <td>
+                @system.Name
+            </td>
+            <td>
+                @system.Hostname
+            </td>
+            <td>
+                @system.LastAccessed
+            </td>
+            <td>
+                <button class="btn btn-dark" @onclick="@(() => Connect(system))">Connect</button>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<ManagedSystem> _systems;
+
+    protected override Task OnInitializedAsync()
+    {
+        _systems = ApplicationDbContext.ManagedSystems.ToList();
+
+        return base.OnInitializedAsync();
+    }
+
+    private void Connect(ManagedSystem system)
+    {
+        ManagerService.AccessSystem(system);
+    }
+}

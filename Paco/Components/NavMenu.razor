@@ -6,16 +6,30 @@
 </div>
 
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
-    <ul class="nav flex-column">
+    <ul class="navbar-nav flex-column">
         <li class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="systems">
+        <li class="nav-item dropdown px-3">
+            <NavLink class="nav-link" @onclick="() => expandSystemsSubmenu = !expandSystemsSubmenu">
                 <span class="oi oi-monitor" aria-hidden="true"></span> Systems
             </NavLink>
+            @if (expandSystemsSubmenu)
+            {
+                <NavLink class="nav-link px-3" href="systems/list">
+                    <span class="oi oi-list" aria-hidden="true"></span> List
+                </NavLink>
+                <NavLink class="nav-link px-3" href="systems/add">
+                    <span class="oi oi-plus" aria-hidden="true"></span> Add new
+                </NavLink>
+            }
+
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="systems">List</a>
+                <a class="dropdown-item" href="systems/create">Create new</a>
+            </div>
         </li>
         <AuthorizeView>
             <Authorized>
@@ -30,9 +44,23 @@
 </div>
 
 @code {
+
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
+
+    private bool expandSystemsSubmenu;
     private bool collapseNavMenu = true;
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    protected override Task OnInitializedAsync()
+    {
+        if (NavigationManager.Uri.Contains("systems/"))
+        {
+            expandSystemsSubmenu = true;
+        }
+        return base.OnInitializedAsync();
+    }
 
     private void ToggleNavMenu()
     {

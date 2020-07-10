@@ -15,7 +15,7 @@ namespace Paco.Data.Entities
         public string Password { get; set; }
         public string SystemFingerprint { get; set; }
         public string SshPrivateKey { get; set; }
-        public DateTime LastAccessed { get; set; }
+        public DateTime? LastAccessed { get; set; }
         public DateTime? CreatedAt { get ; set ; }
         public DateTime? UpdatedAt { get ; set ; }
         public DateTime? DeletedAt { get ; set ; }

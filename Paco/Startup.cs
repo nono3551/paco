@@ -39,6 +39,8 @@ namespace Paco
             services.AddServerSideBlazor();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<User>>();
 
+            services.AddScoped<SystemManagerService>();
+
             services.AddScoped<IEmailSender>(configure => new EmailService());
 
             services.AddRazorPages()
