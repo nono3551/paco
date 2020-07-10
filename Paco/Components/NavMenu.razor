@@ -8,22 +8,24 @@
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <ul class="navbar-nav flex-column">
         <li class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+            <NavLink class="nav-link px-3" href="" Match="NavLinkMatch.All">
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </li>
         <li class="nav-item dropdown px-3">
-            <NavLink class="nav-link" @onclick="() => expandSystemsSubmenu = !expandSystemsSubmenu">
+            <NavLink class="nav-link px-3" @onclick="() => expandSystemsSubmenu = !expandSystemsSubmenu">
                 <span class="oi oi-monitor" aria-hidden="true"></span> Systems
             </NavLink>
             @if (expandSystemsSubmenu)
             {
+            <div class="px-3">
                 <NavLink class="nav-link px-3" href="systems/list">
                     <span class="oi oi-list" aria-hidden="true"></span> List
                 </NavLink>
                 <NavLink class="nav-link px-3" href="systems/add">
                     <span class="oi oi-plus" aria-hidden="true"></span> Add new
                 </NavLink>
+            </div>
             }
 
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -34,7 +36,7 @@
         <AuthorizeView>
             <Authorized>
                 <li class="nav-item px-3">
-                    <NavLink class="nav-link " href="Identity/Account/Manage">
+                    <NavLink class="nav-link px-3" href="Identity/Account/Manage">
                         <span class="oi oi-person" aria-hidden="true"></span> @context.User.Identity.Name
                     </NavLink>
                 </li>
