@@ -1,0 +1,30 @@
+﻿@using Paco.Data.Entities
+@inject ApplicationDbContext ApplicationDbContext
+@inject NavigationManager NavigationManager
+@page "/createSystem"
+
+<h2>Add new system</h2>
+
+<EditForm Model="@system" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <FormInput @bind-Value="@system.Name" ElementId="SystemName" Label="System name" InputType="text" Placeholder="VM-City-Food-Bratislava" Help="Enter name which will represent this system" />
+    <FormInput @bind-Value="@system.Hostname" ElementId="SystemHostname" Label="Hostname" InputType="text" Placeholder="city.food.com:22" Help="Enter address or system" />
+    <FormInput @bind-Value="@system.Login" ElementId="SystemLogin" Label="Login" InputType="text" Placeholder="user" Help="Enter username which will be used for authentication" />
+    <FormInput @bind-Value="@system.Password" ElementId="SystemPassword" Label="Password" InputType="password" Help="Enter password which will be used for authentication" />
+    <FormInput @bind-Value="@system.SystemFingerprint" ElementId="SystemFingerprint" Label="System Fingerprint" InputType="text" Placeholder="12:f8:7e:78:61:b4:bf:e2:de:24:15:96:4e:d4:72:53" Help="Paste system's fingerprint" />
+    <FormInput @bind-Value="@system.SshPrivateKey" ElementId="SystemSshPrivateKey" Label="SSH Private key" InputType="text" Help="Paste private key which will be used for authentication" />
+    <Submit />
+</EditForm>
+
+@code {
+    private ManagedSystem system = new ManagedSystem();
+
+    private void HandleValidSubmit()
+    {
+        ApplicationDbContext.Add(system);
+        ApplicationDbContext.SaveChanges();
+        NavigationManager.NavigateTo("/systems");
+    }
+}

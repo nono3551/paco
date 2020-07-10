@@ -1,0 +1,33 @@
+﻿<div class="form-group">
+    <label for="@ElementId">@Label</label>
+    <input @oninput="OnValueChanged" value="@Value" type="@InputType" class="form-control" id="@ElementId" aria-describedby="@ElementId+help" placeholder="@Placeholder">
+    @if (Help != null)
+    {
+        <small id="@ElementId+help" class="form-text text-muted">@Help</small>
+    }
+</div>
+
+
+@code {
+    [Parameter]
+    public string Value { get; set; }
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+    [Parameter]
+    public string ElementId { get; set; }
+    [Parameter]
+    public string Label { get; set; }
+    [Parameter]
+    public string Placeholder { get; set; }
+    [Parameter]
+    public string InputType { get; set; }
+    [Parameter]
+    public string Help { get; set; }
+
+    private Task OnValueChanged(ChangeEventArgs e)
+    {
+        Value = e.Value.ToString();
+
+        return ValueChanged.InvokeAsync(Value);
+    }
+}
