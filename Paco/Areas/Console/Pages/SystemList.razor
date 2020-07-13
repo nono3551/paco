@@ -3,45 +3,79 @@
 @inject Paco.Services.SystemManagerService ManagerService
 
 @page "/systems/list"
-
-<table class="table table-striped">
+<table class="table">
     <thead>
         <tr>
             <th>Name</th>
             <th>Hostname</th>
             <th>Last Accessed</th>
-            <th>Refresh</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var system in _systems)
         {
-        <tr>
-            <td>
-                @system.Name
-            </td>
-            <td>
-                @system.Hostname
-            </td>
-            <td>
-                @system.LastAccessed
-            </td>
-            <td>
-                <button class="btn btn-dark" @onclick="@(() => Connect(system))">Connect</button>
-            </td>
-        </tr>
+            <tr @onclick="() => ShowDetailForSystem(system)" style='cursor: pointer;'>
+                <td>
+                    @system.Name
+                </td>
+                <td>
+                    @system.Hostname
+                </td>
+                <td>
+                    @system.LastAccessed
+                </td>
+            </tr>
+            @if (ShouldShowDetailForSystem(system))
+            {
+                <tr role="row" class="b-table-details">
+                    <td colspan="3" class="">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row mb-2">
+                                    <div class="text-sm-right col-sm-3"><b>Age:</b></div>
+                                    <div class="col">89</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="text-sm-right col-sm-3"><b>Is Active:</b></div>
+                                    <div class="col">false</div>
+                                </div>
+                                <button type="button" class="btn btn-dark" @onclick="() => HideDetail(system)">Hide Details</button>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            }
         }
     </tbody>
 </table>
 
 @code {
     private List<ManagedSystem> _systems;
+    private List<ManagedSystem> _systemsWithDetailOpened = new List<ManagedSystem>();
 
     protected override Task OnInitializedAsync()
     {
         _systems = ApplicationDbContext.ManagedSystems.ToList();
 
         return base.OnInitializedAsync();
+    }
+
+    public bool ShouldShowDetailForSystem(ManagedSystem system)
+    {
+        return _systemsWithDetailOpened.Contains(system);
+    }
+
+    public void HideDetail(ManagedSystem system)
+    {
+        _systemsWithDetailOpened.Remove(system);
+    }
+
+    public void ShowDetailForSystem(ManagedSystem system)
+    {
+        if (!_systemsWithDetailOpened.Contains(system))
+        {
+            _systemsWithDetailOpened.Add(system);
+        }
     }
 
     private void Connect(ManagedSystem system)
