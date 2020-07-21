@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Paco.SystemManagement;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -13,11 +14,19 @@ namespace Paco.Data.Entities
         public string Hostname { get; set; }
         public string Login { get; set; } 
         public string Password { get; set; }
+        public string SystemInformation { get; set; }
         public string SystemFingerprint { get; set; }
         public string SshPrivateKey { get; set; }
         public DateTime? LastAccessed { get; set; }
+        public DateTime? UpdatesFetchedAt { get; set; }
         public DateTime? CreatedAt { get ; set ; }
         public DateTime? UpdatedAt { get ; set ; }
         public DateTime? DeletedAt { get ; set ; }
+        public Distribution Distribution { get; set; }
+
+        public IDistributionManager GetDistributionManager()
+        {
+            return new FreeBsdManager(this);
+        }
     }
 }

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Paco.Data;
 
 namespace Paco.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200720110622_managedSystema123")]
+    partial class managedSystema123
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,6 +42,9 @@ namespace Paco.Migrations
                     b.Property<DateTime?>("LastAccessed")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("LastUpdateFetched")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Login")
                         .HasColumnType("nvarchar(max)");
 
@@ -59,9 +64,6 @@ namespace Paco.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("UpdatesFetchedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");

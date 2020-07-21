@@ -1,4 +1,5 @@
 ﻿@using Paco.Data.Entities
+@using System.Collections.Generic
 @inject ApplicationDbContext ApplicationDbContext
 @inject Paco.Services.SystemManagerService ManagerService
 
@@ -9,6 +10,7 @@
             <th>Name</th>
             <th>Hostname</th>
             <th>Last Accessed</th>
+            <th>Updates fetched at</th>
         </tr>
     </thead>
     <tbody>
@@ -24,22 +26,36 @@
                 <td>
                     @system.LastAccessed
                 </td>
+                <td>
+                    @(system.UpdatesFetchedAt.ToString() ?? "Never")
+                </td>
             </tr>
             @if (ShouldShowDetailForSystem(system))
             {
                 <tr role="row" class="b-table-details">
-                    <td colspan="3" class="">
+                    <td colspan="4" class="">
                         <div class="card">
                             <div class="card-body">
-                                <div class="row mb-2">
-                                    <div class="text-sm-right col-sm-3"><b>Age:</b></div>
-                                    <div class="col">89</div>
-                                </div>
-                                <div class="row mb-2">
-                                    <div class="text-sm-right col-sm-3"><b>Is Active:</b></div>
-                                    <div class="col">false</div>
-                                </div>
+                                @if (system.SystemInformation == null)
+                                {
+                                    RefreshSystemInformation(system);
+                                }
+                                else
+                                {
+                                    @foreach (var entry in System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(system.SystemInformation))
+                                    {
+                                        <div class="row mb-2">
+                                            <div class="text-sm-right col-sm-3"><b>@entry.Key:</b></div>
+                                            <div class="col">
+                                                <p style="white-space: pre-line">@entry.Value</p>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+
                                 <button type="button" class="btn btn-dark" @onclick="() => HideDetail(system)">Hide Details</button>
+                                <button type="button" class="btn btn-dark" @onclick="() => RefreshSystemInformation(system)">Refresh</button>
+                                <button type="button" class="btn btn-dark" @onclick="() => FetchSystemUpdates(system)">Fetch updates</button>
                             </div>
                         </div>
                     </td>
@@ -78,8 +94,27 @@
         }
     }
 
-    private void Connect(ManagedSystem system)
+    private void RefreshSystemInformation(ManagedSystem system)
     {
-        ManagerService.AccessSystem(system);
+        Task.Run(() =>
+        {
+            ManagerService.RefreshSystemInformation(system);
+            base.InvokeAsync(() =>
+            {
+                base.StateHasChanged();
+            });
+        });
+    }
+
+    private void FetchSystemUpdates(ManagedSystem system)
+    {
+        Task.Run(() =>
+        {
+            ManagerService.FetchSystemUpdates(system);
+            base.InvokeAsync(() =>
+            {
+                base.StateHasChanged();
+            });
+        });
     }
 }

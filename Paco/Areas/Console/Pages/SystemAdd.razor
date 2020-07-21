@@ -1,29 +1,49 @@
 ﻿@using Paco.Data.Entities
+@using SystemManagement
 @inject ApplicationDbContext ApplicationDbContext
 @inject NavigationManager NavigationManager
 @page "/systems/add"
 
 <h2>Add new system</h2>
 
-<EditForm Model="@system" OnValidSubmit="HandleValidSubmit">
+<EditForm Model="@_system" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
+    <FormInput @bind-Value="@_system.Name" ElementId="SystemName" Label="System name" InputType="text" Placeholder="VM-City-Food-Bratislava" Help="Enter name which will represent this system" />
+    <FormInput @bind-Value="@_system.Hostname" ElementId="SystemHostname" Label="Hostname" InputType="text" Placeholder="city.food.com:22" Help="Enter address or system" />
+    <FormInput @bind-Value="@_system.Login" ElementId="SystemLogin" Label="Login" InputType="text" Placeholder="user" Help="Enter username which will be used for authentication" />
+    <FormInput @bind-Value="@_system.Password" ElementId="SystemPassword" Label="Password" InputType="password" Help="Enter password which will be used for authentication" />
+    <FormInput @bind-Value="@_system.SystemFingerprint" ElementId="SystemFingerprint" Label="System Fingerprint" InputType="text" Placeholder="12:f8:7e:78:61:b4:bf:e2:de:24:15:96:4e:d4:72:53" Help="Paste system's fingerprint" />
+    <FormInput @bind-Value="@_system.SshPrivateKey" ElementId="SystemSshPrivateKey" Label="SSH Private key" InputType="text" Help="Paste private key which will be used for authentication" />
+    <div class="dropdown py-3">
+        <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            @_currentDistributionString
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
 
-    <FormInput @bind-Value="@system.Name" ElementId="SystemName" Label="System name" InputType="text" Placeholder="VM-City-Food-Bratislava" Help="Enter name which will represent this system" />
-    <FormInput @bind-Value="@system.Hostname" ElementId="SystemHostname" Label="Hostname" InputType="text" Placeholder="city.food.com:22" Help="Enter address or system" />
-    <FormInput @bind-Value="@system.Login" ElementId="SystemLogin" Label="Login" InputType="text" Placeholder="user" Help="Enter username which will be used for authentication" />
-    <FormInput @bind-Value="@system.Password" ElementId="SystemPassword" Label="Password" InputType="password" Help="Enter password which will be used for authentication" />
-    <FormInput @bind-Value="@system.SystemFingerprint" ElementId="SystemFingerprint" Label="System Fingerprint" InputType="text" Placeholder="12:f8:7e:78:61:b4:bf:e2:de:24:15:96:4e:d4:72:53" Help="Paste system's fingerprint" />
-    <FormInput @bind-Value="@system.SshPrivateKey" ElementId="SystemSshPrivateKey" Label="SSH Private key" InputType="text" Help="Paste private key which will be used for authentication" />
+            @foreach (var item in Enum.GetValues(typeof(Distribution)))
+            {
+                <a class="dropdown-item" @onclick="() => SetDistribution((Distribution) item)">@item.ToString()</a>
+            }
+        </div>
+    </div>
     <Submit />
 </EditForm>
 
 @code {
-    private ManagedSystem system = new ManagedSystem();
+    private string _currentDistributionString = "SelectDistribution";
+
+    private ManagedSystem _system = new ManagedSystem();
+
+    private void SetDistribution(Distribution distribution)
+    {
+        _currentDistributionString = distribution.ToString();
+        _system.Distribution = distribution;
+    }
 
     private void HandleValidSubmit()
     {
-        ApplicationDbContext.Add(system);
+        ApplicationDbContext.Add(_system);
         ApplicationDbContext.SaveChanges();
         NavigationManager.NavigateTo("/systems");
     }
