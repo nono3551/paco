@@ -16,7 +16,7 @@
     <tbody>
         @foreach (var system in _systems)
         {
-            <tr @onclick="() => ShowDetailForSystem(system)" style='cursor: pointer;'>
+            <tr @onclick="() => ToggleSystemDetail(system)" style='cursor: pointer;'>
                 <td>
                     @system.Name
                 </td>
@@ -86,11 +86,15 @@
         _systemsWithDetailOpened.Remove(system);
     }
 
-    public void ShowDetailForSystem(ManagedSystem system)
+    public void ToggleSystemDetail(ManagedSystem system)
     {
         if (!_systemsWithDetailOpened.Contains(system))
         {
             _systemsWithDetailOpened.Add(system);
+        }
+        else
+        {
+            _systemsWithDetailOpened.Remove(system);
         }
     }
 
