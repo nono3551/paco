@@ -1,8 +1,8 @@
 ﻿using Paco.Data.Entities;
-using Paco.SystemManagement.Commands;
+using Paco.SystemManagement.FreeBsd.Commands;
 using System.Collections.Generic;
 
-namespace Paco.SystemManagement
+namespace Paco.SystemManagement.FreeBsd
 {
     public class FreeBsdManager : SshManager, IDistributionManager
     {
@@ -17,14 +17,12 @@ namespace Paco.SystemManagement
         {
             using var client = CreateSshClient(System);
 
-            var asd = new CheckVersion().IsNewVersionVersionAvaliable(client);
-
             return new Dictionary<string, string>
             {
-                { "Hostname", client.CreateCommand("hostname").Execute() },
-                { "KarnelVersion", client.CreateCommand("sudo freebsd-version -k").Execute() },
-                { "UserlandVersion", client.CreateCommand("sudo freebsd-version -u").Execute() },
-                { "RunningKarnelVersion", client.CreateCommand("sudo freebsd-version -r").Execute() },
+                { "Hostname", new Hostname().GetHostname(client) },
+                { "KarnelVersion", new KarnelVersion().GetKarnel(client) },
+                { "UserlandVersion", new KarnelVersion().GetUserland(client) },
+                { "RunningKarnelVersion", new KarnelVersion().GetRunning(client) },
                 { "pkg audit -F -r", client.CreateCommand("sudo pkg audit -F -r").Execute() },
                 { "w -n", client.CreateCommand("sudo w -n --libxo=json,pretty").Execute() },
                 { "pkg info", client.CreateCommand("sudo pkg info -a -d -r -s -b -B -l").Execute() },
@@ -39,6 +37,11 @@ namespace Paco.SystemManagement
             var result = client.CreateCommand("sudo portsnap fetch update --interactive").Execute();
 
             return;
+        }
+
+        public bool IsSystemUpdateAvailable()
+        {
+            return new CheckVersion().IsNewVersionVersionAvaliable(CreateSshClient(System));
         }
     }
 }

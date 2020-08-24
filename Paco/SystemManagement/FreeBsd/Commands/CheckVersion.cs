@@ -1,7 +1,7 @@
 ﻿using Renci.SshNet;
 using System.Linq;
 
-namespace Paco.SystemManagement.Commands
+namespace Paco.SystemManagement.FreeBsd.Commands
 {
     public class CheckVersion
     {

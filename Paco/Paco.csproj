@@ -21,6 +21,7 @@
   <ItemGroup>
     <Folder Include="Areas\Admin\" />
     <Folder Include="Data\Migrations\" />
+    <Folder Include="SystemManagement\FreeBsd\Entities\" />
   </ItemGroup>
 
 </Project>
