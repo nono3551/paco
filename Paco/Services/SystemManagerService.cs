@@ -10,7 +10,6 @@ namespace Paco.Services
         private readonly ApplicationDbContext _dbContext;
         private readonly object _lock = new object();
 
-
         public void RefreshSystemInformation(ManagedSystem system)
         {
             var systemInformation = system.GetDistributionManager().GetSystemInformation();

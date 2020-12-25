@@ -3,10 +3,9 @@ using System.Collections.Generic;
 
 namespace Paco.SystemManagement
 {
-    public interface IDistributionManager
+    public interface ISystemManager
     {
-        public ManagedSystem System { get; }
-
+        ManagedSystem System { get; }
         Dictionary<string, string> GetSystemInformation();
         void FetchSystemUpdates();
         bool IsSystemUpdateAvailable();

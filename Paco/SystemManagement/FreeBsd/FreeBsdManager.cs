@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Paco.SystemManagement.FreeBsd
 {
-    public class FreeBsdManager : SshManager, IDistributionManager
+    public class FreeBsdManager : SshManager, ISystemManager
     {
         public ManagedSystem System { get; }
 

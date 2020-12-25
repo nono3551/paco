@@ -2,6 +2,6 @@
 {
     public enum Distribution
     {
-        FreeBSD
+        FreeBsd
     }
 }

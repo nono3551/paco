@@ -25,7 +25,7 @@ namespace Paco.Data.Entities
         public DateTime? DeletedAt { get ; set ; }
         public Distribution Distribution { get; set; }
 
-        public IDistributionManager GetDistributionManager()
+        public ISystemManager GetDistributionManager()
         {
             return new FreeBsdManager(this);
         }
