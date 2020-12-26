@@ -32,7 +32,7 @@ namespace Paco.SystemManagement
                     hostKeyArgs.CanTrust = false;
                 }
 
-                //Todo: Fix this CanTrus set properly. Only for testing purposes
+                //Todo: Fix this CanTrust set properly. Only for testing purposes
                 hostKeyArgs.CanTrust = true;
             };
             client.Connect();

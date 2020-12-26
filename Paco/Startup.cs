@@ -10,8 +10,10 @@ using Paco.Areas.Identity;
 using Paco.Data;
 using Paco.Data.Identity;
 using System;
+using Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore;
 using Paco.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Paco.Data.Entities.Identity;
 
 namespace Paco
 {
@@ -40,6 +42,8 @@ namespace Paco
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<User>>();
 
             services.AddScoped<SystemManagerService>();
+
+            services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddScoped<IEmailSender>(configure => new EmailService());
 
@@ -97,7 +101,6 @@ namespace Paco
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseDatabaseErrorPage();
             }
             else
             {

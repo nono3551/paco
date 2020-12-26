@@ -4,6 +4,7 @@ using Paco.Data.Entities;
 using Paco.Data.Identity;
 using System;
 using System.IO;
+using Paco.Data.Entities.Identity;
 
 namespace Paco.Data
 {
