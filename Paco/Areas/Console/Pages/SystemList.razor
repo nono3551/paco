@@ -1,7 +1,7 @@
 ﻿@using Paco.Data.Entities
-@using System.Collections.Generic
+@using Serilog
 @inject ApplicationDbContext ApplicationDbContext
-@inject Paco.Services.SystemManagerService ManagerService
+@inject Services.SystemManagerService ManagerService
 
 @page "/systems/list"
 <table class="table">
@@ -72,6 +72,8 @@
     protected override Task OnInitializedAsync()
     {
         _systems = ApplicationDbContext.ManagedSystems.ToList();
+
+        Log.Information("Hello, world!");
 
         return base.OnInitializedAsync();
     }

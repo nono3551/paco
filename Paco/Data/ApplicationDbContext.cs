@@ -14,6 +14,12 @@ namespace Paco.Data
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options): base(options)
         {
+
+        }
+
+        private void wiiii(string i)
+        {
+            var asd = i;
         }
 
         public override int SaveChanges()
@@ -65,6 +71,7 @@ namespace Paco.Data
             builder.Entity<UserClaim>().HasQueryFilter(p => p.DeletedAt == null);
             builder.Entity<UserToken>().HasQueryFilter(p => p.DeletedAt == null);
             builder.Entity<ManagedSystem>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<LogRecord>().HasQueryFilter(p => p.DeletedAt == null);
         }
     }
 }

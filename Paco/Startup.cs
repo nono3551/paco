@@ -10,10 +10,12 @@ using Paco.Areas.Identity;
 using Paco.Data;
 using Paco.Data.Identity;
 using System;
-using Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore;
 using Paco.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.Extensions.Logging;
 using Paco.Data.Entities.Identity;
+using Paco.Logging;
+using Serilog;
 
 namespace Paco
 {
@@ -96,8 +98,13 @@ namespace Paco
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.EntityFrameworkSink(app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<ApplicationDbContext>)
+                .CreateLogger();
+            loggerFactory.AddSerilog();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

@@ -10,6 +10,11 @@ namespace Paco.Services
         private readonly ApplicationDbContext _dbContext;
         private readonly object _lock = new object();
 
+        public SystemManagerService(ApplicationDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
         public void RefreshSystemInformation(ManagedSystem system)
         {
             var systemInformation = system.GetDistributionManager().GetSystemInformation();
@@ -36,11 +41,6 @@ namespace Paco.Services
                 _dbContext.Update(system);
                 _dbContext.SaveChanges();
             }
-        }
-
-        public SystemManagerService(ApplicationDbContext dbContext)
-        {
-            _dbContext = dbContext;
         }
     }
 }
