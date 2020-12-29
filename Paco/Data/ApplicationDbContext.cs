@@ -17,11 +17,6 @@ namespace Paco.Data
 
         }
 
-        private void wiiii(string i)
-        {
-            var asd = i;
-        }
-
         public override int SaveChanges()
         {
             ChangeTracker.DetectChanges();
