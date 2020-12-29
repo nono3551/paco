@@ -49,19 +49,11 @@ namespace Paco
 
             services.AddScoped<IEmailSender>(configure => new EmailService());
 
-            services.AddRazorPages()
-                    .AddRazorPagesOptions(options =>
-                    {
-                        options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage");
-                        options.Conventions.AuthorizeAreaPage("Identity", "/Account/LogOut");
-                        options.Conventions.AuthorizeFolder("/");
-                    });
-
-            services.ConfigureApplicationCookie(options =>
-            {
-                options.LoginPath = $"/Identity/Account/Login";
-                options.LogoutPath = $"/Identity/Account/LogOut";
-                options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
+            services.AddRazorPages().AddRazorPagesOptions(options => 
+            { 
+                options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage");
+                options.Conventions.AuthorizeAreaPage("Identity", "/Account/LogOut");
+                options.Conventions.AuthorizeFolder("/");
             });
 
             services.Configure<IdentityOptions>(options =>
@@ -87,13 +79,15 @@ namespace Paco
 
             services.ConfigureApplicationCookie(options =>
             {
+                options.LoginPath = $"/Identity/Account/Login";
+                options.LogoutPath = $"/Identity/Account/LogOut";
+                options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
+                options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+                options.SlidingExpiration = true;
+
                 // Cookie settings
                 options.Cookie.HttpOnly = true;
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
-
-                options.LoginPath = "/Identity/Account/Login";
-                options.AccessDeniedPath = "/Identity/Account/AccessDenied";
-                options.SlidingExpiration = true;
             });
         }
 

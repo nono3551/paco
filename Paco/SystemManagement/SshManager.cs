@@ -3,9 +3,9 @@ using Renci.SshNet;
 
 namespace Paco.SystemManagement
 {
-    public abstract class SshManager
+    public static class SshManager
     {
-        protected SshClient CreateSshClient(ManagedSystem system)
+        public static SshClient CreateSshClient(ManagedSystem system)
         {
             byte[] expectedFingerPrint = new byte[] {
                                             0x66, 0x31, 0xaf, 0x00, 0x54, 0xb9, 0x87, 0x31,

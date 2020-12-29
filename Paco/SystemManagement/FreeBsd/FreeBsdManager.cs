@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Paco.SystemManagement.FreeBsd
 {
-    public class FreeBsdManager : SshManager, ISystemManager
+    public class FreeBsdManager : ISystemManager
     {
         public ManagedSystem System { get; }
 
@@ -15,7 +15,7 @@ namespace Paco.SystemManagement.FreeBsd
 
         public Dictionary<string, string> GetSystemInformation()
         {
-            using var client = CreateSshClient(System);
+            using var client = SshManager.CreateSshClient(System);
 
             return new Dictionary<string, string>
             {
@@ -32,7 +32,7 @@ namespace Paco.SystemManagement.FreeBsd
 
         public void FetchSystemUpdates()
         {
-            using var client = CreateSshClient(System);
+            using var client = SshManager.CreateSshClient(System);
 
             var result = client.CreateCommand("sudo portsnap fetch update --interactive").Execute();
 
@@ -41,7 +41,7 @@ namespace Paco.SystemManagement.FreeBsd
 
         public bool IsSystemUpdateAvailable()
         {
-            return new CheckVersion().IsNewVersionVersionAvaliable(CreateSshClient(System));
+            return new CheckVersion().IsNewVersionVersionAvaliable(SshManager.CreateSshClient(System));
         }
     }
 }
