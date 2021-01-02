@@ -46,7 +46,7 @@ namespace Paco.Logging
                 ConsoleColor originalColor = Console.ForegroundColor;
 
                 Console.ForegroundColor = _config.Color;
-                Console.WriteLine($"[{eventId.Id,2}: {logLevel,-12}]");
+                Console.WriteLine($"[{eventId.Id, 2}: {logLevel, -12}]");
 
                 Console.ForegroundColor = originalColor;
                 Console.WriteLine($"     {_name} - {formatter(state, exception)}");

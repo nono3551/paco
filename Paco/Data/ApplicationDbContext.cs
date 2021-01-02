@@ -11,6 +11,7 @@ namespace Paco.Data
     public class ApplicationDbContext : IdentityDbContext<User, Role, Guid, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>
     {
         public DbSet<ManagedSystem> ManagedSystems { get; set; }
+        public DbSet<LogRecord> LogRecords { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options): base(options)
         {
