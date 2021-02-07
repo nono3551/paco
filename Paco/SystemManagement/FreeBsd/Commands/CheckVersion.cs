@@ -5,12 +5,12 @@ namespace Paco.SystemManagement.FreeBsd.Commands
 {
     public class CheckVersion
     {
-        public bool IsNewVersionVersionAvaliable(SshClient client)
+        public bool IsNewVersionVersionAvailable(SshClient client)
         {
-            return IsNewMajorVersionAvaliable(client) || IsNewMinorVersionAvaliable(client);
+            return IsNewMajorVersionAvailable(client) || IsNewMinorVersionAvailable(client);
         }
 
-        public bool IsNewMinorVersionAvaliable(SshClient client)
+        public bool IsNewMinorVersionAvailable(SshClient client)
         {
             var running = client.CreateCommand("freebsd-version").Execute().Replace("\n", "");
 
@@ -25,7 +25,7 @@ namespace Paco.SystemManagement.FreeBsd.Commands
             return running != latest;
         }
 
-        public bool IsNewMajorVersionAvaliable(SshClient client)
+        public bool IsNewMajorVersionAvailable(SshClient client)
         {
             var runningVersionOnly = client.CreateCommand("freebsd-version | cut -d \"-\" -f 1").Execute().Replace("\n", "");
             var latestVersion = client.CreateCommand("fetch -qo - http://svn.freebsd.org/base/releng/ | grep li | grep -v '\\.\\.' | grep -v 'ALPHA' | grep -v 'BETA' | cut -d \\\" -f 2 | sed 's/\\///g' | sort -n | tail -n 1").Execute().Replace("\n", "");

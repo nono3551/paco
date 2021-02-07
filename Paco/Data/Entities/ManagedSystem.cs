@@ -1,6 +1,7 @@
 ﻿using Paco.SystemManagement;
 using Paco.SystemManagement.FreeBsd;
 using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -24,6 +25,9 @@ namespace Paco.Data.Entities
         public DateTime? UpdatedAt { get ; set ; }
         public DateTime? DeletedAt { get ; set ; }
         public Distribution Distribution { get; set; }
+        [DefaultValue(false)]
+        public bool NeedsInteraction { get; set; }
+        public string InteractionReason { get; set; }
 
         public ISystemManager GetDistributionManager()
         {

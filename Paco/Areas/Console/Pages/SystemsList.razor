@@ -16,7 +16,13 @@
     <tbody>
         @foreach (var system in _systems)
         {
-            <tr @onclick="() => ToggleSystemDetail(system)" style='cursor: pointer;'>
+            var background = "";
+            if (system.NeedsInteraction)
+            {
+                background = "background: linear-gradient(90deg, rgba(255,255,0,0.25) 0%, rgba(255,255,0,0.5) 100%);";
+            }
+
+            <tr @onclick="() => ToggleSystemDetail(system)" style='cursor: pointer; @background'>
                 <td>
                     @system.Name
                 </td>
@@ -72,8 +78,6 @@
     protected override Task OnInitializedAsync()
     {
         _systems = ApplicationDbContext.ManagedSystems.ToList();
-
-        Log.Information("Hello, world!");
 
         return base.OnInitializedAsync();
     }
