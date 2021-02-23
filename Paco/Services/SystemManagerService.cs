@@ -1,16 +1,17 @@
 ﻿using Paco.Data;
 using Paco.Data.Entities;
 using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using Paco.Logging;
 
 namespace Paco.Services
 {
     public class SystemManagerService
     {
+        private static readonly object Lock = new object();
+
         private readonly ApplicationDbContext _dbContext;
-        private readonly object _lock = new object();
         private readonly ILogger _logger;
 
         public SystemManagerService(ApplicationDbContext dbContext, ILoggerFactory loggerFactory)
@@ -21,41 +22,59 @@ namespace Paco.Services
 
         public void RefreshSystemInformation(ManagedSystem system)
         {
-            var distribution = system.GetDistributionManager();
-            try
-            {
-                var systemInformation = distribution.GetSystemInformation();
-                var needsInteraction = distribution.NeedsInteraction();
+            Dictionary<string, string> systemInformation = null;
+            bool updateNeedsInteraction = false;
+            string interactionReason = null;
 
-                system.LastAccessed = DateTime.UtcNow;
-                system.SystemInformation = JsonSerializer.Serialize(systemInformation);
-                system.NeedsInteraction = needsInteraction.Key;
-                system.InteractionReason = needsInteraction.Value;
-            }
-            catch (Exception e)
+            ExecuteWorkWithSystem(system, managedSystem =>
             {
-                system.NeedsInteraction = true;
-                system.InteractionReason = $"{system.InteractionReason}\n{e.Message}";
-
-                _logger.LogError(e, "While trying to get managed system information: {exception}", e.Message);
-            }
-
-            lock(_lock)
+                var distribution = managedSystem.GetDistributionManager();
+                systemInformation = distribution.GetSystemInformation();
+                (updateNeedsInteraction, interactionReason) = distribution.UpdateNeedsInteraction();
+            }, managedSystem =>
             {
-                _dbContext.Update(system);
-                _dbContext.SaveChanges();
-            }
+                managedSystem.SystemInformation = JsonSerializer.Serialize(systemInformation);
+                managedSystem.NeedsInteraction &= updateNeedsInteraction;
+                managedSystem.InteractionReason = $"{managedSystem.NeedsInteraction}\n{interactionReason}";
+            });
         }
 
         public void FetchSystemUpdates(ManagedSystem system)
         {
-            system.GetDistributionManager().FetchSystemUpdates();
+            _logger.LogInformation("Fetching update for {system}.", system.Name);
 
-            system.LastAccessed = DateTime.UtcNow;
-            system.UpdatesFetchedAt = DateTime.UtcNow;
-
-            lock (_lock)
+            ExecuteWorkWithSystem(system, managedSystem =>
             {
+                managedSystem.GetDistributionManager().FetchSystemUpdates();
+            }, managedSystem =>
+            {
+                managedSystem.UpdatesFetchedAt = DateTime.UtcNow;
+            });
+        }
+
+        private void ExecuteWorkWithSystem(ManagedSystem system, Action<ManagedSystem> work, Action<ManagedSystem> updateSystem)
+        {
+            lock (Lock)
+            {
+                try
+                {
+                    work(system);
+
+                    _dbContext.Entry(system).Reload();
+
+                    system.LastAccessed = DateTime.UtcNow;
+                    updateSystem(system);
+                }
+                catch (Exception e)
+                {
+                    _dbContext.Entry(system).Reload();
+
+                    system.NeedsInteraction = true;
+                    system.InteractionReason = $"{system.InteractionReason}\n{e.Message}";
+
+                    _logger.LogError(e, "While executing work with {system}: {exception}", system.Name, e.Message);
+                }
+
                 _dbContext.Update(system);
                 _dbContext.SaveChanges();
             }

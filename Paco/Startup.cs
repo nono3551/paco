@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Paco.Areas.Identity;
 using Paco.Data;
-using Paco.Data.Identity;
 using System;
 using Paco.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;

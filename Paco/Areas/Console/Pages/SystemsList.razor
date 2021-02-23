@@ -73,7 +73,7 @@
 
 @code {
     private List<ManagedSystem> _systems;
-    private List<ManagedSystem> _systemsWithDetailOpened = new List<ManagedSystem>();
+    private readonly List<ManagedSystem> _systemsWithDetailOpened = new List<ManagedSystem>();
 
     protected override Task OnInitializedAsync()
     {

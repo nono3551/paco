@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Paco.SystemManagement.Ssh;
 
 namespace Paco.Data.Entities
 {
@@ -12,11 +13,17 @@ namespace Paco.Data.Entities
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
+        [Required]
         public string Name { get; set; }
+        [Required]
         public string Hostname { get; set; }
-        public string Login { get; set; } 
+        [Required]
+        public string Login { get; set; }
+        [Required]
         public string Password { get; set; }
         public string SystemInformation { get; set; }
+        [Required]
+        [RegularExpression(Fingerprint.FingerprintRegex, ErrorMessage = Fingerprint.FingerprintRegexError)]
         public string SystemFingerprint { get; set; }
         public string SshPrivateKey { get; set; }
         public DateTime? LastAccessed { get; set; }
@@ -28,6 +35,9 @@ namespace Paco.Data.Entities
         [DefaultValue(false)]
         public bool NeedsInteraction { get; set; }
         public string InteractionReason { get; set; }
+
+        [NotMapped]
+        public Fingerprint Fingerprint => new Fingerprint(SystemFingerprint);
 
         public ISystemManager GetDistributionManager()
         {

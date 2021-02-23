@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Paco.Data.Entities;
-using Paco.Data.Identity;
 using System;
 using System.IO;
 using Paco.Data.Entities.Identity;
@@ -11,6 +10,7 @@ namespace Paco.Data
     public class ApplicationDbContext : IdentityDbContext<User, Role, Guid, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>
     {
         public DbSet<ManagedSystem> ManagedSystems { get; set; }
+        public DbSet<RoleSystemPermission> RoleSystemPermissions { get; set; }
         public DbSet<LogRecord> LogRecords { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options): base(options)
@@ -68,6 +68,7 @@ namespace Paco.Data
             builder.Entity<UserToken>().HasQueryFilter(p => p.DeletedAt == null);
             builder.Entity<ManagedSystem>().HasQueryFilter(p => p.DeletedAt == null);
             builder.Entity<LogRecord>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<RoleSystemPermission>().HasQueryFilter(p => p.DeletedAt == null);
         }
     }
 }

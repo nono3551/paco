@@ -9,6 +9,6 @@ namespace Paco.SystemManagement
         Dictionary<string, string> GetSystemInformation();
         void FetchSystemUpdates();
         bool IsSystemUpdateAvailable();
-        KeyValuePair<bool, string> NeedsInteraction();
+        KeyValuePair<bool, string> UpdateNeedsInteraction();
     }
 }

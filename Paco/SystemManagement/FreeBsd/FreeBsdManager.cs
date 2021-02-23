@@ -1,6 +1,7 @@
 ﻿using Paco.Data.Entities;
 using Paco.SystemManagement.FreeBsd.Commands;
 using System.Collections.Generic;
+using Paco.SystemManagement.Ssh;
 
 namespace Paco.SystemManagement.FreeBsd
 {
@@ -30,11 +31,11 @@ namespace Paco.SystemManagement.FreeBsd
             };
         }
 
-        public KeyValuePair<bool, string> NeedsInteraction()
+        public KeyValuePair<bool, string> UpdateNeedsInteraction()
         {
             using var client = SshManager.CreateSshClient(System);
 
-            return Audit.NeedsInteraction(client);
+            return Audit.UpdateNeedsInteraction(client);
         }
 
 
@@ -43,8 +44,6 @@ namespace Paco.SystemManagement.FreeBsd
             using var client = SshManager.CreateSshClient(System);
 
             var result = client.CreateCommand("sudo portsnap fetch update --interactive").Execute();
-
-            return;
         }
 
         public bool IsSystemUpdateAvailable()

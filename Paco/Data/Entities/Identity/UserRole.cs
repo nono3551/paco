@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using Paco.Data.Entities;
 
-namespace Paco.Data.Identity
+namespace Paco.Data.Entities.Identity
 {
     public class UserRole : IdentityUserRole<Guid>, IDbEntity
     {
