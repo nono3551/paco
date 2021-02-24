@@ -4,6 +4,8 @@ using Paco.Data.Entities;
 using System;
 using System.IO;
 using Paco.Data.Entities.Identity;
+using Paco.SystemManagement;
+using Paco.SystemManagement.Ssh;
 
 namespace Paco.Data
 {
@@ -53,8 +55,70 @@ namespace Paco.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             SetupQueryFilters(builder);
-
+            SetupRoleSystemPermissionsMapping(builder);
+            SeedDatabase(builder);
             base.OnModelCreating(builder);
+        }
+
+        private void SeedDatabase(ModelBuilder builder)
+        {
+            var user = new User
+            {
+                Id = Guid.NewGuid(),
+                UserName = "asd@ads.asd",
+                Email = "asd@ads.asd",
+                NormalizedEmail = "ASD@ASD.ASD",
+                NormalizedUserName = "ASD@ASD.ASD",
+                PasswordHash = "AQAAAAEAACcQAAAAEJdyASTL66Dd+IQPIPJsne7GQnFQ+H8G7ngSPb5+OUNH8+PU7YuCzPjjLMvj947dcg==",
+                SecurityStamp = "JBIW2JAV2THPAPR3NGHSE3ZVXUCHEBPU",
+                ConcurrencyStamp = "34acbb54-9ae3-4742-af3c-89de44e306e0",
+                EmailConfirmed = true,
+                LockoutEnabled = true
+            };
+            builder.Entity<User>().HasData(user);
+
+            var system = new ManagedSystem()
+            {
+                Id = Guid.NewGuid(),
+                Name = "test",
+                Hostname = "test.test.test",
+                Distribution = Distribution.FreeBsd,
+                Login = "test",
+                Password = "test",
+                SshPrivateKey = null,
+                SystemFingerprint = Fingerprint.FingerprintPlaceholder
+            };
+            builder.Entity<ManagedSystem>().HasData(system);
+
+            var role = new Role {Id = Guid.NewGuid(), Name = "Administrator"};
+            builder.Entity<Role>().HasData(role);
+
+            builder.Entity<UserRole>().HasData(new UserRole
+            {
+                RoleId = role.Id,
+                UserId = user.Id
+            });
+
+            builder.Entity<RoleSystemPermission>().HasData(new RoleSystemPermission()
+            {
+                RoleId = role.Id,
+                ManagedSystemId = system.Id
+            });
+        }
+
+        private void SetupRoleSystemPermissionsMapping(ModelBuilder builder)
+        {
+            builder.Entity<RoleSystemPermission>().HasKey(x => new { x.RoleId, SystemId = x.ManagedSystemId });
+
+            builder.Entity<RoleSystemPermission>()
+                .HasOne(a => a.Role)
+                .WithMany(b => b.SystemsPermissions)
+                .HasForeignKey(a => a.RoleId);
+
+            builder.Entity<RoleSystemPermission>()
+                .HasOne(a => a.ManagedSystem)
+                .WithMany(b => b.RolesPermissions)
+                .HasForeignKey(a => a.ManagedSystemId);
         }
 
         private void SetupQueryFilters(ModelBuilder builder)

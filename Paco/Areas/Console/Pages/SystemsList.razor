@@ -1,7 +1,12 @@
-﻿@using Paco.Data.Entities
-@using Serilog
+﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using Paco.Data.Entities
+@using Paco.Data.Entities.Identity
+@using Paco.Services
 @inject ApplicationDbContext ApplicationDbContext
-@inject Services.SystemManagerService ManagerService
+@inject SystemManagerService ManagerService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<User> UserManager
 
 @page "/systems/list"
 <table class="table">
@@ -75,9 +80,18 @@
     private List<ManagedSystem> _systems;
     private readonly List<ManagedSystem> _systemsWithDetailOpened = new List<ManagedSystem>();
 
-    protected override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        _systems = ApplicationDbContext.ManagedSystems.ToList();
+        var user = await UserManager.GetUserAsync((await AuthenticationStateProvider.GetAuthenticationStateAsync()).User);
+
+        ApplicationDbContext.Users.Attach(user);
+
+        _systems = ApplicationDbContext.ManagedSystems.Include(x => x.RolesPermissions).ToList();
+
+
+
+        ApplicationDbContext.Roles.Where(x => x.Id == Guid.Empty).Include(x => x.SystemsPermissions).ThenInclude(x => x.ManagedSystem);
+
 
         return base.OnInitializedAsync();
     }

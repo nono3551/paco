@@ -10,8 +10,8 @@ using Paco.Data;
 namespace Paco.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210223213638_roles")]
-    partial class roles
+    [Migration("20210223235548_INIT")]
+    partial class INIT
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -41,9 +41,6 @@ namespace Paco.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<string>("NewField")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("NormalizedName")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -59,6 +56,14 @@ namespace Paco.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("d81848fc-eb4f-480e-acfa-80fc8e26e57a"),
+                            ConcurrencyStamp = "989875c5-c9b2-4974-8b9f-1b697df6d00a",
+                            Name = "Administrator"
+                        });
                 });
 
             modelBuilder.Entity("Paco.Data.Entities.Identity.RoleClaim", b =>
@@ -166,6 +171,24 @@ namespace Paco.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("da91b1fd-5063-412f-8b1f-cfdd275d0890"),
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "34acbb54-9ae3-4742-af3c-89de44e306e0",
+                            Email = "asd@ads.asd",
+                            EmailConfirmed = true,
+                            LockoutEnabled = true,
+                            NormalizedEmail = "ASD@ASD.ASD",
+                            NormalizedUserName = "ASD@ASD.ASD",
+                            PasswordHash = "AQAAAAEAACcQAAAAEJdyASTL66Dd+IQPIPJsne7GQnFQ+H8G7ngSPb5+OUNH8+PU7YuCzPjjLMvj947dcg==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "JBIW2JAV2THPAPR3NGHSE3ZVXUCHEBPU",
+                            TwoFactorEnabled = false,
+                            UserName = "asd@ads.asd"
+                        });
                 });
 
             modelBuilder.Entity("Paco.Data.Entities.Identity.UserClaim", b =>
@@ -252,6 +275,13 @@ namespace Paco.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = new Guid("da91b1fd-5063-412f-8b1f-cfdd275d0890"),
+                            RoleId = new Guid("d81848fc-eb4f-480e-acfa-80fc8e26e57a")
+                        });
                 });
 
             modelBuilder.Entity("Paco.Data.Entities.Identity.UserToken", b =>
@@ -399,6 +429,54 @@ namespace Paco.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ManagedSystems");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("116cf284-763e-4fb7-ad23-bb781b837581"),
+                            Distribution = 0,
+                            Hostname = "test.test.test",
+                            Login = "test",
+                            Name = "test",
+                            NeedsInteraction = false,
+                            Password = "test",
+                            SystemFingerprint = "12:f8:7e:78:61:b4:bf:e2:de:24:15:96:4e:d4:72:53"
+                        });
+                });
+
+            modelBuilder.Entity("Paco.Data.Entities.RoleSystemPermission", b =>
+                {
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ManagedSystemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<short>("Permissions")
+                        .HasColumnType("smallint");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("RoleId", "ManagedSystemId");
+
+                    b.HasIndex("ManagedSystemId");
+
+                    b.ToTable("RoleSystemPermissions");
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = new Guid("d81848fc-eb4f-480e-acfa-80fc8e26e57a"),
+                            ManagedSystemId = new Guid("116cf284-763e-4fb7-ad23-bb781b837581"),
+                            Permissions = (short)0
+                        });
                 });
 
             modelBuilder.Entity("Paco.Data.Entities.Identity.RoleClaim", b =>
@@ -450,6 +528,35 @@ namespace Paco.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Paco.Data.Entities.RoleSystemPermission", b =>
+                {
+                    b.HasOne("Paco.Data.Entities.ManagedSystem", "ManagedSystem")
+                        .WithMany("RolesPermissions")
+                        .HasForeignKey("ManagedSystemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Paco.Data.Entities.Identity.Role", "Role")
+                        .WithMany("SystemsPermissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ManagedSystem");
+
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Paco.Data.Entities.Identity.Role", b =>
+                {
+                    b.Navigation("SystemsPermissions");
+                });
+
+            modelBuilder.Entity("Paco.Data.Entities.ManagedSystem", b =>
+                {
+                    b.Navigation("RolesPermissions");
                 });
 #pragma warning restore 612, 618
         }
