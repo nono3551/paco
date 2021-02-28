@@ -1,13 +1,6 @@
-﻿@using Microsoft.AspNetCore.Identity
-@using Paco.Data.DatabaseRepository
-@using Paco.Data.Entities
-@using Paco.Data.Entities.Identity
-@using Paco.Services
+﻿@using Paco.Data.Entities.Identity
 @inject ApplicationDbContext ApplicationDbContext
-@inject SystemManagerService ManagerService
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@inject UserManager<User> UserManager
-
+@inject NavigationManager NavManager
 @page "/roles/list"
 @attribute [Authorize(Roles = "Administrator")]
 
@@ -15,118 +8,40 @@
     <thead>
         <tr>
             <th>Name</th>
-            <th>Hostname</th>
-            <th>Last Accessed</th>
-            <th>Updates fetched at</th>
+            <th>Created At</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var system in _systems)
+        @foreach (var role in _roles)
         {
-            
 
-            <tr @onclick="() => ToggleSystemDetail(system)" style='cursor: pointer;'>
+
+
+            <tr @onclick="() => ManageRole(role)" style='cursor: pointer;'>
                 <td>
-                    @system.Name
+                    @role.Name
                 </td>
                 <td>
-                    @system.Hostname
-                </td>
-                <td>
-                    @system.LastAccessed
+                    @role.CreatedAt
                 </td>
             </tr>
-            @if (ShouldShowDetailForSystem(system))
-            {
-                <tr role="row" class="b-table-details">
-                    <td colspan="4" class="">
-                        <div class="card">
-                            <div class="card-body">
-                                @if (system.SystemInformation == null)
-                                {
-                                    RefreshSystemInformation(system);
-                                }
-                                else
-                                {
-                                    @foreach (var entry in System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(system.SystemInformation))
-                                    {
-                                        <div class="row mb-2">
-                                            <div class="text-sm-right col-sm-3"><b>@entry.Key:</b></div>
-                                            <div class="col">
-                                                <p style="white-space: pre-line">@entry.Value</p>
-                                            </div>
-                                        </div>
-                                    }
-                                }
-
-                                <button type="button" class="btn btn-dark" @onclick="() => HideDetail(system)">Hide Details</button>
-                                <button type="button" class="btn btn-dark" @onclick="() => RefreshSystemInformation(system)">Refresh</button>
-                                <button type="button" class="btn btn-dark" @onclick="() => FetchSystemUpdates(system)">Fetch updates</button>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-            }
         }
     </tbody>
 </table>
 
 @code {
-    private List<ManagedSystem> _systems = new List<ManagedSystem>();
-    private readonly List<ManagedSystem> _systemsWithDetailOpened = new List<ManagedSystem>();
+    private List<Role> _roles = new List<Role>();
 
     protected override async Task OnInitializedAsync()
     {
-        var user = await UserManager.GetUserAsync((await AuthenticationStateProvider.GetAuthenticationStateAsync()).User);
-
-        _systems = ApplicationDbContext.ManagedSystems.GetSystemsForUser(user);
+        _roles = ApplicationDbContext.Roles.ToList();
 
         await base.OnInitializedAsync();
     }
 
-    public bool ShouldShowDetailForSystem(ManagedSystem system)
+    protected void ManageRole(Role role)
     {
-        return _systemsWithDetailOpened.Contains(system);
+        NavManager.NavigateTo($"/roles/manage/{role.Id}");
     }
 
-    public void HideDetail(ManagedSystem system)
-    {
-        _systemsWithDetailOpened.Remove(system);
-    }
-
-    public void ToggleSystemDetail(ManagedSystem system)
-    {
-        if (!_systemsWithDetailOpened.Contains(system))
-        {
-            _systemsWithDetailOpened.Add(system);
-        }
-        else
-        {
-            _systemsWithDetailOpened.Remove(system);
-        }
-    }
-
-    private void RefreshSystemInformation(ManagedSystem system)
-    {
-        Task.Run(() =>
-        {
-            ManagerService.RefreshSystemInformation(system);
-            base.InvokeAsync(() =>
-            {
-                base.StateHasChanged();
-            });
-        });
-    }
-
-    private void FetchSystemUpdates(ManagedSystem system)
-    {
-        Task.Run(() =>
-        {
-            ManagerService.FetchSystemUpdates(system);
-            base.InvokeAsync(() =>
-            {
-                base.StateHasChanged();
-            });
-        });
-    }
 }
