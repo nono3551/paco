@@ -77,18 +77,31 @@ namespace Paco.Data
             };
             builder.Entity<User>().HasData(user);
 
-            var system = new ManagedSystem()
+            var system1 = new ManagedSystem()
             {
                 Id = Guid.NewGuid(),
-                Name = "test",
-                Hostname = "test.test.test",
+                Name = "PermNone",
+                Hostname = "none.test.test",
                 Distribution = Distribution.FreeBsd,
                 Login = "test",
                 Password = "test",
                 SshPrivateKey = null,
                 SystemFingerprint = Fingerprint.FingerprintPlaceholder
             };
-            builder.Entity<ManagedSystem>().HasData(system);
+
+            var system2 = new ManagedSystem()
+            {
+                Id = Guid.NewGuid(),
+                Name = "PermMultiple",
+                Hostname = "multiple.test.test",
+                Distribution = Distribution.FreeBsd,
+                Login = "test",
+                Password = "test",
+                SshPrivateKey = null,
+                SystemFingerprint = Fingerprint.FingerprintPlaceholder
+            };
+            builder.Entity<ManagedSystem>().HasData(system1);
+            builder.Entity<ManagedSystem>().HasData(system2);
 
             var role = new Role {Id = Guid.NewGuid(), Name = "Administrator"};
             builder.Entity<Role>().HasData(role);
@@ -102,7 +115,13 @@ namespace Paco.Data
             builder.Entity<RoleSystemPermission>().HasData(new RoleSystemPermission()
             {
                 RoleId = role.Id,
-                ManagedSystemId = system.Id
+                ManagedSystemId = system1.Id,
+                Permissions = Permissions.None
+            }, new RoleSystemPermission()
+            {
+                RoleId = role.Id,
+                ManagedSystemId = system2.Id,
+                Permissions = Permissions.Read | Permissions.Execute | Permissions.Write
             });
         }
 
@@ -119,6 +138,23 @@ namespace Paco.Data
                 .HasOne(a => a.ManagedSystem)
                 .WithMany(b => b.RolesPermissions)
                 .HasForeignKey(a => a.ManagedSystemId);
+
+            builder.Entity<User>()
+                .HasMany(u => u.Roles)
+                .WithMany(r => r.Users)
+                .UsingEntity<UserRole>(
+                    typeBuilder => typeBuilder
+                        .HasOne(ur => ur.Role)
+                        .WithMany(p => p.UserRoles)
+                        .HasForeignKey(pt => pt.RoleId),
+                    typeBuilder => typeBuilder
+                        .HasOne(ur => ur.User)
+                        .WithMany(t => t.UserRoles)
+                        .HasForeignKey(ur => ur.UserId),
+                    typeBuilder =>
+                    {
+                        typeBuilder.HasKey(ur => new { ur.UserId, ur.RoleId });
+                    });
         }
 
         private void SetupQueryFilters(ModelBuilder builder)

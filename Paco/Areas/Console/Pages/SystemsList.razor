@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
+@using Paco.Data.DatabaseRepository
 @using Paco.Data.Entities
 @using Paco.Data.Entities.Identity
 @using Paco.Services
@@ -77,23 +78,16 @@
 </table>
 
 @code {
-    private List<ManagedSystem> _systems;
+    private List<ManagedSystem> _systems = new List<ManagedSystem>();
     private readonly List<ManagedSystem> _systemsWithDetailOpened = new List<ManagedSystem>();
 
     protected override async Task OnInitializedAsync()
     {
         var user = await UserManager.GetUserAsync((await AuthenticationStateProvider.GetAuthenticationStateAsync()).User);
 
-        ApplicationDbContext.Users.Attach(user);
+        _systems = ApplicationDbContext.ManagedSystems.GetSystemsForUser(user);
 
-        _systems = ApplicationDbContext.ManagedSystems.Include(x => x.RolesPermissions).ToList();
-
-
-
-        ApplicationDbContext.Roles.Where(x => x.Id == Guid.Empty).Include(x => x.SystemsPermissions).ThenInclude(x => x.ManagedSystem);
-
-
-        return base.OnInitializedAsync();
+        await base.OnInitializedAsync();
     }
 
     public bool ShouldShowDetailForSystem(ManagedSystem system)
