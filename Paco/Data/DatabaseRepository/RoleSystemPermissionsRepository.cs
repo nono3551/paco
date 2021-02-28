@@ -6,9 +6,9 @@ using Paco.Data.Entities;
 
 namespace Paco.Data.DatabaseRepository
 {
-    public static class RoleSystemPermissionRepository
+    public static class RoleSystemPermissionsRepository
     {
-        public static List<RoleSystemPermission> GetPermissionsWithSystemsForRole(this DbSet<RoleSystemPermission> roleSystemPermissions, Guid roleId)
+        public static List<RoleSystemPermissions> GetPermissionsWithSystemsForRole(this DbSet<RoleSystemPermissions> roleSystemPermissions, Guid roleId)
         {
             return roleSystemPermissions.Where(r => r.Role.Id == roleId)
                 .Include(s => s.ManagedSystem)

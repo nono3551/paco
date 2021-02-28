@@ -40,7 +40,7 @@ namespace Paco.Data.Entities
         [NotMapped]
         public Fingerprint Fingerprint => new Fingerprint(SystemFingerprint);
 
-        public IEnumerable<RoleSystemPermission> RolesPermissions { get; set; }
+        public IEnumerable<RoleSystemPermissions> RolesPermissions { get; set; }
 
         public ISystemManager GetDistributionManager()
         {

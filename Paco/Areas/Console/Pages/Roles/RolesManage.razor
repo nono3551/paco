@@ -48,22 +48,28 @@ else
                 <thead>
                     <tr>
                         <th>Name</th>
-                        <th>Permissions</th>
-                        <th>Remove</th>
+                        <th style="text-align:center">Read</th>
+                        <th style="text-align:center">Write</th>
+                        <th style="text-align:center">Execute</th>
+                        <th style="text-align:center">Remove</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var system in RoleSystemPermissions.Select(x => x.ManagedSystem))
+                    @foreach (var rolePermission in RoleSystemPermissions)
                     {
+                        var managedSystem = rolePermission.ManagedSystem;
                         <tr>
                             <td>
-                                @system.Name
+                                @managedSystem.Name
                             </td>
-                            <td>
-                                @system.RolesPermissions.First().Permissions
+                            <td style="text-align:center">
+                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Read) @onchange="eventArgs => { CheckboxClicked(rolePermission, Permissions.Read, eventArgs.Value); }" >
                             </td>
-                            <td>
-                                @system.LastAccessed
+                            <td style="text-align:center">
+                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Write) @onchange="eventArgs => { CheckboxClicked(rolePermission, Permissions.Write, eventArgs.Value); }" >
+                            </td>
+                            <td style="text-align:center">
+                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Execute) @onchange="eventArgs => { CheckboxClicked(rolePermission, Permissions.Execute, eventArgs.Value); }" >
                             </td>
                         </tr>
                     }
@@ -77,7 +83,7 @@ else
     [Parameter]
     public Guid RoleId { get; set; }
     public Role Role { get; set; }
-    public List<RoleSystemPermission> RoleSystemPermissions { get; set; }
+    public List<RoleSystemPermissions> RoleSystemPermissions { get; set; }
 
     protected override void OnInitialized()
     {
@@ -87,9 +93,22 @@ else
         Role = ApplicationDbContext.Roles.GetRoleWithUsers(RoleId);
     }
 
-    private void OnSearchChanged(string term)
+    protected void CheckboxClicked(RoleSystemPermissions rolePermissions, Permissions permission, object value)
     {
-        //ApplicationDbContext.ManagedSystems.where
+        if (value is bool isChecked)
+        {
+            if (isChecked)
+            {
+                rolePermissions.Permissions |= permission;
+            }
+            else
+            {
+                rolePermissions.Permissions &= ~permission;
+            }
+
+            ApplicationDbContext.RoleSystemPermissions.Update(rolePermissions);
+            ApplicationDbContext.SaveChanges();
+        }
     }
 
 }

@@ -3,7 +3,7 @@ using Paco.Data.Entities.Identity;
 
 namespace Paco.Data.Entities
 {
-    public class RoleSystemPermission: IDbEntity
+    public class RoleSystemPermissions: IDbEntity
     {
         public Guid RoleId { get; set; }
         public Guid ManagedSystemId { get; set; }

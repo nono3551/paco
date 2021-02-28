@@ -12,7 +12,7 @@ namespace Paco.Data
     public class ApplicationDbContext : IdentityDbContext<User, Role, Guid, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>
     {
         public DbSet<ManagedSystem> ManagedSystems { get; set; }
-        public DbSet<RoleSystemPermission> RoleSystemPermissions { get; set; }
+        public DbSet<RoleSystemPermissions> RoleSystemPermissions { get; set; }
         public DbSet<LogRecord> LogRecords { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options): base(options)
@@ -112,12 +112,12 @@ namespace Paco.Data
                 UserId = user.Id
             });
 
-            builder.Entity<RoleSystemPermission>().HasData(new RoleSystemPermission()
+            builder.Entity<RoleSystemPermissions>().HasData(new RoleSystemPermissions()
             {
                 RoleId = role.Id,
                 ManagedSystemId = system1.Id,
                 Permissions = Permissions.None
-            }, new RoleSystemPermission()
+            }, new RoleSystemPermissions()
             {
                 RoleId = role.Id,
                 ManagedSystemId = system2.Id,
@@ -127,14 +127,14 @@ namespace Paco.Data
 
         private void SetupRoleSystemPermissionsMapping(ModelBuilder builder)
         {
-            builder.Entity<RoleSystemPermission>().HasKey(x => new { x.RoleId, SystemId = x.ManagedSystemId });
+            builder.Entity<RoleSystemPermissions>().HasKey(x => new { x.RoleId, SystemId = x.ManagedSystemId });
 
-            builder.Entity<RoleSystemPermission>()
+            builder.Entity<RoleSystemPermissions>()
                 .HasOne(a => a.Role)
                 .WithMany(b => b.SystemsPermissions)
                 .HasForeignKey(a => a.RoleId);
 
-            builder.Entity<RoleSystemPermission>()
+            builder.Entity<RoleSystemPermissions>()
                 .HasOne(a => a.ManagedSystem)
                 .WithMany(b => b.RolesPermissions)
                 .HasForeignKey(a => a.ManagedSystemId);
@@ -168,7 +168,7 @@ namespace Paco.Data
             builder.Entity<UserToken>().HasQueryFilter(p => p.DeletedAt == null);
             builder.Entity<ManagedSystem>().HasQueryFilter(p => p.DeletedAt == null);
             builder.Entity<LogRecord>().HasQueryFilter(p => p.DeletedAt == null);
-            builder.Entity<RoleSystemPermission>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<RoleSystemPermissions>().HasQueryFilter(p => p.DeletedAt == null);
         }
     }
 }

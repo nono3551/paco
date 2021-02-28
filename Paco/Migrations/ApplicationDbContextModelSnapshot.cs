@@ -58,8 +58,8 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("43b3c6b5-9f4e-40e4-9e0c-b9a19d2d6647"),
-                            ConcurrencyStamp = "9b14d3ff-9d86-4cda-a8de-398ce38e2f51",
+                            Id = new Guid("01db8cc5-a61a-4040-9d3b-c39902f9cc4e"),
+                            ConcurrencyStamp = "e0a55a6c-b83b-4afa-9cac-8028ef0b0fd1",
                             Name = "Administrator"
                         });
                 });
@@ -173,7 +173,7 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("46fa5f12-2f8d-4b14-90e9-588219e44de7"),
+                            Id = new Guid("ecf81fa1-8cac-41f6-a261-116ea17ad634"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "34acbb54-9ae3-4742-af3c-89de44e306e0",
                             Email = "asd@ads.asd",
@@ -287,8 +287,8 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = new Guid("46fa5f12-2f8d-4b14-90e9-588219e44de7"),
-                            RoleId = new Guid("43b3c6b5-9f4e-40e4-9e0c-b9a19d2d6647")
+                            UserId = new Guid("ecf81fa1-8cac-41f6-a261-116ea17ad634"),
+                            RoleId = new Guid("01db8cc5-a61a-4040-9d3b-c39902f9cc4e")
                         });
                 });
 
@@ -441,7 +441,7 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("2496c40d-3fae-42bf-aad0-a58c8e37d947"),
+                            Id = new Guid("675998d0-9970-45aa-ad77-33a16856fa78"),
                             Distribution = 0,
                             Hostname = "none.test.test",
                             Login = "test",
@@ -452,7 +452,7 @@ namespace Paco.Migrations
                         },
                         new
                         {
-                            Id = new Guid("fbc21bd5-a6d2-4064-8b6c-e376f9cf7676"),
+                            Id = new Guid("85568c70-2cf0-401e-87aa-1575b77da91a"),
                             Distribution = 0,
                             Hostname = "multiple.test.test",
                             Login = "test",
@@ -463,7 +463,7 @@ namespace Paco.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Paco.Data.Entities.RoleSystemPermission", b =>
+            modelBuilder.Entity("Paco.Data.Entities.RoleSystemPermissions", b =>
                 {
                     b.Property<Guid>("RoleId")
                         .HasColumnType("uniqueidentifier");
@@ -492,14 +492,14 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            RoleId = new Guid("43b3c6b5-9f4e-40e4-9e0c-b9a19d2d6647"),
-                            ManagedSystemId = new Guid("2496c40d-3fae-42bf-aad0-a58c8e37d947"),
+                            RoleId = new Guid("01db8cc5-a61a-4040-9d3b-c39902f9cc4e"),
+                            ManagedSystemId = new Guid("675998d0-9970-45aa-ad77-33a16856fa78"),
                             Permissions = (short)0
                         },
                         new
                         {
-                            RoleId = new Guid("43b3c6b5-9f4e-40e4-9e0c-b9a19d2d6647"),
-                            ManagedSystemId = new Guid("fbc21bd5-a6d2-4064-8b6c-e376f9cf7676"),
+                            RoleId = new Guid("01db8cc5-a61a-4040-9d3b-c39902f9cc4e"),
+                            ManagedSystemId = new Guid("85568c70-2cf0-401e-87aa-1575b77da91a"),
                             Permissions = (short)7
                         });
                 });
@@ -567,7 +567,7 @@ namespace Paco.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Paco.Data.Entities.RoleSystemPermission", b =>
+            modelBuilder.Entity("Paco.Data.Entities.RoleSystemPermissions", b =>
                 {
                     b.HasOne("Paco.Data.Entities.ManagedSystem", "ManagedSystem")
                         .WithMany("RolesPermissions")
