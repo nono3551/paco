@@ -1,7 +1,10 @@
-﻿@using Paco.Data.Entities.Identity
+﻿@using Microsoft.AspNetCore.Identity
+@using Paco.Data.Entities.Identity
+@using Paco.Validations
 
 @inject ApplicationDbContext ApplicationDbContext
 @inject NavigationManager NavigationManager
+@inject RoleManager<Role> RoleManager
 
 
 @page "/roles/add"
@@ -11,19 +14,30 @@
 
 <EditForm Model="@_role" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
+    <CustomValidator @ref="CustomValidator" />
     <ValidationSummary />
     <FormInput @bind-Value="@_role.Name" ElementId="RoleName" Label="Role name" InputType="text" Placeholder="Administrators" Help="Enter name which will represent this role" />
     <Submit />
 </EditForm>
 
 @code {
-    private Role _role = new Role();
-
-
-    private void HandleValidSubmit()
+    private readonly Role _role = new Role();
+    public CustomValidator CustomValidator { get; set; }
+    private async Task HandleValidSubmit()
     {
-        ApplicationDbContext.Add(_role);
-        ApplicationDbContext.SaveChanges();
-        NavigationManager.NavigateTo($"/roles/manage/{_role.Id}");
+        var result = await RoleManager.CreateAsync(_role);
+
+        if (result.Errors.Any())
+        {
+            CustomValidator.DisplayErrors(new Dictionary<string, IEnumerable<string>>()
+            {
+                { nameof(_role.Name), result.Errors.Select(x => x.Description) }
+            });
+        }
+        else
+        {
+            NavigationManager.NavigateTo($"/roles/manage/{_role.Id}");
+        }
     }
+
 }
