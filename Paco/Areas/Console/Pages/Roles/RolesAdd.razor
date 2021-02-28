@@ -1,11 +1,29 @@
-﻿@using Microsoft.AspNetCore.Identity
-@using Paco.Data.Entities.Identity
-@using Paco.Services
+﻿@using Paco.Data.Entities.Identity
+
 @inject ApplicationDbContext ApplicationDbContext
-@inject SystemManagerService ManagerService
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@inject UserManager<User> UserManager
+@inject NavigationManager NavigationManager
+
 
 @page "/roles/add"
 @attribute [Authorize(Roles = "Administrator")]
 
+<h2>Add new role</h2>
+
+<EditForm Model="@_role" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <FormInput @bind-Value="@_role.Name" ElementId="RoleName" Label="Role name" InputType="text" Placeholder="Administrators" Help="Enter name which will represent this role" />
+    <Submit />
+</EditForm>
+
+@code {
+    private Role _role = new Role();
+
+
+    private void HandleValidSubmit()
+    {
+        ApplicationDbContext.Add(_role);
+        ApplicationDbContext.SaveChanges();
+        NavigationManager.NavigateTo($"/roles/manage/{_role.Id}");
+    }
+}
