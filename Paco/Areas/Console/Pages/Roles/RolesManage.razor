@@ -1,30 +1,90 @@
-﻿@inject ApplicationDbContext ApplicationDbContext
+﻿@page "/roles/manage/{roleId:guid}"
 
-@page "/roles/manage/{roleId:guid}"
+@using Paco.Data.DatabaseRepository
+@using Paco.Data.Entities
 @using Paco.Data.Entities.Identity
+
+@inject ApplicationDbContext ApplicationDbContext
+@inject NavigationManager NavigationManager
+
 @attribute [Authorize(Roles = "Administrator")]
 
-<TabControl>
-    <TabPage Text="Users">
-        <h1>Manage users</h1>
-    </TabPage>
-    <TabPage Text="Managed systems">
-        <h1>Manage systems</h1>
-    </TabPage>
-</TabControl>
+@if (Role == null)
+{
+    <p>Role not found</p>
+}
+else
+{
+    <h1>@(Role.Name)</h1>
+    <TabControl>
+        <TabPage Text="Users">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>E-mail</th>
+                        <th>Remove</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Role.Users)
+                    {
+                        <tr>
+                            <td>
+                                @user.UserName
+                            </td>
+                            <td>
+                                @user.Email
+                            </td>
+                            <td>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </TabPage>
+        <TabPage Text="Permissions">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Permissions</th>
+                        <th>Remove</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var system in RoleSystemPermissions.Select(x => x.ManagedSystem))
+                    {
+                        <tr>
+                            <td>
+                                @system.Name
+                            </td>
+                            <td>
+                                @system.RolesPermissions.First().Permissions
+                            </td>
+                            <td>
+                                @system.LastAccessed
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </TabPage>
+    </TabControl>
+}
 
 @code {
     [Parameter]
     public Guid RoleId { get; set; }
-    public string SearchTerm { get; set; }
-
     public Role Role { get; set; }
+    public List<RoleSystemPermission> RoleSystemPermissions { get; set; }
 
-    protected override Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        Role = ApplicationDbContext.Roles.FirstOrDefault(x => x.Id == RoleId);
+        base.OnInitializedAsync();
 
-        return base.OnInitializedAsync();
+        RoleSystemPermissions = ApplicationDbContext.RoleSystemPermissions.GetPermissionsWithSystemsForRole(RoleId);
+        Role = ApplicationDbContext.Roles.GetRoleWithUsers(RoleId);
     }
 
     private void OnSearchChanged(string term)
