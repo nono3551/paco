@@ -1,0 +1,11 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using Paco.Data.Entities.Identity
+@using Paco.Services
+@inject ApplicationDbContext ApplicationDbContext
+@inject SystemManagerService ManagerService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<User> UserManager
+
+@page "/permissions"
+@attribute [Authorize(Roles = "Administrator")]
+
