@@ -63,13 +63,16 @@ else
                                 @managedSystem.Name
                             </td>
                             <td style="text-align:center">
-                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Read) @onchange="eventArgs => { CheckboxClicked(rolePermission, Permissions.Read, eventArgs.Value); }" >
+                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Read) @onchange="eventArgs => { CheckboxClicked(rolePermission, Permissions.Read, eventArgs.Value); }">
                             </td>
                             <td style="text-align:center">
-                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Write) @onchange="eventArgs => { CheckboxClicked(rolePermission, Permissions.Write, eventArgs.Value); }" >
+                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Write) @onchange="eventArgs => { CheckboxClicked(rolePermission, Permissions.Write, eventArgs.Value); }">
                             </td>
                             <td style="text-align:center">
-                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Execute) @onchange="eventArgs => { CheckboxClicked(rolePermission, Permissions.Execute, eventArgs.Value); }" >
+                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Execute) @onchange="eventArgs => { CheckboxClicked(rolePermission, Permissions.Execute, eventArgs.Value); }">
+                            </td>
+                            <td style="text-align:center">
+                                <span @onclick="@(() => RemovePermissions(rolePermission))" class="oi oi-trash" style='cursor: pointer;'/>
                             </td>
                         </tr>
                     }
@@ -89,8 +92,21 @@ else
     {
         base.OnInitializedAsync();
 
+        LoadData();
+    }
+
+    protected void LoadData()
+    {
         RoleSystemPermissions = ApplicationDbContext.RoleSystemPermissions.GetPermissionsWithSystemsForRole(RoleId);
         Role = ApplicationDbContext.Roles.GetRoleWithUsers(RoleId);
+    }
+
+    protected void RemovePermissions(RoleSystemPermissions rolePermissions)
+    {
+        ApplicationDbContext.Remove(rolePermissions);
+        ApplicationDbContext.SaveChanges();
+
+        LoadData();
     }
 
     protected void CheckboxClicked(RoleSystemPermissions rolePermissions, Permissions permission, object value)
