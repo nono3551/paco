@@ -18,22 +18,33 @@
             </NavLink>
             @if (expandSystemsSubmenu)
             {
-            <div class="px-3">
-                <NavLink class="nav-link px-3" href="systems/add">
-                    <span class="oi oi-plus" aria-hidden="true"></span> Add new
-                </NavLink>
-                <NavLink class="nav-link px-3" href="systems/list">
-                    <span class="oi oi-list" aria-hidden="true"></span> List
-                </NavLink>
-            </div>
+                <div class="px-3">
+                    <NavLink class="nav-link px-3" href="systems/add">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Add new
+                    </NavLink>
+                    <NavLink class="nav-link px-3" href="systems/list">
+                        <span class="oi oi-list" aria-hidden="true"></span> List
+                    </NavLink>
+                </div>
             }
         </li>
         <AuthorizeView Roles="Administrator">
             <Authorized>
-                <li class="nav-item px-3">
-                    <NavLink class="nav-link px-3" href="permissions">
-                        <span class="oi oi-lock-unlocked" aria-hidden="true"></span> Permissions
+                <li class="nav-item dropdown px-3">
+                    <NavLink class="nav-link px-3" @onclick="() => expandRolesSubmenu = !expandRolesSubmenu">
+                        <span class="oi oi-lock-locked" aria-hidden="true"></span> Roles
                     </NavLink>
+                    @if (expandRolesSubmenu)
+                    {
+                        <div class="px-3">
+                            <NavLink class="nav-link px-3" href="roles/add">
+                                <span class="oi oi-plus" aria-hidden="true"></span> Add new
+                            </NavLink>
+                            <NavLink class="nav-link px-3" href="roles/list">
+                                <span class="oi oi-list" aria-hidden="true"></span> List
+                            </NavLink>
+                        </div>
+                    }
                 </li>
             </Authorized>
         </AuthorizeView>
@@ -55,6 +66,7 @@
     public NavigationManager NavigationManager { get; set; }
 
     private bool expandSystemsSubmenu;
+    private bool expandRolesSubmenu;
     private bool collapseNavMenu = true;
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
@@ -64,6 +76,9 @@
         if (NavigationManager.Uri.Contains("systems/"))
         {
             expandSystemsSubmenu = true;
+        } else if (NavigationManager.Uri.Contains("systems/"))
+        {
+            expandRolesSubmenu = true;
         }
         return base.OnInitializedAsync();
     }
