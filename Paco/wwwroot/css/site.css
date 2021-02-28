@@ -5,13 +5,13 @@ html, body {
 }
 
 a, .btn-link {
-    color: #0366d6;
+    color: #343a40;
 }
 
 .btn-primary {
     color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
+    background-color: #343a40;
+    border-color: #343a40;
 }
 
 app {

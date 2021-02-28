@@ -1,13 +1,22 @@
 ﻿@inject ApplicationDbContext ApplicationDbContext
 
-
 @page "/roles/manage/{roleId:guid}"
 @using Paco.Data.Entities.Identity
 @attribute [Authorize(Roles = "Administrator")]
 
+<TabControl>
+    <TabPage Text="Users">
+        <h1>Manage users</h1>
+    </TabPage>
+    <TabPage Text="Managed systems">
+        <h1>Manage systems</h1>
+    </TabPage>
+</TabControl>
+
 @code {
     [Parameter]
     public Guid RoleId { get; set; }
+    public string SearchTerm { get; set; }
 
     public Role Role { get; set; }
 
@@ -16,6 +25,11 @@
         Role = ApplicationDbContext.Roles.FirstOrDefault(x => x.Id == RoleId);
 
         return base.OnInitializedAsync();
+    }
+
+    private void OnSearchChanged(string term)
+    {
+        //ApplicationDbContext.ManagedSystems.where
     }
 
 }
