@@ -3,6 +3,7 @@
 @using Paco.Data.Entities.Identity
 @using Paco.DatabaseRepositories
 @using Paco.Services
+@using Ancestor.Extensions
 @inject ApplicationDbContext ApplicationDbContext
 @inject SystemManagerService ManagerService
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -53,14 +54,18 @@
                                 }
                                 else
                                 {
-                                    @foreach (var entry in System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(system.SystemInformation))
+                                    var information = system.SystemInformation.FromJson<Dictionary<string, string>>();
+                                    if (information != null)
                                     {
-                                        <div class="row mb-2">
-                                            <div class="text-sm-right col-sm-3"><b>@entry.Key:</b></div>
-                                            <div class="col">
-                                                <p style="white-space: pre-line">@entry.Value</p>
+                                        @foreach (var entry in information)
+                                        {
+                                            <div class="row mb-2">
+                                                <div class="text-sm-right col-sm-3"><b>@entry.Key:</b></div>
+                                                <div class="col">
+                                                    <p style="white-space: pre-line">@entry.Value</p>
+                                                </div>
                                             </div>
-                                        </div>
+                                        }
                                     }
                                 }
 
@@ -89,17 +94,17 @@
         await base.OnInitializedAsync();
     }
 
-    public bool ShouldShowDetailForSystem(ManagedSystem system)
+    private bool ShouldShowDetailForSystem(ManagedSystem system)
     {
         return _systemsWithDetailOpened.Contains(system);
     }
 
-    public void HideDetail(ManagedSystem system)
+    private void HideDetail(ManagedSystem system)
     {
         _systemsWithDetailOpened.Remove(system);
     }
 
-    public void ToggleSystemDetail(ManagedSystem system)
+    private void ToggleSystemDetail(ManagedSystem system)
     {
         if (!_systemsWithDetailOpened.Contains(system))
         {
