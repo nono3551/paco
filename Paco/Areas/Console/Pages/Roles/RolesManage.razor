@@ -19,17 +19,26 @@ else
     <h1>@(Role.Name)</h1>
     <TabControl>
         <TabPage Text="Users">
+            <FormInput ValueChanged="@OnUserTermChanged" ElementId="UserTerm" InputType="text" Placeholder="Search for user"/>
             <table class="table">
                 <thead>
                 <tr>
                     <th>Name</th>
                     <th>E-mail</th>
-                    <th>Remove</th>
+                    <th>Action</th>
                 </tr>
                 </thead>
                 <tbody>
-                @foreach (var user in Role.Users)
+                @foreach (var user in _users)
                 {
+                    var userRole = user.UserRoles.FirstOrDefault() ?? new UserRole()
+                     {
+                         RoleId = RoleId,
+                         UserId = user.Id,
+                     };
+
+                    var isAdded = user.UserRoles.FirstOrDefault() != null;
+
                     <tr>
                         <td>
                             @user.UserName
@@ -37,7 +46,8 @@ else
                         <td>
                             @user.Email
                         </td>
-                        <td>
+                        <td style="text-align:center">
+                            <span @onclick="@(() => { if (isAdded){ OnRemoveAction(userRole);} else { OnAddAction(userRole);}})" class="oi @(isAdded ? "oi-trash" : "oi-plus")" style='cursor: pointer;'></span>
                         </td>
                     </tr>
                 }
@@ -45,7 +55,7 @@ else
             </table>
         </TabPage>
         <TabPage Text="Permissions">
-            <FormInput ValueChanged="@OnSystemsTermChanged" ElementId="SystemTerm" InputType="text" Placeholder="Search for system" />
+            <FormInput ValueChanged="@OnSystemTermChanged" ElementId="SystemTerm" InputType="text" Placeholder="Search for system"/>
             <table class="table">
                 <thead>
                 <tr>
@@ -57,36 +67,36 @@ else
                 </tr>
                 </thead>
                 <tbody>
-                
-                @foreach (var managedSystem in _systems)
-                    {
-                        var rolePermission = managedSystem.RolesPermissions.FirstOrDefault() ?? new RoleSystemPermissions()
-                        {
-                            RoleId = RoleId,
-                            ManagedSystemId = managedSystem.Id,
-                            Permissions = Permissions.None
-                        };
 
-                        var isAdded = managedSystem.RolesPermissions.FirstOrDefault() != null;
-                        
-                        <tr>
-                            <td>
-                                @managedSystem.Name
-                            </td>
-                            <td style="text-align:center">
-                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Read) @onchange="@(eventArgs => { UpdateSystemPermission(rolePermission, Permissions.Read, eventArgs.Value); })">
-                            </td>
-                            <td style="text-align:center">
-                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Write) @onchange="@(eventArgs => { UpdateSystemPermission(rolePermission, Permissions.Write, eventArgs.Value); })">
-                            </td>
-                            <td style="text-align:center">
-                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Execute) @onchange="@(eventArgs => { UpdateSystemPermission(rolePermission, Permissions.Execute, eventArgs.Value); })">
-                            </td>
-                            <td style="text-align:center">
-                                <span @onclick="@(() => { if (isAdded){ RemovePermissions(rolePermission);} else { AddSystemPermissions(rolePermission);}})" class="oi @(isAdded ? "oi-trash" : "oi-plus")" style='cursor: pointer;'></span>
-                            </td>
-                        </tr>
-                    }
+                @foreach (var managedSystem in _systems)
+                {
+                    var rolePermission = managedSystem.RolesPermissions.FirstOrDefault() ?? new RoleSystemPermissions()
+                    {
+                        RoleId = RoleId,
+                        ManagedSystemId = managedSystem.Id,
+                        Permissions = Permissions.None
+                    };
+
+                    var isAdded = managedSystem.RolesPermissions.FirstOrDefault() != null;
+
+                    <tr>
+                        <td>
+                            @managedSystem.Name
+                        </td>
+                        <td style="text-align:center">
+                            <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Read) @onchange="@(eventArgs => { UpdateSystemPermission(rolePermission, Permissions.Read, eventArgs.Value); })">
+                        </td>
+                        <td style="text-align:center">
+                            <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Write) @onchange="@(eventArgs => { UpdateSystemPermission(rolePermission, Permissions.Write, eventArgs.Value); })">
+                        </td>
+                        <td style="text-align:center">
+                            <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Execute) @onchange="@(eventArgs => { UpdateSystemPermission(rolePermission, Permissions.Execute, eventArgs.Value); })">
+                        </td>
+                        <td style="text-align:center">
+                            <span @onclick="@(() => { if (isAdded){ OnRemoveAction(rolePermission);} else { OnAddAction(rolePermission);}})" class="oi @(isAdded ? "oi-trash" : "oi-plus")" style='cursor: pointer;'></span>
+                        </td>
+                    </tr>
+                }
                 </tbody>
             </table>
         </TabPage>
@@ -97,12 +107,15 @@ else
 
     [Parameter]
     public Guid RoleId { get; set; }
+
     private Role Role { get; set; }
 
     private List<ManagedSystem> _systems;
-    
+    private List<User> _users;
+
     private string _systemTerm = "";
-    
+    private string _userTerm = "";
+
     protected override void OnInitialized()
     {
         base.OnInitializedAsync();
@@ -113,24 +126,27 @@ else
     private void LoadData()
     {
         Role = DbFactory.CreateDbContext().Roles.GetRoleWithUsers(RoleId);
-        RefreshSystems();
+        if (Role != null) 
+        {
+            RefreshSystems();
+            RefreshUsers();
+        }
     }
-    
-    private void AddSystemPermissions(RoleSystemPermissions rolePermissions)
+
+    private void OnAddAction(object value)
     {
-        DbFactory.Add(rolePermissions);
+        DbFactory.Add(value);
         LoadData();
     }
 
-    private void RemovePermissions(RoleSystemPermissions rolePermissions)
+    private void OnRemoveAction(object value)
     {
-        DbFactory.Remove(rolePermissions);
+        DbFactory.Remove(value);
         LoadData();
     }
 
     private void UpdateSystemPermission(RoleSystemPermissions rolePermissions, Permissions permission, object value)
     {
-
         if (value is bool isChecked)
         {
             if (isChecked)
@@ -143,7 +159,7 @@ else
             }
 
             using var db = DbFactory.CreateDbContext();
-            
+
             if (db.RoleSystemPermissions.Any(x => x == rolePermissions))
             {
                 db.RoleSystemPermissions.Update(rolePermissions);
@@ -152,13 +168,13 @@ else
             {
                 db.RoleSystemPermissions.Add(rolePermissions);
             }
-            
+
             db.SaveChanges();
-            
+
             LoadData();
         }
     }
-    
+
     private void RefreshSystems()
     {
         using var db = DbFactory.CreateDbContext();
@@ -173,11 +189,32 @@ else
         }
     }
 
-    private void OnSystemsTermChanged(string newTerm)
+    private void RefreshUsers()
+    {
+        using var db = DbFactory.CreateDbContext();
+
+        if (string.IsNullOrEmpty(_userTerm?.Trim()))
+        {
+            _users = db.Users.GetUsersWithUserRolesForRole(Role);
+        }
+        else
+        {
+            _users = db.Users.GetUsersForTermUserRolesForRole(Role, _userTerm);
+        }
+    }
+
+    private void OnSystemTermChanged(string newTerm)
     {
         _systemTerm = newTerm;
-        
+
         RefreshSystems();
+    }
+
+    private void OnUserTermChanged(string newTerm)
+    {
+        _userTerm = newTerm;
+
+        RefreshUsers();
     }
 
 }

@@ -10,8 +10,8 @@ using Paco.Data;
 namespace Paco.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210301174410_roleskeys1")]
-    partial class roleskeys1
+    [Migration("20210301225516_InitialCreate2")]
+    partial class InitialCreate2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -60,8 +60,8 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("b3718f2e-a45c-4074-8292-94197fcbe709"),
-                            ConcurrencyStamp = "75b3fe7c-621e-4184-b2a6-5423440d3457",
+                            Id = new Guid("bbc09947-078a-4268-9918-d6bd6f1f2a3d"),
+                            ConcurrencyStamp = "73a41a0f-41ce-429b-84f5-4614d1492c7c",
                             Name = "Administrator"
                         });
                 });
@@ -175,7 +175,7 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("966c5dd6-7d84-46be-8eb7-21b7207790f4"),
+                            Id = new Guid("8f7d95ed-b7c3-42db-9dd3-ae3505878cce"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "34acbb54-9ae3-4742-af3c-89de44e306e0",
                             Email = "asd@ads.asd",
@@ -255,6 +255,10 @@ namespace Paco.Migrations
 
             modelBuilder.Entity("Paco.Data.Entities.Identity.UserRole", b =>
                 {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
@@ -267,30 +271,23 @@ namespace Paco.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("RoleId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid?>("UserId1")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("UserId", "RoleId");
+                    b.HasKey("Id", "UserId", "RoleId");
 
                     b.HasIndex("RoleId");
 
-                    b.HasIndex("RoleId1");
-
-                    b.HasIndex("UserId1");
+                    b.HasIndex("UserId");
 
                     b.ToTable("AspNetUserRoles");
 
                     b.HasData(
                         new
                         {
-                            UserId = new Guid("966c5dd6-7d84-46be-8eb7-21b7207790f4"),
-                            RoleId = new Guid("b3718f2e-a45c-4074-8292-94197fcbe709")
+                            Id = new Guid("65077aeb-63e1-42d2-ae61-512383b8f040"),
+                            UserId = new Guid("8f7d95ed-b7c3-42db-9dd3-ae3505878cce"),
+                            RoleId = new Guid("bbc09947-078a-4268-9918-d6bd6f1f2a3d")
                         });
                 });
 
@@ -443,7 +440,7 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("cc8b5b6e-a291-4e9b-93df-5f2fe24968ea"),
+                            Id = new Guid("10c5f3b0-c176-4f1d-bc37-9ab92bf6863b"),
                             Distribution = 0,
                             Hostname = "none.test.test",
                             Login = "test",
@@ -454,7 +451,7 @@ namespace Paco.Migrations
                         },
                         new
                         {
-                            Id = new Guid("947c2bd6-b1c4-439b-811d-42afdc57ceda"),
+                            Id = new Guid("ecf043b0-68a7-415e-8f23-64d6a7ad2c63"),
                             Distribution = 0,
                             Hostname = "multiple.test.test",
                             Login = "test",
@@ -500,16 +497,16 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("c46cec2b-b396-4acf-bfda-4d8741d4fc2b"),
-                            RoleId = new Guid("b3718f2e-a45c-4074-8292-94197fcbe709"),
-                            ManagedSystemId = new Guid("cc8b5b6e-a291-4e9b-93df-5f2fe24968ea"),
+                            Id = new Guid("3ca5b825-56f6-44fd-b649-aa2da3aaf9d4"),
+                            RoleId = new Guid("bbc09947-078a-4268-9918-d6bd6f1f2a3d"),
+                            ManagedSystemId = new Guid("10c5f3b0-c176-4f1d-bc37-9ab92bf6863b"),
                             Permissions = (short)0
                         },
                         new
                         {
-                            Id = new Guid("cd053c0b-004d-4ef2-a430-2881487e3fad"),
-                            RoleId = new Guid("b3718f2e-a45c-4074-8292-94197fcbe709"),
-                            ManagedSystemId = new Guid("947c2bd6-b1c4-439b-811d-42afdc57ceda"),
+                            Id = new Guid("377716b7-38a7-4ae2-bfd7-a769716232a9"),
+                            RoleId = new Guid("bbc09947-078a-4268-9918-d6bd6f1f2a3d"),
+                            ManagedSystemId = new Guid("ecf043b0-68a7-415e-8f23-64d6a7ad2c63"),
                             Permissions = (short)7
                         });
                 });
@@ -543,25 +540,17 @@ namespace Paco.Migrations
 
             modelBuilder.Entity("Paco.Data.Entities.Identity.UserRole", b =>
                 {
-                    b.HasOne("Paco.Data.Entities.Identity.Role", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Paco.Data.Entities.Identity.Role", "Role")
                         .WithMany("UserRoles")
-                        .HasForeignKey("RoleId1");
-
-                    b.HasOne("Paco.Data.Entities.Identity.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Paco.Data.Entities.Identity.User", "User")
                         .WithMany("UserRoles")
-                        .HasForeignKey("UserId1");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Role");
 

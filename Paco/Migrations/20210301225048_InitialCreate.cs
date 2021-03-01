@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Paco.Migrations
 {
-    public partial class roleskeys1 : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -182,15 +182,14 @@ namespace Paco.Migrations
                 {
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UserId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    RoleId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.UserId, x.RoleId });
+                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.Id, x.UserId, x.RoleId });
                     table.ForeignKey(
                         name: "FK_AspNetUserRoles_AspNetRoles_RoleId",
                         column: x => x.RoleId,
@@ -198,23 +197,11 @@ namespace Paco.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetRoles_RoleId1",
-                        column: x => x.RoleId1,
-                        principalTable: "AspNetRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
                         name: "FK_AspNetUserRoles_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetUsers_UserId1",
-                        column: x => x.UserId1,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -272,36 +259,36 @@ namespace Paco.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "CreatedAt", "DeletedAt", "Name", "NormalizedName", "UpdatedAt" },
-                values: new object[] { new Guid("b3718f2e-a45c-4074-8292-94197fcbe709"), "75b3fe7c-621e-4184-b2a6-5423440d3457", null, null, "Administrator", null, null });
+                values: new object[] { new Guid("d7e82ef1-13be-4efb-82e7-44f07278129d"), "c38edbf4-7ca8-437e-95b8-21ba7129d2fc", null, null, "Administrator", null, null });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "CreatedAt", "DeletedAt", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UpdatedAt", "UserName" },
-                values: new object[] { new Guid("966c5dd6-7d84-46be-8eb7-21b7207790f4"), 0, "34acbb54-9ae3-4742-af3c-89de44e306e0", null, null, "asd@ads.asd", true, true, null, "ASD@ASD.ASD", "ASD@ASD.ASD", "AQAAAAEAACcQAAAAEJdyASTL66Dd+IQPIPJsne7GQnFQ+H8G7ngSPb5+OUNH8+PU7YuCzPjjLMvj947dcg==", null, false, "JBIW2JAV2THPAPR3NGHSE3ZVXUCHEBPU", false, null, "asd@ads.asd" });
+                values: new object[] { new Guid("65809062-ffd3-4903-83c0-5b1c91c4b5da"), 0, "34acbb54-9ae3-4742-af3c-89de44e306e0", null, null, "asd@ads.asd", true, true, null, "ASD@ASD.ASD", "ASD@ASD.ASD", "AQAAAAEAACcQAAAAEJdyASTL66Dd+IQPIPJsne7GQnFQ+H8G7ngSPb5+OUNH8+PU7YuCzPjjLMvj947dcg==", null, false, "JBIW2JAV2THPAPR3NGHSE3ZVXUCHEBPU", false, null, "asd@ads.asd" });
 
             migrationBuilder.InsertData(
                 table: "ManagedSystems",
                 columns: new[] { "Id", "CreatedAt", "DeletedAt", "Distribution", "Hostname", "InteractionReason", "LastAccessed", "Login", "Name", "NeedsInteraction", "Password", "SshPrivateKey", "SystemFingerprint", "SystemInformation", "UpdatedAt", "UpdatesFetchedAt" },
                 values: new object[,]
                 {
-                    { new Guid("cc8b5b6e-a291-4e9b-93df-5f2fe24968ea"), null, null, 0, "none.test.test", null, null, "test", "PermNone", false, "test", null, "12:f8:7e:78:61:b4:bf:e2:de:24:15:96:4e:d4:72:53", null, null, null },
-                    { new Guid("947c2bd6-b1c4-439b-811d-42afdc57ceda"), null, null, 0, "multiple.test.test", null, null, "test", "PermMultiple", false, "test", null, "12:f8:7e:78:61:b4:bf:e2:de:24:15:96:4e:d4:72:53", null, null, null }
+                    { new Guid("2babfe64-e594-406e-ac00-c575273d9cf7"), null, null, 0, "none.test.test", null, null, "test", "PermNone", false, "test", null, "12:f8:7e:78:61:b4:bf:e2:de:24:15:96:4e:d4:72:53", null, null, null },
+                    { new Guid("5de90034-b633-4824-9bf2-5b83802fe8bf"), null, null, 0, "multiple.test.test", null, null, "test", "PermMultiple", false, "test", null, "12:f8:7e:78:61:b4:bf:e2:de:24:15:96:4e:d4:72:53", null, null, null }
                 });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
-                columns: new[] { "RoleId", "UserId", "CreatedAt", "DeletedAt", "RoleId1", "UpdatedAt", "UserId1" },
-                values: new object[] { new Guid("b3718f2e-a45c-4074-8292-94197fcbe709"), new Guid("966c5dd6-7d84-46be-8eb7-21b7207790f4"), null, null, null, null, null });
+                columns: new[] { "Id", "RoleId", "UserId", "CreatedAt", "DeletedAt", "UpdatedAt" },
+                values: new object[] { new Guid("5f5f19d4-cf87-41c3-8d5b-98ea83b582f9"), new Guid("d7e82ef1-13be-4efb-82e7-44f07278129d"), new Guid("65809062-ffd3-4903-83c0-5b1c91c4b5da"), null, null, null });
 
             migrationBuilder.InsertData(
                 table: "RoleSystemPermissions",
                 columns: new[] { "Id", "ManagedSystemId", "RoleId", "CreatedAt", "DeletedAt", "Permissions", "UpdatedAt" },
-                values: new object[] { new Guid("c46cec2b-b396-4acf-bfda-4d8741d4fc2b"), new Guid("cc8b5b6e-a291-4e9b-93df-5f2fe24968ea"), new Guid("b3718f2e-a45c-4074-8292-94197fcbe709"), null, null, (short)0, null });
+                values: new object[] { new Guid("e5206b41-48ec-4d63-b9cb-b62d5ff6e96d"), new Guid("2babfe64-e594-406e-ac00-c575273d9cf7"), new Guid("d7e82ef1-13be-4efb-82e7-44f07278129d"), null, null, (short)0, null });
 
             migrationBuilder.InsertData(
                 table: "RoleSystemPermissions",
                 columns: new[] { "Id", "ManagedSystemId", "RoleId", "CreatedAt", "DeletedAt", "Permissions", "UpdatedAt" },
-                values: new object[] { new Guid("cd053c0b-004d-4ef2-a430-2881487e3fad"), new Guid("947c2bd6-b1c4-439b-811d-42afdc57ceda"), new Guid("b3718f2e-a45c-4074-8292-94197fcbe709"), null, null, (short)7, null });
+                values: new object[] { new Guid("6f2e5ed7-cfe9-4ac7-8e4d-ec1f96fdbeff"), new Guid("5de90034-b633-4824-9bf2-5b83802fe8bf"), new Guid("d7e82ef1-13be-4efb-82e7-44f07278129d"), null, null, (short)7, null });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -331,14 +318,9 @@ namespace Paco.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserRoles_RoleId1",
+                name: "IX_AspNetUserRoles_UserId",
                 table: "AspNetUserRoles",
-                column: "RoleId1");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserRoles_UserId1",
-                table: "AspNetUserRoles",
-                column: "UserId1");
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "EmailIndex",

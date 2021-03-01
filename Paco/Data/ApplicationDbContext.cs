@@ -58,10 +58,11 @@ namespace Paco.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            base.OnModelCreating(builder);
+
             SetupQueryFilters(builder);
             SetupRoleSystemPermissionsMapping(builder);
             SeedDatabase(builder);
-            base.OnModelCreating(builder);
         }
 
         private void SetupRoleSystemPermissionsMapping(ModelBuilder builder)
@@ -77,7 +78,9 @@ namespace Paco.Data
                 .HasOne(a => a.ManagedSystem)
                 .WithMany(b => b.RolesPermissions)
                 .HasForeignKey(a => a.ManagedSystemId);
-
+            
+            
+            
             builder.Entity<User>()
                 .HasMany(u => u.Roles)
                 .WithMany(r => r.Users)
@@ -92,7 +95,7 @@ namespace Paco.Data
                         .HasForeignKey(ur => ur.UserId),
                     typeBuilder =>
                     {
-                        typeBuilder.HasKey(ur => new { ur.UserId, ur.RoleId });
+                        typeBuilder.HasKey(ur => new { ur.Id, ur.UserId, ur.RoleId });
                     });
         }
 
@@ -159,6 +162,7 @@ namespace Paco.Data
 
             builder.Entity<UserRole>().HasData(new UserRole
             {
+                Id = Guid.NewGuid(),
                 RoleId = role.Id,
                 UserId = user.Id
             });
