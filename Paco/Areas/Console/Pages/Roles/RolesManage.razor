@@ -1,9 +1,8 @@
 ﻿@page "/roles/manage/{roleId:guid}"
-
-@using Paco.Data.DatabaseRepository
 @using Paco.Data.Entities
 @using Paco.Data.Entities.Identity
 @using Microsoft.EntityFrameworkCore
+@using Paco.DatabaseRepositories
 
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 

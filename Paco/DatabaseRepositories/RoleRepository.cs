@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Paco.Data.Entities.Identity;
 
-namespace Paco.Data.DatabaseRepository
+namespace Paco.DatabaseRepositories
 {
     public static class RoleRepository
     {
