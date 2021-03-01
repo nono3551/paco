@@ -2,16 +2,14 @@
 @using Paco.Data.Entities.Identity
 
 <div class="form-group">
-    @if (Label != null)
-    {
-        <label for="@ElementId">@Label</label>
-    }
+    <label for="@ElementId">@Label</label>
     <input @oninput="OnValueChanged" value="@Value" type="@InputType" class="form-control" id="@ElementId" aria-describedby="@ElementId+help" placeholder="@Placeholder">
     @if (Help != null)
     {
         <small id="@ElementId+help" class="form-text text-muted">@Help</small>
     }
 </div>
+
 
 @code {
     [Parameter]

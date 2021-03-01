@@ -14,10 +14,6 @@ a, .btn-link {
     border-color: #343a40;
 }
 
-.nav {
-    margin-bottom: 1rem;
-}
-
 app {
     position: relative;
     display: flex;

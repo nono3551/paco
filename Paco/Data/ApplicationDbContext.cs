@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Paco.Data.Entities;
 using System;
 using System.IO;
-using Microsoft.Extensions.Logging;
 using Paco.Data.Entities.Identity;
 using Paco.SystemManagement;
 using Paco.SystemManagement.Ssh;
@@ -12,16 +11,13 @@ namespace Paco.Data
 {
     public class ApplicationDbContext : IdentityDbContext<User, Role, Guid, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>
     {
-        private readonly ILoggerFactory _loggerFactory;
-
-
         public DbSet<ManagedSystem> ManagedSystems { get; set; }
         public DbSet<RoleSystemPermissions> RoleSystemPermissions { get; set; }
         public DbSet<LogRecord> LogRecords { get; set; }
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ILoggerFactory loggerFactory): base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options): base(options)
         {
-            _loggerFactory = loggerFactory;
+
         }
 
         public override int SaveChanges()
@@ -42,8 +38,8 @@ namespace Paco.Data
                     }
                     else if (entry.State == EntityState.Deleted)
                     {
-                        entity.UpdatedAt = DateTime.UtcNow;
-                        entity.IsDeleted = true;;
+                        entry.State = EntityState.Unchanged;
+                        entity.DeletedAt = DateTime.UtcNow;
                     }
                 }
                 else
@@ -64,53 +60,6 @@ namespace Paco.Data
             base.OnModelCreating(builder);
         }
 
-        private void SetupRoleSystemPermissionsMapping(ModelBuilder builder)
-        {
-            builder.Entity<RoleSystemPermissions>().HasKey(x => new { x.Id, x.RoleId, SystemId = x.ManagedSystemId });
-
-            builder.Entity<RoleSystemPermissions>()
-                .HasOne(a => a.Role)
-                .WithMany(b => b.SystemsPermissions)
-                .HasForeignKey(a => a.RoleId);
-
-            builder.Entity<RoleSystemPermissions>()
-                .HasOne(a => a.ManagedSystem)
-                .WithMany(b => b.RolesPermissions)
-                .HasForeignKey(a => a.ManagedSystemId);
-
-            builder.Entity<User>()
-                .HasMany(u => u.Roles)
-                .WithMany(r => r.Users)
-                .UsingEntity<UserRole>(
-                    typeBuilder => typeBuilder
-                        .HasOne(ur => ur.Role)
-                        .WithMany(p => p.UserRoles)
-                        .HasForeignKey(pt => pt.RoleId),
-                    typeBuilder => typeBuilder
-                        .HasOne(ur => ur.User)
-                        .WithMany(t => t.UserRoles)
-                        .HasForeignKey(ur => ur.UserId),
-                    typeBuilder =>
-                    {
-                        typeBuilder.HasKey(ur => new { ur.UserId, ur.RoleId });
-                    });
-        }
-
-        private void SetupQueryFilters(ModelBuilder builder)
-        {
-            builder.Entity<User>().HasQueryFilter(p => !p.IsDeleted);
-            builder.Entity<Role>().HasQueryFilter(p => !p.IsDeleted);
-            builder.Entity<UserClaim>().HasQueryFilter(p => !p.IsDeleted);
-            builder.Entity<UserRole>().HasQueryFilter(p => !p.IsDeleted);
-            builder.Entity<UserLogin>().HasQueryFilter(p => !p.IsDeleted);
-            builder.Entity<UserClaim>().HasQueryFilter(p => !p.IsDeleted);
-            builder.Entity<UserToken>().HasQueryFilter(p => !p.IsDeleted);
-            builder.Entity<ManagedSystem>().HasQueryFilter(p => !p.IsDeleted);
-            builder.Entity<LogRecord>().HasQueryFilter(p => !p.IsDeleted);
-            builder.Entity<RoleSystemPermissions>().HasQueryFilter(p => !p.IsDeleted);
-        }
-        
-        
         private void SeedDatabase(ModelBuilder builder)
         {
             var user = new User
@@ -165,17 +114,61 @@ namespace Paco.Data
 
             builder.Entity<RoleSystemPermissions>().HasData(new RoleSystemPermissions()
             {
-                Id = Guid.NewGuid(),
                 RoleId = role.Id,
                 ManagedSystemId = system1.Id,
                 Permissions = Permissions.None
             }, new RoleSystemPermissions()
             {
-                Id = Guid.NewGuid(),
                 RoleId = role.Id,
                 ManagedSystemId = system2.Id,
                 Permissions = Permissions.Read | Permissions.Execute | Permissions.Write
             });
+        }
+
+        private void SetupRoleSystemPermissionsMapping(ModelBuilder builder)
+        {
+            builder.Entity<RoleSystemPermissions>().HasKey(x => new { x.RoleId, SystemId = x.ManagedSystemId });
+
+            builder.Entity<RoleSystemPermissions>()
+                .HasOne(a => a.Role)
+                .WithMany(b => b.SystemsPermissions)
+                .HasForeignKey(a => a.RoleId);
+
+            builder.Entity<RoleSystemPermissions>()
+                .HasOne(a => a.ManagedSystem)
+                .WithMany(b => b.RolesPermissions)
+                .HasForeignKey(a => a.ManagedSystemId);
+
+            builder.Entity<User>()
+                .HasMany(u => u.Roles)
+                .WithMany(r => r.Users)
+                .UsingEntity<UserRole>(
+                    typeBuilder => typeBuilder
+                        .HasOne(ur => ur.Role)
+                        .WithMany(p => p.UserRoles)
+                        .HasForeignKey(pt => pt.RoleId),
+                    typeBuilder => typeBuilder
+                        .HasOne(ur => ur.User)
+                        .WithMany(t => t.UserRoles)
+                        .HasForeignKey(ur => ur.UserId),
+                    typeBuilder =>
+                    {
+                        typeBuilder.HasKey(ur => new { ur.UserId, ur.RoleId });
+                    });
+        }
+
+        private void SetupQueryFilters(ModelBuilder builder)
+        {
+            builder.Entity<User>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<Role>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<UserClaim>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<UserRole>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<UserLogin>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<UserClaim>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<UserToken>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<ManagedSystem>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<LogRecord>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<RoleSystemPermissions>().HasQueryFilter(p => p.DeletedAt == null);
         }
     }
 }

@@ -10,16 +10,16 @@ using Paco.Data;
 namespace Paco.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210301155814_roleskeys1")]
-    partial class roleskeys1
+    [Migration("20210228223701_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .UseIdentityColumns()
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.3")
-                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                .HasAnnotation("ProductVersion", "5.0.2");
 
             modelBuilder.Entity("Paco.Data.Entities.Identity.Role", b =>
                 {
@@ -34,8 +34,8 @@ namespace Paco.Migrations
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
@@ -60,9 +60,8 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("c950c785-8c95-4d9d-bccb-57ae7e579172"),
-                            ConcurrencyStamp = "520c04ea-186a-4d29-b399-7ef49a40ac8a",
-                            IsDeleted = false,
+                            Id = new Guid("01db8cc5-a61a-4040-9d3b-c39902f9cc4e"),
+                            ConcurrencyStamp = "e0a55a6c-b83b-4afa-9cac-8028ef0b0fd1",
                             Name = "Administrator"
                         });
                 });
@@ -72,7 +71,7 @@ namespace Paco.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
@@ -83,8 +82,8 @@ namespace Paco.Migrations
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("RoleId")
                         .HasColumnType("uniqueidentifier");
@@ -115,14 +114,14 @@ namespace Paco.Migrations
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<bool>("LockoutEnabled")
@@ -176,12 +175,11 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("b90857ba-3955-4354-8689-9c633f793fef"),
+                            Id = new Guid("ecf81fa1-8cac-41f6-a261-116ea17ad634"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "34acbb54-9ae3-4742-af3c-89de44e306e0",
                             Email = "asd@ads.asd",
                             EmailConfirmed = true,
-                            IsDeleted = false,
                             LockoutEnabled = true,
                             NormalizedEmail = "ASD@ASD.ASD",
                             NormalizedUserName = "ASD@ASD.ASD",
@@ -198,7 +196,7 @@ namespace Paco.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
@@ -209,8 +207,8 @@ namespace Paco.Migrations
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -236,8 +234,8 @@ namespace Paco.Migrations
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -266,8 +264,8 @@ namespace Paco.Migrations
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid?>("RoleId1")
                         .HasColumnType("uniqueidentifier");
@@ -291,9 +289,8 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = new Guid("b90857ba-3955-4354-8689-9c633f793fef"),
-                            RoleId = new Guid("c950c785-8c95-4d9d-bccb-57ae7e579172"),
-                            IsDeleted = false
+                            UserId = new Guid("ecf81fa1-8cac-41f6-a261-116ea17ad634"),
+                            RoleId = new Guid("01db8cc5-a61a-4040-9d3b-c39902f9cc4e")
                         });
                 });
 
@@ -311,8 +308,8 @@ namespace Paco.Migrations
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -330,7 +327,7 @@ namespace Paco.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .UseIdentityColumn();
 
                     b.Property<string>("ActionId")
                         .HasColumnType("nvarchar(max)");
@@ -341,14 +338,14 @@ namespace Paco.Migrations
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<int?>("EventId")
                         .HasColumnType("int");
 
                     b.Property<string>("Exception")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Level")
                         .HasMaxLength(128)
@@ -405,9 +402,6 @@ namespace Paco.Migrations
                     b.Property<string>("InteractionReason")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
                     b.Property<DateTime?>("LastAccessed")
                         .HasColumnType("datetime2");
 
@@ -449,10 +443,9 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("510bc21c-874d-4141-8315-2c3817890cf6"),
+                            Id = new Guid("675998d0-9970-45aa-ad77-33a16856fa78"),
                             Distribution = 0,
                             Hostname = "none.test.test",
-                            IsDeleted = false,
                             Login = "test",
                             Name = "PermNone",
                             NeedsInteraction = false,
@@ -461,10 +454,9 @@ namespace Paco.Migrations
                         },
                         new
                         {
-                            Id = new Guid("75ebeab7-e43d-41cb-8a25-0ba9bcca1f94"),
+                            Id = new Guid("85568c70-2cf0-401e-87aa-1575b77da91a"),
                             Distribution = 0,
                             Hostname = "multiple.test.test",
-                            IsDeleted = false,
                             Login = "test",
                             Name = "PermMultiple",
                             NeedsInteraction = false,
@@ -475,10 +467,6 @@ namespace Paco.Migrations
 
             modelBuilder.Entity("Paco.Data.Entities.RoleSystemPermissions", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("RoleId")
                         .HasColumnType("uniqueidentifier");
 
@@ -488,8 +476,8 @@ namespace Paco.Migrations
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<short>("Permissions")
                         .HasColumnType("smallint");
@@ -497,29 +485,23 @@ namespace Paco.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id", "RoleId", "ManagedSystemId");
+                    b.HasKey("RoleId", "ManagedSystemId");
 
                     b.HasIndex("ManagedSystemId");
-
-                    b.HasIndex("RoleId");
 
                     b.ToTable("RoleSystemPermissions");
 
                     b.HasData(
                         new
                         {
-                            Id = new Guid("75fa0c13-5f3e-4cc0-844c-1cdd834abb4a"),
-                            RoleId = new Guid("c950c785-8c95-4d9d-bccb-57ae7e579172"),
-                            ManagedSystemId = new Guid("510bc21c-874d-4141-8315-2c3817890cf6"),
-                            IsDeleted = false,
+                            RoleId = new Guid("01db8cc5-a61a-4040-9d3b-c39902f9cc4e"),
+                            ManagedSystemId = new Guid("675998d0-9970-45aa-ad77-33a16856fa78"),
                             Permissions = (short)0
                         },
                         new
                         {
-                            Id = new Guid("c73f7e7c-275f-4245-bd52-11556d9dba21"),
-                            RoleId = new Guid("c950c785-8c95-4d9d-bccb-57ae7e579172"),
-                            ManagedSystemId = new Guid("75ebeab7-e43d-41cb-8a25-0ba9bcca1f94"),
-                            IsDeleted = false,
+                            RoleId = new Guid("01db8cc5-a61a-4040-9d3b-c39902f9cc4e"),
+                            ManagedSystemId = new Guid("85568c70-2cf0-401e-87aa-1575b77da91a"),
                             Permissions = (short)7
                         });
                 });
