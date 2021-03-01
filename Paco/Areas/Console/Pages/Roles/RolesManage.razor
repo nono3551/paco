@@ -8,7 +8,6 @@
 @inject NavigationManager NavigationManager
 
 @attribute [Authorize(Roles = "Administrator")]
-
 @if (Role == null)
 {
     <p>Role not found</p>
@@ -63,16 +62,16 @@ else
                                 @managedSystem.Name
                             </td>
                             <td style="text-align:center">
-                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Read) @onchange="eventArgs => { CheckboxClicked(rolePermission, Permissions.Read, eventArgs.Value); }">
+                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Read) @onchange="@(eventArgs => { CheckboxClicked(rolePermission, Permissions.Read, eventArgs.Value); })">
                             </td>
                             <td style="text-align:center">
-                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Write) @onchange="eventArgs => { CheckboxClicked(rolePermission, Permissions.Write, eventArgs.Value); }">
+                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Write) @onchange="@(eventArgs => { CheckboxClicked(rolePermission, Permissions.Write, eventArgs.Value); })">
                             </td>
                             <td style="text-align:center">
-                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Execute) @onchange="eventArgs => { CheckboxClicked(rolePermission, Permissions.Execute, eventArgs.Value); }">
+                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Execute) @onchange="@(eventArgs => { CheckboxClicked(rolePermission, Permissions.Execute, eventArgs.Value); })">
                             </td>
                             <td style="text-align:center">
-                                <span @onclick="@(() => RemovePermissions(rolePermission))" class="oi oi-trash" style='cursor: pointer;'/>
+                                <span @onclick="@(() => RemovePermissions(rolePermission))" class="oi oi-trash" style='cursor: pointer;'></span>
                             </td>
                         </tr>
                     }
@@ -85,8 +84,8 @@ else
 @code {
     [Parameter]
     public Guid RoleId { get; set; }
-    public Role Role { get; set; }
-    public List<RoleSystemPermissions> RoleSystemPermissions { get; set; }
+    private Role Role { get; set; }
+    private List<RoleSystemPermissions> RoleSystemPermissions { get; set; }
 
     protected override void OnInitialized()
     {
@@ -95,13 +94,13 @@ else
         LoadData();
     }
 
-    protected void LoadData()
+    private void LoadData()
     {
         RoleSystemPermissions = ApplicationDbContext.RoleSystemPermissions.GetPermissionsWithSystemsForRole(RoleId);
         Role = ApplicationDbContext.Roles.GetRoleWithUsers(RoleId);
     }
 
-    protected void RemovePermissions(RoleSystemPermissions rolePermissions)
+    private void RemovePermissions(RoleSystemPermissions rolePermissions)
     {
         ApplicationDbContext.Remove(rolePermissions);
         ApplicationDbContext.SaveChanges();

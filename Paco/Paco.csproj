@@ -17,6 +17,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Watch Include="..\**\*.razor" />
+    <Watch Include="..\**\*.scss" />
+    <Watch Include="..\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Include="SystemManagement\FreeBsd\Entities\Uptime\SystemUptime.cs" />
     <Compile Include="SystemManagement\FreeBsd\Entities\Uptime\UptimeInformation.cs" />
     <Compile Include="SystemManagement\FreeBsd\Entities\Uptime\UserEntry.cs" />
@@ -28,6 +34,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="5.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="5.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.3" Condition="'$(Configuration)' == 'Debug'"/>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.2">
       <PrivateAssets>all</PrivateAssets>
@@ -40,7 +47,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Areas\Admin\" />
     <Folder Include="Migrations\" />
   </ItemGroup>
 

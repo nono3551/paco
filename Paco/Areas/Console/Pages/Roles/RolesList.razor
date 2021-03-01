@@ -14,9 +14,6 @@
     <tbody>
         @foreach (var role in _roles)
         {
-
-
-
             <tr @onclick="() => ManageRole(role)" style='cursor: pointer;'>
                 <td>
                     @role.Name
@@ -30,7 +27,7 @@
 </table>
 
 @code {
-    private List<Role> _roles = new List<Role>();
+    private List<Role> _roles = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -39,7 +36,7 @@
         await base.OnInitializedAsync();
     }
 
-    protected void ManageRole(Role role)
+    private void ManageRole(Role role)
     {
         NavManager.NavigateTo($"/roles/manage/{role.Id}");
     }

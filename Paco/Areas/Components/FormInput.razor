@@ -26,12 +26,10 @@
     public string InputType { get; set; }
     [Parameter]
     public string Help { get; set; }
-
-
-    private async Task<Task> OnValueChanged(ChangeEventArgs e)
+    
+    private Task OnValueChanged(ChangeEventArgs e)
     {
-        Value = e.Value.ToString();
-
+        Value = e?.Value?.ToString();
         return ValueChanged.InvokeAsync(Value);
     }
 }

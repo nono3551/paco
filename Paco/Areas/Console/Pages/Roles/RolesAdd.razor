@@ -14,7 +14,7 @@
 
 <EditForm Model="@_role" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
-    <CustomValidator @ref="CustomValidator" />
+    <CustomValidator @ref="@_customValidator" />
     <ValidationSummary />
     <FormInput @bind-Value="@_role.Name" ElementId="RoleName" Label="Role name" InputType="text" Placeholder="Administrators" Help="Enter name which will represent this role" />
     <Submit />
@@ -22,14 +22,14 @@
 
 @code {
     private readonly Role _role = new Role();
-    public CustomValidator CustomValidator { get; set; }
+    private CustomValidator _customValidator;
     private async Task HandleValidSubmit()
     {
         var result = await RoleManager.CreateAsync(_role);
 
         if (result.Errors.Any())
         {
-            CustomValidator.DisplayErrors(new Dictionary<string, IEnumerable<string>>()
+            _customValidator.DisplayErrors(new Dictionary<string, IEnumerable<string>>()
             {
                 { nameof(_role.Name), result.Errors.Select(x => x.Description) }
             });
