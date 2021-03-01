@@ -42,8 +42,8 @@ namespace Paco.Data
                     }
                     else if (entry.State == EntityState.Deleted)
                     {
-                        entity.UpdatedAt = DateTime.UtcNow;
-                        entity.IsDeleted = true;;
+                        entity.DeletedAt = DateTime.UtcNow;
+                        entry.State = EntityState.Modified;
                     }
                 }
                 else
@@ -98,16 +98,16 @@ namespace Paco.Data
 
         private void SetupQueryFilters(ModelBuilder builder)
         {
-            builder.Entity<User>().HasQueryFilter(p => !p.IsDeleted);
-            builder.Entity<Role>().HasQueryFilter(p => !p.IsDeleted);
-            builder.Entity<UserClaim>().HasQueryFilter(p => !p.IsDeleted);
-            builder.Entity<UserRole>().HasQueryFilter(p => !p.IsDeleted);
-            builder.Entity<UserLogin>().HasQueryFilter(p => !p.IsDeleted);
-            builder.Entity<UserClaim>().HasQueryFilter(p => !p.IsDeleted);
-            builder.Entity<UserToken>().HasQueryFilter(p => !p.IsDeleted);
-            builder.Entity<ManagedSystem>().HasQueryFilter(p => !p.IsDeleted);
-            builder.Entity<LogRecord>().HasQueryFilter(p => !p.IsDeleted);
-            builder.Entity<RoleSystemPermissions>().HasQueryFilter(p => !p.IsDeleted);
+            builder.Entity<User>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<Role>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<UserClaim>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<UserRole>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<UserLogin>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<UserClaim>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<UserToken>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<ManagedSystem>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<LogRecord>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<RoleSystemPermissions>().HasQueryFilter(p => p.DeletedAt == null);
         }
         
         

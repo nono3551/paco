@@ -11,8 +11,7 @@ namespace Paco.Data.Entities
 {
     public class ManagedSystem : IDbEntity
     {
-        [DefaultValue(false)]
-        public bool IsDeleted { get; set; }
+        
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
@@ -35,7 +34,7 @@ namespace Paco.Data.Entities
         public DateTime? UpdatedAt { get ; set ; }
         public DateTime? DeletedAt { get ; set ; }
         public Distribution Distribution { get; set; }
-        [DefaultValue(false)]
+        
         public bool NeedsInteraction { get; set; }
         public string InteractionReason { get; set; }
 
