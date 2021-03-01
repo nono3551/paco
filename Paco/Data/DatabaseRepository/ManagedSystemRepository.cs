@@ -16,18 +16,20 @@ namespace Paco.Data.DatabaseRepository
         }
         
         public static List<ManagedSystem> GetSystemsForTermWithRolePermissionsForRole(this DbSet<ManagedSystem> systems, Role role, string term, int limit = 15)
-        { 
-            return systems.Where(x => x.Name.Contains(term) || x.Hostname.Contains(term))
-                .Include(x => x.RolesPermissions.Where(y => y.RoleId == role.Id))
+        {
+            var asd = systems.Where(x => x.Name.Contains(term) || x.Hostname.Contains(term))
+                .Include(x => x.RolesPermissions.Where(y => y.Role.Id == role.Id))
                 .OrderBy(x => x.Name)
                 .Take(limit)
                 .ToList();
+
+            return asd;
         }
         
         public static List<ManagedSystem> GetSystemsWithRolePermissionsForRole(this DbSet<ManagedSystem> systems, Role role)
         {
             return systems.Include(x => x.RolesPermissions.Where(y => y.Role == role))
-                .Where(x => x.RolesPermissions.Any())
+                .Where(x => x.RolesPermissions.Any(y => y.Role == role))
                 .OrderBy(x => x.Name)
                 .ToList();
         }

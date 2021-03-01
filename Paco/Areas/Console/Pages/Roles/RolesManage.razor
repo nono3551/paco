@@ -3,8 +3,10 @@
 @using Paco.Data.DatabaseRepository
 @using Paco.Data.Entities
 @using Paco.Data.Entities.Identity
+@using Microsoft.EntityFrameworkCore
 
-@inject ApplicationDbContext ApplicationDbContext
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
+
 @inject NavigationManager NavigationManager
 
 @attribute [Authorize(Roles = "Administrator")]
@@ -60,8 +62,8 @@ else
                     {
                         var rolePermission = managedSystem.RolesPermissions.FirstOrDefault() ?? new RoleSystemPermissions()
                         {
-                            ManagedSystem = managedSystem,
-                            Role = Role,
+                            RoleId = RoleId,
+                            ManagedSystemId = managedSystem.Id,
                             Permissions = Permissions.None
                         };
 
@@ -110,28 +112,25 @@ else
 
     private void LoadData()
     {
-        Role = ApplicationDbContext.Roles.GetRoleWithUsers(RoleId);
+        Role = DbFactory.CreateDbContext().Roles.GetRoleWithUsers(RoleId);
         RefreshSystems();
     }
     
-    private void AddSystemPermissions(RoleSystemPermissions rolePermission)
+    private void AddSystemPermissions(RoleSystemPermissions rolePermissions)
     {
-        ApplicationDbContext.Add(rolePermission);
-        ApplicationDbContext.SaveChanges();
-
+        DbFactory.Add(rolePermissions);
         LoadData();
     }
 
     private void RemovePermissions(RoleSystemPermissions rolePermissions)
     {
-        ApplicationDbContext.Remove(rolePermissions);
-        ApplicationDbContext.SaveChanges();
-
+        DbFactory.Remove(rolePermissions);
         LoadData();
     }
 
     private void UpdateSystemPermission(RoleSystemPermissions rolePermissions, Permissions permission, object value)
     {
+
         if (value is bool isChecked)
         {
             if (isChecked)
@@ -143,16 +142,18 @@ else
                 rolePermissions.Permissions &= ~permission;
             }
 
-            if (ApplicationDbContext.RoleSystemPermissions.Any(x => x == rolePermissions))
+            using var db = DbFactory.CreateDbContext();
+            
+            if (db.RoleSystemPermissions.Any(x => x == rolePermissions))
             {
-                ApplicationDbContext.RoleSystemPermissions.Update(rolePermissions);
+                db.RoleSystemPermissions.Update(rolePermissions);
             }
             else
             {
-                ApplicationDbContext.RoleSystemPermissions.Add(rolePermissions);
+                db.RoleSystemPermissions.Add(rolePermissions);
             }
             
-            ApplicationDbContext.SaveChanges();
+            db.SaveChanges();
             
             LoadData();
         }
@@ -160,13 +161,15 @@ else
     
     private void RefreshSystems()
     {
+        using var db = DbFactory.CreateDbContext();
+
         if (string.IsNullOrEmpty(_systemTerm?.Trim()))
         {
-            _systems = ApplicationDbContext.ManagedSystems.GetSystemsWithRolePermissionsForRole(Role);
+            _systems = db.ManagedSystems.GetSystemsWithRolePermissionsForRole(Role);
         }
         else
         {
-            _systems = ApplicationDbContext.ManagedSystems.GetSystemsForTermWithRolePermissionsForRole(Role, _systemTerm);
+            _systems = db.ManagedSystems.GetSystemsForTermWithRolePermissionsForRole(Role, _systemTerm);
         }
     }
 

@@ -58,8 +58,8 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("e233ef24-2779-4880-b3d0-cb2650463869"),
-                            ConcurrencyStamp = "c1a419db-4b7c-44d1-a2c7-4d731bce19f9",
+                            Id = new Guid("b3718f2e-a45c-4074-8292-94197fcbe709"),
+                            ConcurrencyStamp = "75b3fe7c-621e-4184-b2a6-5423440d3457",
                             Name = "Administrator"
                         });
                 });
@@ -173,7 +173,7 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("3fdc3bdd-e882-45ae-af94-5d55bdc33fc4"),
+                            Id = new Guid("966c5dd6-7d84-46be-8eb7-21b7207790f4"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "34acbb54-9ae3-4742-af3c-89de44e306e0",
                             Email = "asd@ads.asd",
@@ -287,8 +287,8 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = new Guid("3fdc3bdd-e882-45ae-af94-5d55bdc33fc4"),
-                            RoleId = new Guid("e233ef24-2779-4880-b3d0-cb2650463869")
+                            UserId = new Guid("966c5dd6-7d84-46be-8eb7-21b7207790f4"),
+                            RoleId = new Guid("b3718f2e-a45c-4074-8292-94197fcbe709")
                         });
                 });
 
@@ -441,7 +441,7 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("a2aa89c2-e743-459e-a667-66f8b4caa5ac"),
+                            Id = new Guid("cc8b5b6e-a291-4e9b-93df-5f2fe24968ea"),
                             Distribution = 0,
                             Hostname = "none.test.test",
                             Login = "test",
@@ -452,7 +452,7 @@ namespace Paco.Migrations
                         },
                         new
                         {
-                            Id = new Guid("67206e5c-049a-4a9c-a3a4-bdd857825520"),
+                            Id = new Guid("947c2bd6-b1c4-439b-811d-42afdc57ceda"),
                             Distribution = 0,
                             Hostname = "multiple.test.test",
                             Login = "test",
@@ -498,16 +498,16 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("3f5680a4-62b8-4a61-a950-f247b4f6aa38"),
-                            RoleId = new Guid("e233ef24-2779-4880-b3d0-cb2650463869"),
-                            ManagedSystemId = new Guid("a2aa89c2-e743-459e-a667-66f8b4caa5ac"),
+                            Id = new Guid("c46cec2b-b396-4acf-bfda-4d8741d4fc2b"),
+                            RoleId = new Guid("b3718f2e-a45c-4074-8292-94197fcbe709"),
+                            ManagedSystemId = new Guid("cc8b5b6e-a291-4e9b-93df-5f2fe24968ea"),
                             Permissions = (short)0
                         },
                         new
                         {
-                            Id = new Guid("6e7f4f9b-2bbf-4239-8b93-78fcb18a3c4f"),
-                            RoleId = new Guid("e233ef24-2779-4880-b3d0-cb2650463869"),
-                            ManagedSystemId = new Guid("67206e5c-049a-4a9c-a3a4-bdd857825520"),
+                            Id = new Guid("cd053c0b-004d-4ef2-a430-2881487e3fad"),
+                            RoleId = new Guid("b3718f2e-a45c-4074-8292-94197fcbe709"),
+                            ManagedSystemId = new Guid("947c2bd6-b1c4-439b-811d-42afdc57ceda"),
                             Permissions = (short)7
                         });
                 });
