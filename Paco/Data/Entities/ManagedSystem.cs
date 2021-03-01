@@ -11,6 +11,8 @@ namespace Paco.Data.Entities
 {
     public class ManagedSystem : IDbEntity
     {
+        [DefaultValue(false)]
+        public bool IsDeleted { get; set; }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }

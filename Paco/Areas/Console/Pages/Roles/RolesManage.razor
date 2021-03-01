@@ -19,59 +19,69 @@ else
         <TabPage Text="Users">
             <table class="table">
                 <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>E-mail</th>
-                        <th>Remove</th>
-                    </tr>
+                <tr>
+                    <th>Name</th>
+                    <th>E-mail</th>
+                    <th>Remove</th>
+                </tr>
                 </thead>
                 <tbody>
-                    @foreach (var user in Role.Users)
-                    {
-                        <tr>
-                            <td>
-                                @user.UserName
-                            </td>
-                            <td>
-                                @user.Email
-                            </td>
-                            <td>
-                            </td>
-                        </tr>
-                    }
+                @foreach (var user in Role.Users)
+                {
+                    <tr>
+                        <td>
+                            @user.UserName
+                        </td>
+                        <td>
+                            @user.Email
+                        </td>
+                        <td>
+                        </td>
+                    </tr>
+                }
                 </tbody>
             </table>
         </TabPage>
         <TabPage Text="Permissions">
+            <FormInput ValueChanged="@OnSystemsTermChanged" ElementId="SystemTerm" InputType="text" Placeholder="Search for system" />
             <table class="table">
                 <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th style="text-align:center">Read</th>
-                        <th style="text-align:center">Write</th>
-                        <th style="text-align:center">Execute</th>
-                        <th style="text-align:center">Remove</th>
-                    </tr>
+                <tr>
+                    <th>Name</th>
+                    <th style="text-align:center">Read</th>
+                    <th style="text-align:center">Write</th>
+                    <th style="text-align:center">Execute</th>
+                    <th style="text-align:center">Action</th>
+                </tr>
                 </thead>
                 <tbody>
-                    @foreach (var rolePermission in RoleSystemPermissions)
+                
+                @foreach (var managedSystem in _systems)
                     {
-                        var managedSystem = rolePermission.ManagedSystem;
+                        var rolePermission = managedSystem.RolesPermissions.FirstOrDefault() ?? new RoleSystemPermissions()
+                        {
+                            ManagedSystem = managedSystem,
+                            Role = Role,
+                            Permissions = Permissions.None
+                        };
+
+                        var isAdded = managedSystem.RolesPermissions.FirstOrDefault() != null;
+                        
                         <tr>
                             <td>
                                 @managedSystem.Name
                             </td>
                             <td style="text-align:center">
-                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Read) @onchange="@(eventArgs => { CheckboxClicked(rolePermission, Permissions.Read, eventArgs.Value); })">
+                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Read) @onchange="@(eventArgs => { UpdateSystemPermission(rolePermission, Permissions.Read, eventArgs.Value); })">
                             </td>
                             <td style="text-align:center">
-                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Write) @onchange="@(eventArgs => { CheckboxClicked(rolePermission, Permissions.Write, eventArgs.Value); })">
+                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Write) @onchange="@(eventArgs => { UpdateSystemPermission(rolePermission, Permissions.Write, eventArgs.Value); })">
                             </td>
                             <td style="text-align:center">
-                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Execute) @onchange="@(eventArgs => { CheckboxClicked(rolePermission, Permissions.Execute, eventArgs.Value); })">
+                                <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Execute) @onchange="@(eventArgs => { UpdateSystemPermission(rolePermission, Permissions.Execute, eventArgs.Value); })">
                             </td>
                             <td style="text-align:center">
-                                <span @onclick="@(() => RemovePermissions(rolePermission))" class="oi oi-trash" style='cursor: pointer;'></span>
+                                <span @onclick="@(() => { if (isAdded){ RemovePermissions(rolePermission);} else { AddSystemPermissions(rolePermission);}})" class="oi @(isAdded ? "oi-trash" : "oi-plus")" style='cursor: pointer;'></span>
                             </td>
                         </tr>
                     }
@@ -82,11 +92,15 @@ else
 }
 
 @code {
+
     [Parameter]
     public Guid RoleId { get; set; }
     private Role Role { get; set; }
-    private List<RoleSystemPermissions> RoleSystemPermissions { get; set; }
 
+    private List<ManagedSystem> _systems;
+    
+    private string _systemTerm = "";
+    
     protected override void OnInitialized()
     {
         base.OnInitializedAsync();
@@ -96,8 +110,16 @@ else
 
     private void LoadData()
     {
-        RoleSystemPermissions = ApplicationDbContext.RoleSystemPermissions.GetPermissionsWithSystemsForRole(RoleId);
         Role = ApplicationDbContext.Roles.GetRoleWithUsers(RoleId);
+        RefreshSystems();
+    }
+    
+    private void AddSystemPermissions(RoleSystemPermissions rolePermission)
+    {
+        ApplicationDbContext.Add(rolePermission);
+        ApplicationDbContext.SaveChanges();
+
+        LoadData();
     }
 
     private void RemovePermissions(RoleSystemPermissions rolePermissions)
@@ -108,7 +130,7 @@ else
         LoadData();
     }
 
-    protected void CheckboxClicked(RoleSystemPermissions rolePermissions, Permissions permission, object value)
+    private void UpdateSystemPermission(RoleSystemPermissions rolePermissions, Permissions permission, object value)
     {
         if (value is bool isChecked)
         {
@@ -121,9 +143,38 @@ else
                 rolePermissions.Permissions &= ~permission;
             }
 
-            ApplicationDbContext.RoleSystemPermissions.Update(rolePermissions);
+            if (ApplicationDbContext.RoleSystemPermissions.Any(x => x == rolePermissions))
+            {
+                ApplicationDbContext.RoleSystemPermissions.Update(rolePermissions);
+            }
+            else
+            {
+                ApplicationDbContext.RoleSystemPermissions.Add(rolePermissions);
+            }
+            
             ApplicationDbContext.SaveChanges();
+            
+            LoadData();
         }
+    }
+    
+    private void RefreshSystems()
+    {
+        if (string.IsNullOrEmpty(_systemTerm?.Trim()))
+        {
+            _systems = ApplicationDbContext.ManagedSystems.GetSystemsWithRolePermissionsForRole(Role);
+        }
+        else
+        {
+            _systems = ApplicationDbContext.ManagedSystems.GetSystemsForTermWithRolePermissionsForRole(Role, _systemTerm);
+        }
+    }
+
+    private void OnSystemsTermChanged(string newTerm)
+    {
+        _systemTerm = newTerm;
+        
+        RefreshSystems();
     }
 
 }
