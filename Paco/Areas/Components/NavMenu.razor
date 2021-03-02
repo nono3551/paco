@@ -1,4 +1,6 @@
-﻿<div class="top-row pl-4 navbar navbar-dark bg-dark">
+﻿@inject NavigationManager NavigationManager;
+
+<div class="top-row pl-4 navbar navbar-dark bg-dark">
     <a class="navbar-brand" href="">Paco</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -13,7 +15,7 @@
             </NavLink>
         </li>
         <li class="nav-item dropdown px-3">
-            <NavLink class="nav-link px-3" @onclick="() => expandSystemsSubmenu = !expandSystemsSubmenu">
+            <NavLink class="nav-link px-3" @onclick="@(() => expandSystemsSubmenu = !expandSystemsSubmenu)">
                 <span class="oi oi-monitor" aria-hidden="true"></span> Systems
             </NavLink>
             @if (expandSystemsSubmenu)
@@ -31,21 +33,38 @@
         <AuthorizeView Roles="Administrator">
             <Authorized>
                 <li class="nav-item dropdown px-3">
-                    <NavLink class="nav-link px-3" @onclick="() => expandRolesSubmenu = !expandRolesSubmenu">
-                        <span class="oi oi-lock-locked" aria-hidden="true"></span> Roles
+                    <NavLink class="nav-link px-3" @onclick="@(() => expandPermissionsSubmenu = !expandPermissionsSubmenu)">
+                        <span class="oi oi-lock-locked" aria-hidden="true"></span> Permissions
                     </NavLink>
-                    @if (expandRolesSubmenu)
+                    @if (expandPermissionsSubmenu)
                     {
                         <div class="px-3">
                             <NavLink class="nav-link px-3" href="roles/add">
-                                <span class="oi oi-plus" aria-hidden="true"></span> Add new
+                                <span class="oi oi-plus" aria-hidden="true"></span> New role
                             </NavLink>
                             <NavLink class="nav-link px-3" href="roles/list">
-                                <span class="oi oi-list" aria-hidden="true"></span> List
+                                <span class="oi oi-list" aria-hidden="true"></span> List roles
                             </NavLink>
+                        </div>
+                        <div class="px-3">
+                            <NavLink class="nav-link px-3" @onclick="@(() => expandSystemGroupsSubmenu = !expandSystemGroupsSubmenu)">
+                                <span class="oi bi-collection" aria-hidden="true"></span> System groups
+                            </NavLink>
+                            @if (expandSystemGroupsSubmenu)
+                            {
+                                <div class="px-3">
+                                    <NavLink class="nav-link px-3" href="systemsgroups/add">
+                                        <span class="oi oi-plus" aria-hidden="true"></span> Add group
+                                    </NavLink>
+                                    <NavLink class="nav-link px-3" href="systemsgroups/list">
+                                        <span class="oi oi-list" aria-hidden="true"></span> List groups
+                                    </NavLink>
+                                </div>
+                            }
                         </div>
                     }
                 </li>
+                
             </Authorized>
         </AuthorizeView>
         <AuthorizeView>
@@ -61,12 +80,9 @@
 </div>
 
 @code {
-
-    [Inject]
-    public NavigationManager NavigationManager { get; set; }
-
     private bool expandSystemsSubmenu;
-    private bool expandRolesSubmenu;
+    private bool expandPermissionsSubmenu;
+    private bool expandSystemGroupsSubmenu;
     private bool collapseNavMenu = true;
 
     private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
@@ -76,9 +92,15 @@
         if (NavigationManager.Uri.Contains("systems/"))
         {
             expandSystemsSubmenu = true;
-        } else if (NavigationManager.Uri.Contains("systems/"))
+        }
+        else if (NavigationManager.Uri.Contains("roles/"))
         {
-            expandRolesSubmenu = true;
+            expandPermissionsSubmenu = true;
+        }
+        else if (NavigationManager.Uri.Contains("systemsgroups/"))
+        {
+            expandPermissionsSubmenu = true;
+            expandSystemGroupsSubmenu = true;
         }
         return base.OnInitializedAsync();
     }
@@ -87,4 +109,5 @@
     {
         collapseNavMenu = !collapseNavMenu;
     }
+
 }

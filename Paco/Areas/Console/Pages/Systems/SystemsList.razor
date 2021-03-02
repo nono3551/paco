@@ -49,16 +49,11 @@
                     <td colspan="4" class="">
                         <div class="card">
                             <div class="card-body">
-                                @if (system.SystemInformation == null)
-                                {
-                                    RefreshSystemInformation(system);
-                                }
-                                else
-                                {
-                                    var information = system.SystemInformation.FromJson<Dictionary<string, string>>();
+                                @{
+                                    var information = system.SystemInformation?.FromJson<Dictionary<string, string>>();
                                     if (information != null)
                                     {
-                                        @foreach (var entry in information)
+                                        /*@*/foreach (var entry in information)
                                         {
                                             <div class="row mb-2">
                                                 <div class="text-sm-right col-sm-3"><b>@entry.Key:</b></div>
@@ -69,7 +64,6 @@
                                         }
                                     }
                                 }
-s
                                 <button type="button" class="btn btn-dark" @onclick="() => HideDetail(system)">Hide Details</button>
                                 <button type="button" class="btn btn-dark" @onclick="() => RefreshSystemInformation(system)">Refresh</button>
                                 <button type="button" class="btn btn-dark" @onclick="() => FetchSystemUpdates(system)">Fetch updates</button>

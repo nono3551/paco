@@ -63,8 +63,8 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("8ac2af87-f059-45ae-9dfb-f51f5cc1b378"),
-                            ConcurrencyStamp = "65a14eb5-8168-4318-a3e4-5f34d18ca73f",
+                            Id = new Guid("65a59da6-9b99-4214-8d89-9eed1ce0f696"),
+                            ConcurrencyStamp = "01024b13-aabd-424e-95d5-3babbc943f3e",
                             Name = "Administrator"
                         });
                 });
@@ -178,7 +178,7 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("5a9b76ae-8a14-4995-9ae9-07efc8211db8"),
+                            Id = new Guid("59478cf7-977a-46c2-bb57-12b95b9a3aee"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "34acbb54-9ae3-4742-af3c-89de44e306e0",
                             Email = "asd@ads.asd",
@@ -288,9 +288,9 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("f2c4e948-96d5-4ad5-835b-44f8eb21a582"),
-                            UserId = new Guid("5a9b76ae-8a14-4995-9ae9-07efc8211db8"),
-                            RoleId = new Guid("8ac2af87-f059-45ae-9dfb-f51f5cc1b378")
+                            Id = new Guid("151dc1e2-814e-4d06-8752-e92ec8fe1204"),
+                            UserId = new Guid("59478cf7-977a-46c2-bb57-12b95b9a3aee"),
+                            RoleId = new Guid("65a59da6-9b99-4214-8d89-9eed1ce0f696")
                         });
                 });
 
@@ -443,7 +443,7 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("6e1c4b60-dc6b-441e-94d0-a4b0b26dbac9"),
+                            Id = new Guid("4906e570-30ba-480d-907e-c41a7699d2e0"),
                             Distribution = 0,
                             Hostname = "none.test.test",
                             Login = "test",
@@ -454,7 +454,7 @@ namespace Paco.Migrations
                         },
                         new
                         {
-                            Id = new Guid("39d398b3-ee17-432d-a3da-89b376229c32"),
+                            Id = new Guid("3377e53e-2812-49c3-a054-c6ffd73905fe"),
                             Distribution = 0,
                             Hostname = "multiple.test.test",
                             Login = "test",
@@ -524,25 +524,25 @@ namespace Paco.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ManagedSystemGroupId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("ManagedSystemGroupId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<short>("Permissions")
                         .HasColumnType("smallint");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Id", "RoleId", "ManagedSystemGroupId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ManagedSystemGroupId");
 
@@ -586,16 +586,16 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("7e820605-06ad-4198-b908-8f2f387cf5ca"),
-                            RoleId = new Guid("8ac2af87-f059-45ae-9dfb-f51f5cc1b378"),
-                            ManagedSystemId = new Guid("6e1c4b60-dc6b-441e-94d0-a4b0b26dbac9"),
+                            Id = new Guid("a03a374b-1cf2-4422-ba20-437b32fad6c4"),
+                            RoleId = new Guid("65a59da6-9b99-4214-8d89-9eed1ce0f696"),
+                            ManagedSystemId = new Guid("4906e570-30ba-480d-907e-c41a7699d2e0"),
                             Permissions = (short)0
                         },
                         new
                         {
-                            Id = new Guid("cc062ea8-bb71-42b6-b1f1-86e8c8a88035"),
-                            RoleId = new Guid("8ac2af87-f059-45ae-9dfb-f51f5cc1b378"),
-                            ManagedSystemId = new Guid("39d398b3-ee17-432d-a3da-89b376229c32"),
+                            Id = new Guid("cfab7a20-b098-41f8-a51e-a932cb3264b1"),
+                            RoleId = new Guid("65a59da6-9b99-4214-8d89-9eed1ce0f696"),
+                            ManagedSystemId = new Guid("3377e53e-2812-49c3-a054-c6ffd73905fe"),
                             Permissions = (short)7
                         });
                 });
