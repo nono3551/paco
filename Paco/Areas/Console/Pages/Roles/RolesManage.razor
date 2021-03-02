@@ -179,11 +179,11 @@ else
 
         if (string.IsNullOrEmpty(_systemTerm?.Trim()))
         {
-            _systems = db.ManagedSystems.GetSystemsWithRolePermissionsForRole(Role);
+            _systems = db.ManagedSystems.GetManagedSystemsWithRolePermissionsForRole(Role);
         }
         else
         {
-            _systems = db.ManagedSystems.GetSystemsForTermWithRolePermissionsForRole(Role, _systemTerm);
+            _systems = db.ManagedSystems.GetManagedSystemsForTermWithRolePermissionsForRole(Role, _systemTerm);
         }
     }
 

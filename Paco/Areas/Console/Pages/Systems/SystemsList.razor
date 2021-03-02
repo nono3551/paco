@@ -90,7 +90,7 @@ s
     {
         var user = await UserManager.GetUserAsync((await AuthenticationStateProvider.GetAuthenticationStateAsync()).User);
 
-        _systems = ApplicationDbContext.ManagedSystems.GetSystemsForUser(user);
+        _systems = ApplicationDbContext.ManagedSystems.GetManagedSystemsForUser(user);
 
         await base.OnInitializedAsync();
     }
