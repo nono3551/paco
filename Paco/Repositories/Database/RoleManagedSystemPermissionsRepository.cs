@@ -1,4 +1,4 @@
-﻿namespace Paco.DatabaseRepositories
+﻿namespace Paco.Repositories.Database
 {
     public static class RoleSystemPermissionsRepository
     {

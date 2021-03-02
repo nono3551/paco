@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using Microsoft.AspNetCore.Identity;
 
-namespace Paco.Data.Entities.Identity
+namespace Paco.Entities.Models.Identity
 {
     public class User : IdentityUser<Guid>, IDbEntity
     {

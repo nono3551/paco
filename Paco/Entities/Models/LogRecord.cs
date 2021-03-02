@@ -1,8 +1,7 @@
 ﻿using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace Paco.Data.Entities
+namespace Paco.Entities.Models
 {
     public class LogRecord: IDbEntity
     {

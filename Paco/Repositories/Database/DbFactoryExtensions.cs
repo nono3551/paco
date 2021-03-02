@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Paco.Data;
 
-namespace Paco.DatabaseRepositories
+namespace Paco.Repositories.Database
 {
     public static class DbFactoryExtensions
     {

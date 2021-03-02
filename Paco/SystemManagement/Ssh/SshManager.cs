@@ -1,4 +1,4 @@
-﻿using Paco.Data.Entities;
+﻿using Paco.Entities.Models;
 using Renci.SshNet;
 
 namespace Paco.SystemManagement.Ssh

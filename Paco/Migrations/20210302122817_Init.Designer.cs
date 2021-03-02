@@ -5,13 +5,13 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Paco.Data;
+using Paco.Repositories.Database;
 
 namespace Paco.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210301225516_InitialCreate2")]
-    partial class InitialCreate2
+    [Migration("20210302122817_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,7 +21,7 @@ namespace Paco.Migrations
                 .HasAnnotation("ProductVersion", "5.0.3")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Paco.Data.Entities.Identity.Role", b =>
+            modelBuilder.Entity("Paco.Entities.Models.Identity.Role", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -37,6 +37,9 @@ namespace Paco.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("ManagedSystemGroupId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Name")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -50,6 +53,8 @@ namespace Paco.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ManagedSystemGroupId");
+
                     b.HasIndex("NormalizedName")
                         .IsUnique()
                         .HasDatabaseName("RoleNameIndex")
@@ -60,13 +65,13 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("bbc09947-078a-4268-9918-d6bd6f1f2a3d"),
-                            ConcurrencyStamp = "73a41a0f-41ce-429b-84f5-4614d1492c7c",
+                            Id = new Guid("8ac2af87-f059-45ae-9dfb-f51f5cc1b378"),
+                            ConcurrencyStamp = "65a14eb5-8168-4318-a3e4-5f34d18ca73f",
                             Name = "Administrator"
                         });
                 });
 
-            modelBuilder.Entity("Paco.Data.Entities.Identity.RoleClaim", b =>
+            modelBuilder.Entity("Paco.Entities.Models.Identity.RoleClaim", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -98,7 +103,7 @@ namespace Paco.Migrations
                     b.ToTable("AspNetRoleClaims");
                 });
 
-            modelBuilder.Entity("Paco.Data.Entities.Identity.User", b =>
+            modelBuilder.Entity("Paco.Entities.Models.Identity.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -175,7 +180,7 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("8f7d95ed-b7c3-42db-9dd3-ae3505878cce"),
+                            Id = new Guid("5a9b76ae-8a14-4995-9ae9-07efc8211db8"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "34acbb54-9ae3-4742-af3c-89de44e306e0",
                             Email = "asd@ads.asd",
@@ -191,7 +196,7 @@ namespace Paco.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Paco.Data.Entities.Identity.UserClaim", b =>
+            modelBuilder.Entity("Paco.Entities.Models.Identity.UserClaim", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -223,7 +228,7 @@ namespace Paco.Migrations
                     b.ToTable("AspNetUserClaims");
                 });
 
-            modelBuilder.Entity("Paco.Data.Entities.Identity.UserLogin", b =>
+            modelBuilder.Entity("Paco.Entities.Models.Identity.UserLogin", b =>
                 {
                     b.Property<string>("LoginProvider")
                         .HasColumnType("nvarchar(450)");
@@ -253,7 +258,7 @@ namespace Paco.Migrations
                     b.ToTable("AspNetUserLogins");
                 });
 
-            modelBuilder.Entity("Paco.Data.Entities.Identity.UserRole", b =>
+            modelBuilder.Entity("Paco.Entities.Models.Identity.UserRole", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -285,13 +290,13 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("65077aeb-63e1-42d2-ae61-512383b8f040"),
-                            UserId = new Guid("8f7d95ed-b7c3-42db-9dd3-ae3505878cce"),
-                            RoleId = new Guid("bbc09947-078a-4268-9918-d6bd6f1f2a3d")
+                            Id = new Guid("f2c4e948-96d5-4ad5-835b-44f8eb21a582"),
+                            UserId = new Guid("5a9b76ae-8a14-4995-9ae9-07efc8211db8"),
+                            RoleId = new Guid("8ac2af87-f059-45ae-9dfb-f51f5cc1b378")
                         });
                 });
 
-            modelBuilder.Entity("Paco.Data.Entities.Identity.UserToken", b =>
+            modelBuilder.Entity("Paco.Entities.Models.Identity.UserToken", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -319,7 +324,7 @@ namespace Paco.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("Paco.Data.Entities.LogRecord", b =>
+            modelBuilder.Entity("Paco.Entities.Models.LogRecord", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -377,7 +382,7 @@ namespace Paco.Migrations
                     b.ToTable("LogRecords");
                 });
 
-            modelBuilder.Entity("Paco.Data.Entities.ManagedSystem", b =>
+            modelBuilder.Entity("Paco.Entities.Models.ManagedSystem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -440,7 +445,7 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("10c5f3b0-c176-4f1d-bc37-9ab92bf6863b"),
+                            Id = new Guid("6e1c4b60-dc6b-441e-94d0-a4b0b26dbac9"),
                             Distribution = 0,
                             Hostname = "none.test.test",
                             Login = "test",
@@ -451,7 +456,7 @@ namespace Paco.Migrations
                         },
                         new
                         {
-                            Id = new Guid("ecf043b0-68a7-415e-8f23-64d6a7ad2c63"),
+                            Id = new Guid("39d398b3-ee17-432d-a3da-89b376229c32"),
                             Distribution = 0,
                             Hostname = "multiple.test.test",
                             Login = "test",
@@ -462,7 +467,93 @@ namespace Paco.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Paco.Data.Entities.RoleSystemPermissions", b =>
+            modelBuilder.Entity("Paco.Entities.Models.ManagedSystemGroup", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ManagedSystemGroup");
+                });
+
+            modelBuilder.Entity("Paco.Entities.Models.ManagedSystemManagedSystemGroup", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ManagedSystemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ManagedSystemGroupId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id", "ManagedSystemId", "ManagedSystemGroupId");
+
+                    b.HasIndex("ManagedSystemGroupId");
+
+                    b.HasIndex("ManagedSystemId");
+
+                    b.ToTable("ManagedSystemManagedSystemGroup");
+                });
+
+            modelBuilder.Entity("Paco.Entities.Models.RoleManagedSystemGroupPermissions", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ManagedSystemGroupId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<short>("Permissions")
+                        .HasColumnType("smallint");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id", "RoleId", "ManagedSystemGroupId");
+
+                    b.HasIndex("ManagedSystemGroupId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("RoleManagedSystemGroupPermissions");
+                });
+
+            modelBuilder.Entity("Paco.Entities.Models.RoleManagedSystemPermissions", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -492,61 +583,68 @@ namespace Paco.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("RoleSystemPermissions");
+                    b.ToTable("RoleManagedSystemPermissions");
 
                     b.HasData(
                         new
                         {
-                            Id = new Guid("3ca5b825-56f6-44fd-b649-aa2da3aaf9d4"),
-                            RoleId = new Guid("bbc09947-078a-4268-9918-d6bd6f1f2a3d"),
-                            ManagedSystemId = new Guid("10c5f3b0-c176-4f1d-bc37-9ab92bf6863b"),
+                            Id = new Guid("7e820605-06ad-4198-b908-8f2f387cf5ca"),
+                            RoleId = new Guid("8ac2af87-f059-45ae-9dfb-f51f5cc1b378"),
+                            ManagedSystemId = new Guid("6e1c4b60-dc6b-441e-94d0-a4b0b26dbac9"),
                             Permissions = (short)0
                         },
                         new
                         {
-                            Id = new Guid("377716b7-38a7-4ae2-bfd7-a769716232a9"),
-                            RoleId = new Guid("bbc09947-078a-4268-9918-d6bd6f1f2a3d"),
-                            ManagedSystemId = new Guid("ecf043b0-68a7-415e-8f23-64d6a7ad2c63"),
+                            Id = new Guid("cc062ea8-bb71-42b6-b1f1-86e8c8a88035"),
+                            RoleId = new Guid("8ac2af87-f059-45ae-9dfb-f51f5cc1b378"),
+                            ManagedSystemId = new Guid("39d398b3-ee17-432d-a3da-89b376229c32"),
                             Permissions = (short)7
                         });
                 });
 
-            modelBuilder.Entity("Paco.Data.Entities.Identity.RoleClaim", b =>
+            modelBuilder.Entity("Paco.Entities.Models.Identity.Role", b =>
                 {
-                    b.HasOne("Paco.Data.Entities.Identity.Role", null)
+                    b.HasOne("Paco.Entities.Models.ManagedSystemGroup", null)
+                        .WithMany("Roles")
+                        .HasForeignKey("ManagedSystemGroupId");
+                });
+
+            modelBuilder.Entity("Paco.Entities.Models.Identity.RoleClaim", b =>
+                {
+                    b.HasOne("Paco.Entities.Models.Identity.Role", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Paco.Data.Entities.Identity.UserClaim", b =>
+            modelBuilder.Entity("Paco.Entities.Models.Identity.UserClaim", b =>
                 {
-                    b.HasOne("Paco.Data.Entities.Identity.User", null)
+                    b.HasOne("Paco.Entities.Models.Identity.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Paco.Data.Entities.Identity.UserLogin", b =>
+            modelBuilder.Entity("Paco.Entities.Models.Identity.UserLogin", b =>
                 {
-                    b.HasOne("Paco.Data.Entities.Identity.User", null)
+                    b.HasOne("Paco.Entities.Models.Identity.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Paco.Data.Entities.Identity.UserRole", b =>
+            modelBuilder.Entity("Paco.Entities.Models.Identity.UserRole", b =>
                 {
-                    b.HasOne("Paco.Data.Entities.Identity.Role", "Role")
+                    b.HasOne("Paco.Entities.Models.Identity.Role", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Paco.Data.Entities.Identity.User", "User")
+                    b.HasOne("Paco.Entities.Models.Identity.User", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -557,25 +655,63 @@ namespace Paco.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Paco.Data.Entities.Identity.UserToken", b =>
+            modelBuilder.Entity("Paco.Entities.Models.Identity.UserToken", b =>
                 {
-                    b.HasOne("Paco.Data.Entities.Identity.User", null)
+                    b.HasOne("Paco.Entities.Models.Identity.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Paco.Data.Entities.RoleSystemPermissions", b =>
+            modelBuilder.Entity("Paco.Entities.Models.ManagedSystemManagedSystemGroup", b =>
                 {
-                    b.HasOne("Paco.Data.Entities.ManagedSystem", "ManagedSystem")
-                        .WithMany("RolesPermissions")
+                    b.HasOne("Paco.Entities.Models.ManagedSystemGroup", "ManagedSystemGroup")
+                        .WithMany("ManagedSystemManagedSystemGroups")
+                        .HasForeignKey("ManagedSystemGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Paco.Entities.Models.ManagedSystem", "ManagedSystem")
+                        .WithMany("ManagedSystemManagedSystemGroups")
                         .HasForeignKey("ManagedSystemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Paco.Data.Entities.Identity.Role", "Role")
-                        .WithMany("SystemsPermissions")
+                    b.Navigation("ManagedSystem");
+
+                    b.Navigation("ManagedSystemGroup");
+                });
+
+            modelBuilder.Entity("Paco.Entities.Models.RoleManagedSystemGroupPermissions", b =>
+                {
+                    b.HasOne("Paco.Entities.Models.ManagedSystemGroup", "ManagedSystemGroup")
+                        .WithMany("RoleManagedSystemGroupPermissions")
+                        .HasForeignKey("ManagedSystemGroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Paco.Entities.Models.Identity.Role", "Role")
+                        .WithMany("RoleManagedSystemGroupPermissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ManagedSystemGroup");
+
+                    b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Paco.Entities.Models.RoleManagedSystemPermissions", b =>
+                {
+                    b.HasOne("Paco.Entities.Models.ManagedSystem", "ManagedSystem")
+                        .WithMany("RoleManagedSystemPermissions")
+                        .HasForeignKey("ManagedSystemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Paco.Entities.Models.Identity.Role", "Role")
+                        .WithMany("RoleManagedSystemPermissions")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -585,21 +721,34 @@ namespace Paco.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Paco.Data.Entities.Identity.Role", b =>
+            modelBuilder.Entity("Paco.Entities.Models.Identity.Role", b =>
                 {
-                    b.Navigation("SystemsPermissions");
+                    b.Navigation("RoleManagedSystemGroupPermissions");
+
+                    b.Navigation("RoleManagedSystemPermissions");
 
                     b.Navigation("UserRoles");
                 });
 
-            modelBuilder.Entity("Paco.Data.Entities.Identity.User", b =>
+            modelBuilder.Entity("Paco.Entities.Models.Identity.User", b =>
                 {
                     b.Navigation("UserRoles");
                 });
 
-            modelBuilder.Entity("Paco.Data.Entities.ManagedSystem", b =>
+            modelBuilder.Entity("Paco.Entities.Models.ManagedSystem", b =>
                 {
-                    b.Navigation("RolesPermissions");
+                    b.Navigation("ManagedSystemManagedSystemGroups");
+
+                    b.Navigation("RoleManagedSystemPermissions");
+                });
+
+            modelBuilder.Entity("Paco.Entities.Models.ManagedSystemGroup", b =>
+                {
+                    b.Navigation("ManagedSystemManagedSystemGroups");
+
+                    b.Navigation("RoleManagedSystemGroupPermissions");
+
+                    b.Navigation("Roles");
                 });
 #pragma warning restore 612, 618
         }

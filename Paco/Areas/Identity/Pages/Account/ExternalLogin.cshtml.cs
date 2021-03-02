@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
-using Paco.Data.Entities.Identity;
+using Paco.Entities.Models.Identity;
 
 namespace Paco.Areas.Identity.Pages.Account
 {

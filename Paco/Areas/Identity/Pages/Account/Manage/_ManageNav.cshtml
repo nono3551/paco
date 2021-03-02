@@ -1,4 +1,4 @@
-﻿@using Paco.Data.Entities.Identity
+﻿@using Paco.Entities.Models.Identity
 @inject SignInManager<User> SignInManager
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();

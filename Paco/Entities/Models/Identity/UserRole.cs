@@ -1,25 +1,19 @@
 ﻿using System;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Paco.Data.Entities.Identity;
+using Microsoft.AspNetCore.Identity;
 
-namespace Paco.Data.Entities
+namespace Paco.Entities.Models.Identity
 {
-    public class RoleManagedSystemPermissions: IDbEntity
+    public class UserRole : IdentityUserRole<Guid>, IDbEntity
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
-        public Guid RoleId { get; set; }
-        public Guid ManagedSystemId { get; set; }
-        public Permissions Permissions { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
-        
         public DateTime? DeletedAt { get; set; }
-
+        public User User { get; set; }
         public Role Role { get; set; }
-        public ManagedSystem ManagedSystem { get; set; }
     }
 }

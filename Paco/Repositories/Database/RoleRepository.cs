@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Paco.Data.Entities.Identity;
+using Paco.Entities.Models.Identity;
 
-namespace Paco.DatabaseRepositories
+namespace Paco.Repositories.Database
 {
     public static class RoleRepository
     {

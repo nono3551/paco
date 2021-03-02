@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Paco.Data.Entities.Identity;
+using Paco.Entities.Models.Identity;
 
 namespace Paco.Areas.Identity.Pages.Account.Manage
 {

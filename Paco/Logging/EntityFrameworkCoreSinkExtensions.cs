@@ -1,5 +1,6 @@
 ﻿using System;
-using Paco.Data;
+using Microsoft.EntityFrameworkCore;
+using Paco.Repositories.Database;
 using Serilog;
 using Serilog.Configuration;
 
@@ -7,9 +8,9 @@ namespace Paco.Logging
 {
     public static class EntityFrameworkCoreSinkExtensions
     {
-        public static LoggerConfiguration EntityFrameworkSink(this LoggerSinkConfiguration loggerConfiguration, Func<ApplicationDbContext> dbContextProvider, IFormatProvider formatProvider = null)
+        public static LoggerConfiguration EntityFrameworkSink(this LoggerSinkConfiguration loggerConfiguration, IDbContextFactory<ApplicationDbContext> dbContextFactory, IFormatProvider formatProvider = null)
         {
-            return loggerConfiguration.Sink(new EntityFrameworkCoreSink(dbContextProvider, formatProvider));
+            return loggerConfiguration.Sink(new EntityFrameworkCoreSink(dbContextFactory, formatProvider));
         }
     }
 }

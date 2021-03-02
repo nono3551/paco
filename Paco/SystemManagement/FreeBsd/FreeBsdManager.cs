@@ -1,6 +1,6 @@
-﻿using Paco.Data.Entities;
-using Paco.SystemManagement.FreeBsd.Commands;
+﻿using Paco.SystemManagement.FreeBsd.Commands;
 using System.Collections.Generic;
+using Paco.Entities.Models;
 using Paco.SystemManagement.Ssh;
 
 namespace Paco.SystemManagement.FreeBsd

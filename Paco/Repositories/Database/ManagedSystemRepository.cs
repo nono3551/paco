@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Paco.Data.Entities;
-using Paco.Data.Entities.Identity;
+using Paco.Entities;
+using Paco.Entities.Models;
+using Paco.Entities.Models.Identity;
 
-namespace Paco.DatabaseRepositories
+namespace Paco.Repositories.Database
 {
     public static class ManagedSystemRepository
     {

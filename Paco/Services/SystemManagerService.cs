@@ -1,9 +1,9 @@
-﻿using Paco.Data;
-using Paco.Data.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using Paco.Entities.Models;
+using Paco.Repositories.Database;
 
 namespace Paco.Services
 {

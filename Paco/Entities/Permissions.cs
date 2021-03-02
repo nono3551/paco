@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Paco.Data.Entities
+namespace Paco.Entities
 {
     [Flags]
     public enum Permissions : short

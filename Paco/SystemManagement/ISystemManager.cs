@@ -1,5 +1,5 @@
-﻿using Paco.Data.Entities;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Paco.Entities.Models;
 
 namespace Paco.SystemManagement
 {

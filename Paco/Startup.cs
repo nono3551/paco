@@ -7,13 +7,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Paco.Areas.Identity;
-using Paco.Data;
 using System;
 using Paco.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Logging;
-using Paco.Data.Entities.Identity;
+using Paco.Entities.Models.Identity;
 using Paco.Logging;
+using Paco.Repositories.Database;
 using Serilog;
 
 namespace Paco
@@ -105,7 +105,7 @@ namespace Paco
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             Log.Logger = new LoggerConfiguration()
-                .WriteTo.EntityFrameworkSink(app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<ApplicationDbContext>)
+                .WriteTo.EntityFrameworkSink(app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<IDbContextFactory<ApplicationDbContext>>())
                 .CreateLogger();
             loggerFactory.AddSerilog();
 

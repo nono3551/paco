@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Paco.Data;
-using Paco.Data.Entities;
+using Paco.Entities.Models;
+using Paco.Repositories.Database;
 using Paco.Services;
 using Timer = System.Threading.Timer;
 

@@ -1,8 +1,7 @@
 ﻿using System;
-using System.ComponentModel;
 using Microsoft.AspNetCore.Identity;
 
-namespace Paco.Data.Entities.Identity
+namespace Paco.Entities.Models.Identity
 {
     public class RoleClaim : IdentityRoleClaim<Guid>, IDbEntity
     {

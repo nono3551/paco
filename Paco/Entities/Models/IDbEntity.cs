@@ -1,7 +1,6 @@
 ﻿using System;
-using System.ComponentModel;
 
-namespace Paco.Data.Entities
+namespace Paco.Entities.Models
 {
     public interface IDbEntity
     {

@@ -11,24 +11,25 @@ using Serilog.Formatting.Json;
 using Microsoft.EntityFrameworkCore;
 
 using Newtonsoft.Json.Linq;
-using Paco.Data.Entities;
+using Paco.Entities.Models;
+using Paco.Repositories.Database;
 
 namespace Paco.Logging
 {
     public class EntityFrameworkCoreSink : ILogEventSink
     {
         private readonly IFormatProvider _formatProvider;
-        private readonly Func<DbContext> _dbContextProvider;
+        private readonly IDbContextFactory<ApplicationDbContext> _dbContextProvider;
         private readonly JsonFormatter _jsonFormatter;
-        static readonly object Lock = new object();
+        static readonly object Lock = new();
 
-        public EntityFrameworkCoreSink(Func<DbContext> dbContextProvider, IFormatProvider formatProvider)
+        public EntityFrameworkCoreSink(IDbContextFactory<ApplicationDbContext> dbContextFactory, IFormatProvider formatProvider)
         {
             _formatProvider = formatProvider;
-            _dbContextProvider = dbContextProvider ?? throw new ArgumentNullException(nameof(dbContextProvider));
+            _dbContextProvider = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
             _jsonFormatter = new JsonFormatter(formatProvider: formatProvider);
         }
-            
+        
         public void Emit(LogEvent logEvent)
         {
             lock (Lock)
@@ -42,14 +43,7 @@ namespace Paco.Logging
                 {
                     try
                     {
-                        DbContext context = this._dbContextProvider.Invoke();
-
-                        if (context != null)
-                        {
-                            context.Set<LogRecord>().Add(ConvertLogEventToLogRecord(logEvent));
-
-                            context.SaveChanges();
-                        }
+                        _dbContextProvider.Add(ConvertLogEventToLogRecord(logEvent));
                     }
                     catch
                     {
