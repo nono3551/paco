@@ -39,7 +39,7 @@
                     @system.LastAccessed
                 </td>
                 <td>
-                    @(system.UpdatesFetchedAt.ToString() ?? "Never")
+                    @(system.UpdatesFetchedAt?.ToString() ?? "Never")
                 </td>
             </tr>
             @if (ShouldShowDetailForSystem(system))
