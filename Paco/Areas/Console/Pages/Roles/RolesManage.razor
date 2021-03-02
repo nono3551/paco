@@ -5,7 +5,6 @@
 @using Paco.DatabaseRepositories
 
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
-
 @inject NavigationManager NavigationManager
 
 @attribute [Authorize(Roles = "Administrator")]
@@ -53,7 +52,7 @@ else
                 </tbody>
             </table>
         </TabPage>
-        <TabPage Text="Permissions">
+        <TabPage Text="Systems">
             <FormInput ValueChanged="@OnSystemTermChanged" ElementId="SystemTerm" InputType="text" Placeholder="Search for system"/>
             <table class="table">
                 <thead>
@@ -69,14 +68,14 @@ else
 
                 @foreach (var managedSystem in _systems)
                 {
-                    var rolePermission = managedSystem.RolesPermissions.FirstOrDefault() ?? new RoleSystemPermissions()
+                    var rolePermission = managedSystem.RoleManagedSystemPermissions.FirstOrDefault() ?? new RoleManagedSystemPermissions()
                     {
                         RoleId = RoleId,
                         ManagedSystemId = managedSystem.Id,
                         Permissions = Permissions.None
                     };
 
-                    var isAdded = managedSystem.RolesPermissions.FirstOrDefault() != null;
+                    var isAdded = managedSystem.RoleManagedSystemPermissions.FirstOrDefault() != null;
 
                     <tr>
                         <td>
@@ -144,28 +143,28 @@ else
         LoadData();
     }
 
-    private void UpdateSystemPermission(RoleSystemPermissions rolePermissions, Permissions permission, object value)
+    private void UpdateSystemPermission(RoleManagedSystemPermissions roleManagedSystemPermissions, Permissions permission, object value)
     {
         if (value is bool isChecked)
         {
             if (isChecked)
             {
-                rolePermissions.Permissions |= permission;
+                roleManagedSystemPermissions.Permissions |= permission;
             }
             else
             {
-                rolePermissions.Permissions &= ~permission;
+                roleManagedSystemPermissions.Permissions &= ~permission;
             }
 
             using var db = DbFactory.CreateDbContext();
 
-            if (db.RoleSystemPermissions.Any(x => x == rolePermissions))
+            if (db.RoleManagedSystemPermissions.Any(x => x == roleManagedSystemPermissions))
             {
-                db.RoleSystemPermissions.Update(rolePermissions);
+                db.RoleManagedSystemPermissions.Update(roleManagedSystemPermissions);
             }
             else
             {
-                db.RoleSystemPermissions.Add(rolePermissions);
+                db.RoleManagedSystemPermissions.Add(roleManagedSystemPermissions);
             }
 
             db.SaveChanges();

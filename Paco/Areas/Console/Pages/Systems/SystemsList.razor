@@ -10,6 +10,7 @@
 @inject UserManager<User> UserManager
 
 @page "/systems/list"
+<h1>Maaged systems</h1>
 <table class="table">
     <thead>
         <tr>
@@ -68,7 +69,7 @@
                                         }
                                     }
                                 }
-
+s
                                 <button type="button" class="btn btn-dark" @onclick="() => HideDetail(system)">Hide Details</button>
                                 <button type="button" class="btn btn-dark" @onclick="() => RefreshSystemInformation(system)">Refresh</button>
                                 <button type="button" class="btn btn-dark" @onclick="() => FetchSystemUpdates(system)">Fetch updates</button>

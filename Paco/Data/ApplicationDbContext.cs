@@ -13,10 +13,9 @@ namespace Paco.Data
     public class ApplicationDbContext : IdentityDbContext<User, Role, Guid, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>
     {
         private readonly ILoggerFactory _loggerFactory;
-
-
+        
         public DbSet<ManagedSystem> ManagedSystems { get; set; }
-        public DbSet<RoleSystemPermissions> RoleSystemPermissions { get; set; }
+        public DbSet<RoleManagedSystemPermissions> RoleManagedSystemPermissions { get; set; }
         public DbSet<LogRecord> LogRecords { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ILoggerFactory loggerFactory): base(options)
@@ -67,16 +66,16 @@ namespace Paco.Data
 
         private void SetupRoleSystemPermissionsMapping(ModelBuilder builder)
         {
-            builder.Entity<RoleSystemPermissions>().HasKey(x => new { x.Id, x.RoleId, SystemId = x.ManagedSystemId });
+            builder.Entity<RoleManagedSystemPermissions>().HasKey(x => new { x.Id, x.RoleId, SystemId = x.ManagedSystemId });
 
-            builder.Entity<RoleSystemPermissions>()
+            builder.Entity<RoleManagedSystemPermissions>()
                 .HasOne(a => a.Role)
-                .WithMany(b => b.SystemsPermissions)
+                .WithMany(b => b.RoleManagedSystemPermissions)
                 .HasForeignKey(a => a.RoleId);
 
-            builder.Entity<RoleSystemPermissions>()
+            builder.Entity<RoleManagedSystemPermissions>()
                 .HasOne(a => a.ManagedSystem)
-                .WithMany(b => b.RolesPermissions)
+                .WithMany(b => b.RoleManagedSystemPermissions)
                 .HasForeignKey(a => a.ManagedSystemId);
             
             
@@ -110,7 +109,7 @@ namespace Paco.Data
             builder.Entity<UserToken>().HasQueryFilter(p => p.DeletedAt == null);
             builder.Entity<ManagedSystem>().HasQueryFilter(p => p.DeletedAt == null);
             builder.Entity<LogRecord>().HasQueryFilter(p => p.DeletedAt == null);
-            builder.Entity<RoleSystemPermissions>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<RoleManagedSystemPermissions>().HasQueryFilter(p => p.DeletedAt == null);
         }
         
         
@@ -167,13 +166,13 @@ namespace Paco.Data
                 UserId = user.Id
             });
 
-            builder.Entity<RoleSystemPermissions>().HasData(new RoleSystemPermissions()
+            builder.Entity<RoleManagedSystemPermissions>().HasData(new RoleManagedSystemPermissions()
             {
                 Id = Guid.NewGuid(),
                 RoleId = role.Id,
                 ManagedSystemId = system1.Id,
                 Permissions = Permissions.None
-            }, new RoleSystemPermissions()
+            }, new RoleManagedSystemPermissions()
             {
                 Id = Guid.NewGuid(),
                 RoleId = role.Id,

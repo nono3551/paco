@@ -11,7 +11,6 @@ namespace Paco.Data.Entities
 {
     public class ManagedSystem : IDbEntity
     {
-        
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
@@ -41,7 +40,7 @@ namespace Paco.Data.Entities
         [NotMapped]
         public Fingerprint Fingerprint => new Fingerprint(SystemFingerprint);
 
-        public List<RoleSystemPermissions> RolesPermissions { get; set; }
+        public List<RoleManagedSystemPermissions> RoleManagedSystemPermissions { get; set; }
 
         public ISystemManager GetDistributionManager()
         {

@@ -10,14 +10,14 @@ namespace Paco.DatabaseRepositories
     {
         public static List<ManagedSystem> GetSystemsForUser(this DbSet<ManagedSystem> systems, User user)
         {
-            return systems.Where(s => s.RolesPermissions.Any(p => p.Permissions > Permissions.None && p.Role.Users.Contains(user)))
-                .Include(s => s.RolesPermissions.Where(rp => rp.Role.Users.Contains(user))).ToList();
+            return systems.Where(s => s.RoleManagedSystemPermissions.Any(p => p.Permissions > Permissions.None && p.Role.Users.Contains(user)))
+                .Include(s => s.RoleManagedSystemPermissions.Where(rp => rp.Role.Users.Contains(user))).ToList();
         }
         
         public static List<ManagedSystem> GetSystemsForTermWithRolePermissionsForRole(this DbSet<ManagedSystem> systems, Role role, string term, int limit = 15)
         {
             var asd = systems.Where(x => x.Name.Contains(term) || x.Hostname.Contains(term))
-                .Include(x => x.RolesPermissions.Where(y => y.Role.Id == role.Id))
+                .Include(x => x.RoleManagedSystemPermissions.Where(y => y.Role.Id == role.Id))
                 .OrderBy(x => x.Name)
                 .Take(limit)
                 .ToList();
@@ -27,8 +27,8 @@ namespace Paco.DatabaseRepositories
         
         public static List<ManagedSystem> GetSystemsWithRolePermissionsForRole(this DbSet<ManagedSystem> systems, Role role)
         {
-            return systems.Include(x => x.RolesPermissions.Where(y => y.Role == role))
-                .Where(x => x.RolesPermissions.Any(y => y.Role == role))
+            return systems.Include(x => x.RoleManagedSystemPermissions.Where(y => y.Role == role))
+                .Where(x => x.RoleManagedSystemPermissions.Any(y => y.Role == role))
                 .OrderBy(x => x.Name)
                 .ToList();
         }
