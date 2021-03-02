@@ -17,13 +17,11 @@ namespace Paco.Repositories.Database
         
         public static List<ManagedSystem> GetManagedSystemsForTermWithRolePermissionsForRole(this DbSet<ManagedSystem> systems, Role role, string term, int limit = 15)
         {
-            var asd = systems.Where(x => x.Name.Contains(term) || x.Hostname.Contains(term))
+            return systems.Where(x => x.Name.Contains(term) || x.Hostname.Contains(term))
                 .Include(x => x.RoleManagedSystemPermissions.Where(y => y.Role.Id == role.Id))
                 .OrderBy(x => x.Name)
                 .Take(limit)
                 .ToList();
-
-            return asd;
         }
         
         public static List<ManagedSystem> GetManagedSystemsWithRolePermissionsForRole(this DbSet<ManagedSystem> systems, Role role)
@@ -31,6 +29,23 @@ namespace Paco.Repositories.Database
             return systems.Include(x => x.RoleManagedSystemPermissions.Where(y => y.Role == role))
                 .Where(x => x.RoleManagedSystemPermissions.Any(y => y.Role == role))
                 .OrderBy(x => x.Name)
+                .ToList();
+        }
+        
+        public static List<ManagedSystem> GetManagedSystemsWithGroupPermissionsForGroup(this DbSet<ManagedSystem> systems, ManagedSystemGroup managedSystemGroup)
+        {
+            return systems
+                .Include(x => x.ManagedSystemManagedSystemGroups.Where(y => y.ManagedSystemGroup.Id == managedSystemGroup.Id))
+                .Where(x => x.ManagedSystemGroups.Contains(managedSystemGroup))
+                .ToList();
+        }
+        
+        public static List<ManagedSystem> GetManagedSystemsForTermWithGroupPermissionsForGroup(this DbSet<ManagedSystem> systems, ManagedSystemGroup managedSystemGroup, string term, int limit = 15)
+        {
+            return systems.Where(x => x.Name.Contains(term) || x.Hostname.Contains(term))
+                .Include(x => x.ManagedSystemManagedSystemGroups.Where(y => y.ManagedSystemGroup.Id == managedSystemGroup.Id))
+                .OrderBy(x => x.Name)
+                .Take(limit)
                 .ToList();
         }
     }
