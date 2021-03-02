@@ -1,0 +1,219 @@
+﻿@page "/systemgroups/manage/{managedSystemGroupId:guid}"
+@using Microsoft.EntityFrameworkCore
+@using Paco.Entities
+@using Paco.Entities.Models
+@using Paco.Entities.Models.Identity
+@using Paco.Repositories.Database
+
+@inject IDbContextFactory<ApplicationDbContext> DbFactory
+@inject NavigationManager NavigationManager
+
+@attribute [Authorize(Roles = "Administrator")]
+@if (Role == null)
+{
+    <p>Role not found</p>
+}
+else
+{
+    <h1>@(Role.Name)</h1>
+    <TabControl>
+        <TabPage Text="Users">
+            <FormInput ValueChanged="@OnUserTermChanged" ElementId="UserTerm" InputType="text" Placeholder="Search for user"/>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>E-mail</th>
+                    <th style="text-align:center">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var user in _users)
+                {
+                    var userRole = user.UserRoles.FirstOrDefault() ?? new UserRole()
+                     {
+                         RoleId = ManagedSystemGroupId,
+                         UserId = user.Id,
+                     };
+
+                    var isAdded = user.UserRoles.FirstOrDefault() != null;
+
+                    <tr>
+                        <td>
+                            @user.UserName
+                        </td>
+                        <td>
+                            @user.Email
+                        </td>
+                        <td style="text-align:center">
+                            <span @onclick="@(() => { if (isAdded){ OnRemoveAction(userRole);} else { OnAddAction(userRole);}})" class="oi @(isAdded ? "oi-trash" : "oi-plus")" style='cursor: pointer;'></span>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </TabPage>
+        <TabPage Text="Systems">
+            <FormInput ValueChanged="@OnSystemTermChanged" ElementId="SystemTerm" InputType="text" Placeholder="Search for system"/>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th  style="text-align:center">Read</th>
+                    <th style="text-align:center">Write</th>
+                    <th style="text-align:center">Execute</th>
+                    <th style="text-align:center">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                @foreach (var managedSystem in _systems)
+                {
+                    var rolePermission = managedSystem.RoleManagedSystemPermissions.FirstOrDefault() ?? new RoleManagedSystemPermissions()
+                    {
+                        RoleId = ManagedSystemGroupId,
+                        ManagedSystemId = managedSystem.Id,
+                        Permissions = Permissions.None
+                    };
+
+                    var isAdded = managedSystem.RoleManagedSystemPermissions.FirstOrDefault() != null;
+
+                    <tr>
+                        <td>
+                            @managedSystem.Name
+                        </td>
+                        <td style="text-align:center">
+                            <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Read) @onchange="@(eventArgs => { UpdateSystemPermission(rolePermission, Permissions.Read, eventArgs.Value); })">
+                        </td>
+                        <td style="text-align:center">
+                            <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Write) @onchange="@(eventArgs => { UpdateSystemPermission(rolePermission, Permissions.Write, eventArgs.Value); })">
+                        </td>
+                        <td style="text-align:center">
+                            <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Execute) @onchange="@(eventArgs => { UpdateSystemPermission(rolePermission, Permissions.Execute, eventArgs.Value); })">
+                        </td>
+                        <td style="text-align:center">
+                            <span @onclick="@(() => { if (isAdded){ OnRemoveAction(rolePermission);} else { OnAddAction(rolePermission);}})" class="oi @(isAdded ? "oi-trash" : "oi-plus")" style='cursor: pointer;'></span>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </TabPage>
+    </TabControl>
+}
+
+@code {
+
+    [Parameter]
+    public Guid ManagedSystemGroupId { get; set; }
+
+    private Role Role { get; set; }
+
+    private List<ManagedSystem> _systems;
+    private List<User> _users;
+
+    private string _systemTerm = "";
+    private string _userTerm = "";
+
+    protected override void OnInitialized()
+    {
+        base.OnInitializedAsync();
+
+        LoadData();
+    }
+
+    private void LoadData()
+    {
+        Role = DbFactory.CreateDbContext().Roles.GetRoleWithUsers(ManagedSystemGroupId);
+        if (Role != null) 
+        {
+            RefreshSystems();
+            RefreshUsers();
+        }
+    }
+
+    private void OnAddAction(object value)
+    {
+        DbFactory.Add(value);
+        LoadData();
+    }
+
+    private void OnRemoveAction(object value)
+    {
+        DbFactory.Remove(value);
+        LoadData();
+    }
+
+    private void UpdateSystemPermission(RoleManagedSystemPermissions roleManagedSystemPermissions, Permissions permission, object value)
+    {
+        if (value is bool isChecked)
+        {
+            if (isChecked)
+            {
+                roleManagedSystemPermissions.Permissions |= permission;
+            }
+            else
+            {
+                roleManagedSystemPermissions.Permissions &= ~permission;
+            }
+
+            using var db = DbFactory.CreateDbContext();
+
+            if (db.RoleManagedSystemPermissions.Any(x => x == roleManagedSystemPermissions))
+            {
+                db.RoleManagedSystemPermissions.Update(roleManagedSystemPermissions);
+            }
+            else
+            {
+                db.RoleManagedSystemPermissions.Add(roleManagedSystemPermissions);
+            }
+
+            db.SaveChanges();
+
+            LoadData();
+        }
+    }
+
+    private void RefreshSystems()
+    {
+        using var db = DbFactory.CreateDbContext();
+
+        if (string.IsNullOrEmpty(_systemTerm?.Trim()))
+        {
+            _systems = db.ManagedSystems.GetManagedSystemsWithRolePermissionsForRole(Role);
+        }
+        else
+        {
+            _systems = db.ManagedSystems.GetManagedSystemsForTermWithRolePermissionsForRole(Role, _systemTerm);
+        }
+    }
+
+    private void RefreshUsers()
+    {
+        using var db = DbFactory.CreateDbContext();
+
+        if (string.IsNullOrEmpty(_userTerm?.Trim()))
+        {
+            _users = db.Users.GetUsersWithUserRolesForRole(Role);
+        }
+        else
+        {
+            _users = db.Users.GetUsersForTermUserRolesForRole(Role, _userTerm);
+        }
+    }
+
+    private void OnSystemTermChanged(string newTerm)
+    {
+        _systemTerm = newTerm;
+
+        RefreshSystems();
+    }
+
+    private void OnUserTermChanged(string newTerm)
+    {
+        _userTerm = newTerm;
+
+        RefreshUsers();
+    }
+
+}

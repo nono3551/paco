@@ -63,7 +63,7 @@ namespace Paco.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ManagedSystemGroup",
+                name: "ManagedSystemGroups",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -74,7 +74,7 @@ namespace Paco.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ManagedSystemGroup", x => x.Id);
+                    table.PrimaryKey("PK_ManagedSystemGroups", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -190,15 +190,15 @@ namespace Paco.Migrations
                 {
                     table.PrimaryKey("PK_AspNetRoles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_AspNetRoles_ManagedSystemGroup_ManagedSystemGroupId",
+                        name: "FK_AspNetRoles_ManagedSystemGroups_ManagedSystemGroupId",
                         column: x => x.ManagedSystemGroupId,
-                        principalTable: "ManagedSystemGroup",
+                        principalTable: "ManagedSystemGroups",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "ManagedSystemManagedSystemGroup",
+                name: "ManagedSystemManagedSystemGroups",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -210,15 +210,15 @@ namespace Paco.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ManagedSystemManagedSystemGroup", x => new { x.Id, x.ManagedSystemId, x.ManagedSystemGroupId });
+                    table.PrimaryKey("PK_ManagedSystemManagedSystemGroups", x => new { x.Id, x.ManagedSystemId, x.ManagedSystemGroupId });
                     table.ForeignKey(
-                        name: "FK_ManagedSystemManagedSystemGroup_ManagedSystemGroup_ManagedSystemGroupId",
+                        name: "FK_ManagedSystemManagedSystemGroups_ManagedSystemGroups_ManagedSystemGroupId",
                         column: x => x.ManagedSystemGroupId,
-                        principalTable: "ManagedSystemGroup",
+                        principalTable: "ManagedSystemGroups",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ManagedSystemManagedSystemGroup_ManagedSystems_ManagedSystemId",
+                        name: "FK_ManagedSystemManagedSystemGroups_ManagedSystems_ManagedSystemId",
                         column: x => x.ManagedSystemId,
                         principalTable: "ManagedSystems",
                         principalColumn: "Id",
@@ -299,9 +299,9 @@ namespace Paco.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_RoleManagedSystemGroupPermissions_ManagedSystemGroup_ManagedSystemGroupId",
+                        name: "FK_RoleManagedSystemGroupPermissions_ManagedSystemGroups_ManagedSystemGroupId",
                         column: x => x.ManagedSystemGroupId,
-                        principalTable: "ManagedSystemGroup",
+                        principalTable: "ManagedSystemGroups",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -338,36 +338,36 @@ namespace Paco.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "CreatedAt", "DeletedAt", "ManagedSystemGroupId", "Name", "NormalizedName", "UpdatedAt" },
-                values: new object[] { new Guid("8ac2af87-f059-45ae-9dfb-f51f5cc1b378"), "65a14eb5-8168-4318-a3e4-5f34d18ca73f", null, null, null, "Administrator", null, null });
+                values: new object[] { new Guid("1b6234c8-515c-4b7b-8400-717842a58f7e"), "505755b2-f5f0-4f46-9195-c8467039f925", null, null, null, "Administrator", null, null });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "CreatedAt", "DeletedAt", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UpdatedAt", "UserName" },
-                values: new object[] { new Guid("5a9b76ae-8a14-4995-9ae9-07efc8211db8"), 0, "34acbb54-9ae3-4742-af3c-89de44e306e0", null, null, "asd@ads.asd", true, true, null, "ASD@ASD.ASD", "ASD@ASD.ASD", "AQAAAAEAACcQAAAAEJdyASTL66Dd+IQPIPJsne7GQnFQ+H8G7ngSPb5+OUNH8+PU7YuCzPjjLMvj947dcg==", null, false, "JBIW2JAV2THPAPR3NGHSE3ZVXUCHEBPU", false, null, "asd@ads.asd" });
+                values: new object[] { new Guid("5f5af075-59e7-4966-94b9-459884510190"), 0, "34acbb54-9ae3-4742-af3c-89de44e306e0", null, null, "asd@ads.asd", true, true, null, "ASD@ASD.ASD", "ASD@ASD.ASD", "AQAAAAEAACcQAAAAEJdyASTL66Dd+IQPIPJsne7GQnFQ+H8G7ngSPb5+OUNH8+PU7YuCzPjjLMvj947dcg==", null, false, "JBIW2JAV2THPAPR3NGHSE3ZVXUCHEBPU", false, null, "asd@ads.asd" });
 
             migrationBuilder.InsertData(
                 table: "ManagedSystems",
                 columns: new[] { "Id", "CreatedAt", "DeletedAt", "Distribution", "Hostname", "InteractionReason", "LastAccessed", "Login", "Name", "NeedsInteraction", "Password", "SshPrivateKey", "SystemFingerprint", "SystemInformation", "UpdatedAt", "UpdatesFetchedAt" },
                 values: new object[,]
                 {
-                    { new Guid("6e1c4b60-dc6b-441e-94d0-a4b0b26dbac9"), null, null, 0, "none.test.test", null, null, "test", "PermNone", false, "test", null, "12:f8:7e:78:61:b4:bf:e2:de:24:15:96:4e:d4:72:53", null, null, null },
-                    { new Guid("39d398b3-ee17-432d-a3da-89b376229c32"), null, null, 0, "multiple.test.test", null, null, "test", "PermMultiple", false, "test", null, "12:f8:7e:78:61:b4:bf:e2:de:24:15:96:4e:d4:72:53", null, null, null }
+                    { new Guid("8748a2dd-1efb-4217-92fb-639fa1062b49"), null, null, 0, "none.test.test", null, null, "test", "PermNone", false, "test", null, "12:f8:7e:78:61:b4:bf:e2:de:24:15:96:4e:d4:72:53", null, null, null },
+                    { new Guid("069aa9c5-c6c9-4230-a607-637d62f0667d"), null, null, 0, "multiple.test.test", null, null, "test", "PermMultiple", false, "test", null, "12:f8:7e:78:61:b4:bf:e2:de:24:15:96:4e:d4:72:53", null, null, null }
                 });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
                 columns: new[] { "Id", "RoleId", "UserId", "CreatedAt", "DeletedAt", "UpdatedAt" },
-                values: new object[] { new Guid("f2c4e948-96d5-4ad5-835b-44f8eb21a582"), new Guid("8ac2af87-f059-45ae-9dfb-f51f5cc1b378"), new Guid("5a9b76ae-8a14-4995-9ae9-07efc8211db8"), null, null, null });
+                values: new object[] { new Guid("5bca43de-8b80-4fbc-8023-5f7a8fd65a75"), new Guid("1b6234c8-515c-4b7b-8400-717842a58f7e"), new Guid("5f5af075-59e7-4966-94b9-459884510190"), null, null, null });
 
             migrationBuilder.InsertData(
                 table: "RoleManagedSystemPermissions",
                 columns: new[] { "Id", "ManagedSystemId", "RoleId", "CreatedAt", "DeletedAt", "Permissions", "UpdatedAt" },
-                values: new object[] { new Guid("7e820605-06ad-4198-b908-8f2f387cf5ca"), new Guid("6e1c4b60-dc6b-441e-94d0-a4b0b26dbac9"), new Guid("8ac2af87-f059-45ae-9dfb-f51f5cc1b378"), null, null, (short)0, null });
+                values: new object[] { new Guid("34f28d8d-805b-4872-a852-1db9c8ebf8f4"), new Guid("8748a2dd-1efb-4217-92fb-639fa1062b49"), new Guid("1b6234c8-515c-4b7b-8400-717842a58f7e"), null, null, (short)0, null });
 
             migrationBuilder.InsertData(
                 table: "RoleManagedSystemPermissions",
                 columns: new[] { "Id", "ManagedSystemId", "RoleId", "CreatedAt", "DeletedAt", "Permissions", "UpdatedAt" },
-                values: new object[] { new Guid("cc062ea8-bb71-42b6-b1f1-86e8c8a88035"), new Guid("39d398b3-ee17-432d-a3da-89b376229c32"), new Guid("8ac2af87-f059-45ae-9dfb-f51f5cc1b378"), null, null, (short)7, null });
+                values: new object[] { new Guid("e45d1fad-5ed0-4529-bccc-6c8329b5364b"), new Guid("069aa9c5-c6c9-4230-a607-637d62f0667d"), new Guid("1b6234c8-515c-4b7b-8400-717842a58f7e"), null, null, (short)7, null });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -419,13 +419,13 @@ namespace Paco.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ManagedSystemManagedSystemGroup_ManagedSystemGroupId",
-                table: "ManagedSystemManagedSystemGroup",
+                name: "IX_ManagedSystemManagedSystemGroups_ManagedSystemGroupId",
+                table: "ManagedSystemManagedSystemGroups",
                 column: "ManagedSystemGroupId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ManagedSystemManagedSystemGroup_ManagedSystemId",
-                table: "ManagedSystemManagedSystemGroup",
+                name: "IX_ManagedSystemManagedSystemGroups_ManagedSystemId",
+                table: "ManagedSystemManagedSystemGroups",
                 column: "ManagedSystemId");
 
             migrationBuilder.CreateIndex(
@@ -470,7 +470,7 @@ namespace Paco.Migrations
                 name: "LogRecords");
 
             migrationBuilder.DropTable(
-                name: "ManagedSystemManagedSystemGroup");
+                name: "ManagedSystemManagedSystemGroups");
 
             migrationBuilder.DropTable(
                 name: "RoleManagedSystemGroupPermissions");
@@ -488,7 +488,7 @@ namespace Paco.Migrations
                 name: "ManagedSystems");
 
             migrationBuilder.DropTable(
-                name: "ManagedSystemGroup");
+                name: "ManagedSystemGroups");
         }
     }
 }

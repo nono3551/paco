@@ -56,6 +56,13 @@ app {
     background: linear-gradient(126deg, rgba(255,255,255,1) 0%, rgba(176,176,176,1) 100%);
 }
 
+    .sidebar-content {
+        display: flex;
+        height: calc(100% - 3.5rem);
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
     .sidebar .top-row {
         background-color: rgba(0,0,0,0.4);
     }
@@ -185,6 +192,12 @@ app {
 
     .sidebar .collapse {
         /* Never collapse the sidebar for wide screens */
-        display: block;
+        display: flex;
+    }
+}
+
+@media (min-width: 992px) {
+    .sidebar {
+        min-height: 100vh;
     }
 }

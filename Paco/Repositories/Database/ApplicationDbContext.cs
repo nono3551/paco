@@ -16,6 +16,9 @@ namespace Paco.Repositories.Database
         public DbSet<ManagedSystem> ManagedSystems { get; set; }
         public DbSet<RoleManagedSystemPermissions> RoleManagedSystemPermissions { get; set; }
         public DbSet<LogRecord> LogRecords { get; set; }
+        public DbSet<ManagedSystemGroup> ManagedSystemGroups { get; set; }
+        public DbSet<ManagedSystemManagedSystemGroup> ManagedSystemManagedSystemGroups { get; set; }
+        public DbSet<RoleManagedSystemGroupPermissions> RoleManagedSystemGroupPermissions { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ILoggerFactory loggerFactory): base(options)
         {

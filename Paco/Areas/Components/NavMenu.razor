@@ -7,7 +7,7 @@
     </button>
 </div>
 
-<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+<div class="@NavMenuCssClass sidebar-content">
     <ul class="navbar-nav flex-column">
         <li class="nav-item px-3">
             <NavLink class="nav-link px-3" href="" Match="NavLinkMatch.All">
@@ -53,10 +53,10 @@
                             @if (expandSystemGroupsSubmenu)
                             {
                                 <div class="px-3">
-                                    <NavLink class="nav-link px-3" href="systemsgroups/add">
+                                    <NavLink class="nav-link px-3" href="systemgroups/add">
                                         <span class="oi oi-plus" aria-hidden="true"></span> Add group
                                     </NavLink>
-                                    <NavLink class="nav-link px-3" href="systemsgroups/list">
+                                    <NavLink class="nav-link px-3" href="systemgroups/list">
                                         <span class="oi oi-list" aria-hidden="true"></span> List groups
                                     </NavLink>
                                 </div>
@@ -64,7 +64,7 @@
                         </div>
                     }
                 </li>
-                
+
             </Authorized>
         </AuthorizeView>
         <AuthorizeView>
@@ -76,6 +76,13 @@
                 </li>
             </Authorized>
         </AuthorizeView>
+    </ul>
+    <ul class="navbar-nav flex-column">
+        <li class="nav-item px-3">
+            <NavLink class="nav-link px-3" href="/Identity/Account/Logout" >
+                <span class="oi oi-account-logout" aria-hidden="true"></span> Logout
+            </NavLink>
+        </li>
     </ul>
 </div>
 
@@ -97,7 +104,7 @@
         {
             expandPermissionsSubmenu = true;
         }
-        else if (NavigationManager.Uri.Contains("systemsgroups/"))
+        else if (NavigationManager.Uri.Contains("systemgroups/"))
         {
             expandPermissionsSubmenu = true;
             expandSystemGroupsSubmenu = true;

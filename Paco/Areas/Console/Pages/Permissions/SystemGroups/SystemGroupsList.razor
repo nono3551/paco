@@ -1,0 +1,50 @@
+﻿@page "/systemgroups/list"
+
+@using Paco.Repositories.Database
+@using Microsoft.EntityFrameworkCore
+@using Paco.Entities.Models
+@inject IDbContextFactory<ApplicationDbContext> DbContextFactory
+@inject NavigationManager NavManager
+
+@attribute [Authorize(Roles = "Administrator")]
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Created At</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var managedSystemGroup in _managedSystemGroups)
+        {
+            <tr @onclick="() => ManageManagedSystemGroup(managedSystemGroup)" style='cursor: pointer;'>
+                <td>
+                    @managedSystemGroup.Name
+                </td>
+                <td>
+                    @managedSystemGroup.CreatedAt
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<ManagedSystemGroup> _managedSystemGroups = new();
+
+    protected override void OnInitialized()
+    {
+        using var dbContext = DbContextFactory.CreateDbContext();
+
+        _managedSystemGroups = dbContext.ManagedSystemGroups.ToList();
+        
+        base.OnInitializedAsync();
+    }
+
+    private void ManageManagedSystemGroup(ManagedSystemGroup managedSystemGroup)
+    {
+        NavManager.NavigateTo($"/systemgroups/manage/{managedSystemGroup.Id}");
+    }
+
+}

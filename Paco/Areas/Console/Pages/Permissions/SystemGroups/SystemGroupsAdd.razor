@@ -1,0 +1,32 @@
+﻿@page "/systemgroups/add"
+
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using Paco.Entities.Models
+@using Paco.Entities.Models.Identity
+@using Paco.Repositories.Database
+
+@inject IDbContextFactory<ApplicationDbContext> DbContextFactory
+@inject NavigationManager NavigationManager
+@inject RoleManager<Role> RoleManager
+
+@attribute [Authorize(Roles = "Administrator")]
+
+<h2>Add new system group</h2>
+
+<EditForm Model="@_managedSystemGroup" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <FormInput @bind-Value="@_managedSystemGroup.Name" ElementId="RoleName" Label="System group name" InputType="text" Placeholder="City 17's computers" Help="Enter name which will represent this system group" />
+    <Submit />
+</EditForm>
+
+@code {
+    private readonly ManagedSystemGroup _managedSystemGroup = new();
+    private void HandleValidSubmit()
+    {
+        DbContextFactory.Add(_managedSystemGroup);
+        NavigationManager.NavigateTo("/systemgroups/list");
+    }
+
+}
