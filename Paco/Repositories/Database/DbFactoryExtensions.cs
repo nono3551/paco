@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Paco.Entities.Models;
 
 namespace Paco.Repositories.Database
 {
@@ -16,6 +17,24 @@ namespace Paco.Repositories.Database
             using var db = factory.CreateDbContext();
             db.Add(entity);
             db.SaveChanges();
+        }
+
+        public static T Upsert<T>(this IDbContextFactory<ApplicationDbContext> factory, T entity) where T: IDbEntity
+        {
+            using var db = factory.CreateDbContext();
+            
+            if (db.Entry(entity).GetDatabaseValues() != null)
+            {
+                db.Update(entity);
+            }
+            else
+            {
+                db.Add(entity);
+            }
+
+            db.SaveChanges();
+
+            return entity;
         }
     }
 }

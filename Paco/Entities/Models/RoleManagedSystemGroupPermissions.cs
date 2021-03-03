@@ -6,7 +6,7 @@ using Paco.Entities.Models.Identity;
 
 namespace Paco.Entities.Models
 {
-    public class RoleManagedSystemGroupPermissions : IDbEntity
+    public class RoleManagedSystemGroupPermissions : IDbEntity, IPermissionsEntity
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

@@ -11,7 +11,9 @@ namespace Paco.Repositories.Database
     {
         public static List<ManagedSystem> GetManagedSystemsForUser(this DbSet<ManagedSystem> systems, User user)
         {
-            return systems.Where(s => s.RoleManagedSystemPermissions.Any(p => p.Permissions > Permissions.None && p.Role.Users.Contains(user)))
+            return systems
+                .Where(s => s.RoleManagedSystemPermissions.Any(p => p.Permissions > Permissions.None && p.Role.Users.Contains(user)) || 
+                            s.ManagedSystemGroups.Any(g => g.RoleManagedSystemGroupPermissions.Any(gp => gp.Role.Users.Contains(user) && gp.Permissions > Permissions.None)))
                 .Include(s => s.RoleManagedSystemPermissions.Where(rp => rp.Role.Users.Contains(user))).ToList();
         }
         

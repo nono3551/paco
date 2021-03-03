@@ -22,6 +22,7 @@ namespace Paco.Repositories.Database
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ILoggerFactory loggerFactory): base(options)
         {
+            
         }
 
         public override int SaveChanges()

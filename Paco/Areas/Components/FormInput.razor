@@ -18,6 +18,8 @@
     [Parameter]
     public EventCallback<string> ValueChanged { get; set; }
     [Parameter]
+    public EventCallback OnInputChanged { get; set; }
+    [Parameter]
     public string ElementId { get; set; }
     [Parameter]
     public string Label { get; set; }
@@ -31,6 +33,7 @@
     private Task OnValueChanged(ChangeEventArgs e)
     {
         Value = e?.Value?.ToString();
-        return ValueChanged.InvokeAsync(Value);
+        ValueChanged.InvokeAsync(Value);
+        return OnInputChanged.InvokeAsync();
     }
 }

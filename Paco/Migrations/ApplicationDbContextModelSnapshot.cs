@@ -63,8 +63,8 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("1b6234c8-515c-4b7b-8400-717842a58f7e"),
-                            ConcurrencyStamp = "505755b2-f5f0-4f46-9195-c8467039f925",
+                            Id = new Guid("52a86539-bcf6-41d2-b207-333232e88a47"),
+                            ConcurrencyStamp = "6447c131-e077-4df7-99fa-240f5a8c3500",
                             Name = "Administrator"
                         });
                 });
@@ -178,7 +178,7 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("5f5af075-59e7-4966-94b9-459884510190"),
+                            Id = new Guid("b55d975f-3242-4965-a1b7-2585e4478980"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "34acbb54-9ae3-4742-af3c-89de44e306e0",
                             Email = "asd@ads.asd",
@@ -288,9 +288,9 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("5bca43de-8b80-4fbc-8023-5f7a8fd65a75"),
-                            UserId = new Guid("5f5af075-59e7-4966-94b9-459884510190"),
-                            RoleId = new Guid("1b6234c8-515c-4b7b-8400-717842a58f7e")
+                            Id = new Guid("5a64b34d-fed6-4be6-87b3-6c93faf2db01"),
+                            UserId = new Guid("b55d975f-3242-4965-a1b7-2585e4478980"),
+                            RoleId = new Guid("52a86539-bcf6-41d2-b207-333232e88a47")
                         });
                 });
 
@@ -443,7 +443,7 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("8748a2dd-1efb-4217-92fb-639fa1062b49"),
+                            Id = new Guid("69ad0426-0220-4f66-8cad-5f56f6c0a3f5"),
                             Distribution = 0,
                             Hostname = "none.test.test",
                             Login = "test",
@@ -454,7 +454,7 @@ namespace Paco.Migrations
                         },
                         new
                         {
-                            Id = new Guid("069aa9c5-c6c9-4230-a607-637d62f0667d"),
+                            Id = new Guid("632183fb-7097-46ad-9b1b-5fa9b5fcef3e"),
                             Distribution = 0,
                             Hostname = "multiple.test.test",
                             Login = "test",
@@ -586,16 +586,16 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("34f28d8d-805b-4872-a852-1db9c8ebf8f4"),
-                            RoleId = new Guid("1b6234c8-515c-4b7b-8400-717842a58f7e"),
-                            ManagedSystemId = new Guid("8748a2dd-1efb-4217-92fb-639fa1062b49"),
+                            Id = new Guid("0ff69add-2e3f-47b3-9106-3bf839cbb595"),
+                            RoleId = new Guid("52a86539-bcf6-41d2-b207-333232e88a47"),
+                            ManagedSystemId = new Guid("69ad0426-0220-4f66-8cad-5f56f6c0a3f5"),
                             Permissions = (short)0
                         },
                         new
                         {
-                            Id = new Guid("e45d1fad-5ed0-4529-bccc-6c8329b5364b"),
-                            RoleId = new Guid("1b6234c8-515c-4b7b-8400-717842a58f7e"),
-                            ManagedSystemId = new Guid("069aa9c5-c6c9-4230-a607-637d62f0667d"),
+                            Id = new Guid("d6276b79-60e4-4b27-9e2d-40640058d22d"),
+                            RoleId = new Guid("52a86539-bcf6-41d2-b207-333232e88a47"),
+                            ManagedSystemId = new Guid("632183fb-7097-46ad-9b1b-5fa9b5fcef3e"),
                             Permissions = (short)7
                         });
                 });

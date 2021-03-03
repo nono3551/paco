@@ -18,7 +18,7 @@ else
     <h1>@(Role.Name)</h1>
     <TabControl>
         <TabPage Text="Users">
-            <FormInput ValueChanged="@OnUserTermChanged" ElementId="UserTerm" InputType="text" Placeholder="Search for user"/>
+            <FormInput @bind-Value="@_userTerm" OnInputChanged="@OnUserTermChanged" ElementId="UserTerm" InputType="text" Placeholder="Search for user"/>
             <table class="table">
                 <thead>
                 <tr>
@@ -31,10 +31,10 @@ else
                 @foreach (var user in _users)
                 {
                     var userRole = user.UserRoles.FirstOrDefault() ?? new UserRole()
-                     {
-                         RoleId = RoleId,
-                         UserId = user.Id,
-                     };
+                    {
+                        RoleId = RoleId,
+                        UserId = user.Id,
+                    };
 
                     var isAdded = user.UserRoles.FirstOrDefault() != null;
 
@@ -54,12 +54,12 @@ else
             </table>
         </TabPage>
         <TabPage Text="Systems">
-            <FormInput ValueChanged="@OnSystemTermChanged" ElementId="SystemTerm" InputType="text" Placeholder="Search for system"/>
+            <FormInput @bind-Value="@_systemTerm" OnInputChanged="@OnSystemTermChanged" ElementId="SystemTerm" InputType="text" Placeholder="Search for system"/>
             <table class="table">
                 <thead>
                 <tr>
                     <th>Name</th>
-                    <th  style="text-align:center">Read</th>
+                    <th style="text-align:center">Read</th>
                     <th style="text-align:center">Write</th>
                     <th style="text-align:center">Execute</th>
                     <th style="text-align:center">Action</th>
@@ -99,6 +99,52 @@ else
                 </tbody>
             </table>
         </TabPage>
+        <TabPage Text="System groups">
+            <FormInput @bind-Value="@_groupTerm" OnInputChanged="@OnGroupTermChanged" ElementId="GroupTerm" InputType="text" Placeholder="Search for system group"/>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th style="text-align:center">Read</th>
+                    <th style="text-align:center">Write</th>
+                    <th style="text-align:center">Execute</th>
+                    <th style="text-align:center">Action</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                @foreach (var group in _groups)
+                {
+                    var permissions = group.RoleManagedSystemGroupPermissions.FirstOrDefault() ?? new RoleManagedSystemGroupPermissions()
+                    {
+                        RoleId = RoleId,
+                        ManagedSystemGroupId = group.Id,
+                        Permissions = Permissions.None
+                    };
+
+                    var isAdded = group.RoleManagedSystemGroupPermissions.FirstOrDefault() != null;
+
+                    <tr>
+                        <td>
+                            @group.Name
+                        </td>
+                        <td style="text-align:center">
+                            <input type="checkbox" checked=@permissions.Permissions.HasFlag(Permissions.Read) @onchange="@(eventArgs => { UpdateSystemPermission(permissions, Permissions.Read, eventArgs.Value); })">
+                        </td>
+                        <td style="text-align:center">
+                            <input type="checkbox" checked=@permissions.Permissions.HasFlag(Permissions.Write) @onchange="@(eventArgs => { UpdateSystemPermission(permissions, Permissions.Write, eventArgs.Value); })">
+                        </td>
+                        <td style="text-align:center">
+                            <input type="checkbox" checked=@permissions.Permissions.HasFlag(Permissions.Execute) @onchange="@(eventArgs => { UpdateSystemPermission(permissions, Permissions.Execute, eventArgs.Value); })">
+                        </td>
+                        <td style="text-align:center">
+                            <span @onclick="@(() => { if (isAdded){ OnRemoveAction(permissions);} else { OnAddAction(permissions);}})" class="oi @(isAdded ? "oi-trash" : "oi-plus")" style='cursor: pointer;'></span>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </TabPage>
     </TabControl>
 }
 
@@ -109,11 +155,13 @@ else
 
     private Role Role { get; set; }
 
+    private List<ManagedSystemGroup> _groups;
     private List<ManagedSystem> _systems;
     private List<User> _users;
 
-    private string _systemTerm = "";
-    private string _userTerm = "";
+    private string _systemTerm;
+    private string _userTerm;
+    private string _groupTerm;
 
     protected override void OnInitialized()
     {
@@ -124,11 +172,12 @@ else
 
     private void LoadData()
     {
-        Role = DbFactory.CreateDbContext().Roles.GetRoleWithUsers(RoleId);
-        if (Role != null) 
+        Role = DbFactory.CreateDbContext().Roles.GetRole(RoleId);
+        if (Role != null)
         {
             RefreshSystems();
             RefreshUsers();
+            RefreshGroups();
         }
     }
 
@@ -144,32 +193,21 @@ else
         LoadData();
     }
 
-    private void UpdateSystemPermission(RoleManagedSystemPermissions roleManagedSystemPermissions, Permissions permission, object value)
+    private void UpdateSystemPermission<T>(T entity, Permissions permission, object value) where T: IDbEntity, IPermissionsEntity
     {
         if (value is bool isChecked)
         {
             if (isChecked)
             {
-                roleManagedSystemPermissions.Permissions |= permission;
+                entity.Permissions |= permission;
             }
             else
             {
-                roleManagedSystemPermissions.Permissions &= ~permission;
+                entity.Permissions &= ~permission;
             }
 
-            using var db = DbFactory.CreateDbContext();
-
-            if (db.RoleManagedSystemPermissions.Any(x => x == roleManagedSystemPermissions))
-            {
-                db.RoleManagedSystemPermissions.Update(roleManagedSystemPermissions);
-            }
-            else
-            {
-                db.RoleManagedSystemPermissions.Add(roleManagedSystemPermissions);
-            }
-
-            db.SaveChanges();
-
+            DbFactory.Upsert(entity);
+            
             LoadData();
         }
     }
@@ -201,19 +239,34 @@ else
             _users = db.Users.GetUsersForTermUserRolesForRole(Role, _userTerm);
         }
     }
-
-    private void OnSystemTermChanged(string newTerm)
+    
+    private void RefreshGroups()
     {
-        _systemTerm = newTerm;
+        using var db = DbFactory.CreateDbContext();
 
+        if (string.IsNullOrEmpty(_groupTerm?.Trim()))
+        {
+            _groups = db.ManagedSystemGroups.GetManagedSystemsWithRolePermissionsForRole(Role);
+        }
+        else
+        {
+            _groups = db.ManagedSystemGroups.GetManagedSystemsForTermWithRolePermissionsForRole(Role, _groupTerm);
+        }
+    }
+
+    private void OnSystemTermChanged()
+    {
         RefreshSystems();
     }
 
-    private void OnUserTermChanged(string newTerm)
+    private void OnUserTermChanged()
     {
-        _userTerm = newTerm;
-
         RefreshUsers();
     }
-
+    
+    private void OnGroupTermChanged()
+    {
+        RefreshGroups();
+    }
+    
 }
