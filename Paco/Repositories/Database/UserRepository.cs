@@ -19,8 +19,8 @@ namespace Paco.Repositories.Database
         public static List<User> GetUsersWithUserRolesForRole(this DbSet<User> users, Role role)
         {
             return users
-                .Include(x => x.UserRoles.Where(y => y.RoleId == role.Id))
                 .Where(x => x.UserRoles.Any(y => y.RoleId == role.Id))
+                .Include(x => x.UserRoles.Where(y => y.RoleId == role.Id))
                 .OrderBy(x => x.UserName)
                 .ToList();
         }

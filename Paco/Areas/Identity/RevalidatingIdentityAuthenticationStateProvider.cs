@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,7 +24,21 @@ namespace Paco.Areas.Identity
             _options = optionsAccessor.Value;
         }
 
-        protected override TimeSpan RevalidationInterval => TimeSpan.FromMinutes(30);
+        protected override TimeSpan RevalidationInterval => TimeSpan.FromSeconds(10);
+
+        public override async Task<AuthenticationState> GetAuthenticationStateAsync()
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var userManager = scope.ServiceProvider.GetService<UserManager<TUser>>();
+            var state = base.GetAuthenticationStateAsync().Result;
+            var roles = await userManager!.GetRolesAsync(await userManager.GetUserAsync(state.User));
+            var user = await userManager.GetUserAsync(state.User);
+            var principalFactory = new UserClaimsPrincipalFactory<TUser>(userManager, new OptionsWrapper<IdentityOptions>(_options));
+            var principal = await principalFactory.CreateAsync(user);
+            var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(principal.Identity, roles.Select(role => new Claim(ClaimTypes.Role, role))));
+            
+            return new AuthenticationState(claimsPrincipal);
+        }
 
         protected override async Task<bool> ValidateAuthenticationStateAsync(AuthenticationState authenticationState, CancellationToken cancellationToken)
         {
@@ -31,6 +47,12 @@ namespace Paco.Areas.Identity
             try
             {
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TUser>>();
+                
+                if (!await ValidateRoles(userManager, authenticationState.User))
+                {
+                    NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+                }
+
                 return await ValidateSecurityStampAsync(userManager, authenticationState.User);
             }
             finally
@@ -44,6 +66,18 @@ namespace Paco.Areas.Identity
                     scope.Dispose();
                 }
             }
+        }
+
+        private async Task<bool> ValidateRoles(UserManager<TUser> userManager, ClaimsPrincipal principal)
+        {
+            var currentUser = await userManager.GetUserAsync(principal);
+            var currentRoles = await userManager.GetRolesAsync(currentUser);
+
+            var tokenRoles = principal.Claims.Where(x => x.Type == ClaimTypes.Role).ToList() ?? new List<Claim>();
+
+            var rolesEqual = tokenRoles.Count() == currentRoles.Count() && tokenRoles.All(tokenRole => currentRoles.Contains(tokenRole.Value));
+
+            return rolesEqual;
         }
 
         private async Task<bool> ValidateSecurityStampAsync(UserManager<TUser> userManager, ClaimsPrincipal principal)

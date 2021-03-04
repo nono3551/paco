@@ -39,8 +39,12 @@ namespace Paco
             
             services
                 .AddIdentity<User, Role>(options => options.SignIn.RequireConfirmedAccount = true)
+                .AddRoles<Role>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddSignInManager()
                 .AddDefaultTokenProviders();
+            
+            services.AddTransient<IUserStore<User>, IdentityStore>();
 
             var builder = services.AddRazorPages();
 #if DEBUG
@@ -99,6 +103,7 @@ namespace Paco
                 options.Cookie.HttpOnly = true;
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
             });
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

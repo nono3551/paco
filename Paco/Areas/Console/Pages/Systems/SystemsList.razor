@@ -10,7 +10,7 @@
 @inject UserManager<User> UserManager
 
 @page "/systems/list"
-<h1>Maaged systems</h1>
+<h1>Managed systems</h1>
 <table class="table">
     <thead>
         <tr>
@@ -77,13 +77,13 @@
 </table>
 
 @code {
-    private List<ManagedSystem> _systems = new List<ManagedSystem>();
-    private readonly List<ManagedSystem> _systemsWithDetailOpened = new List<ManagedSystem>();
+    private List<ManagedSystem> _systems = new();
+    private readonly List<ManagedSystem> _systemsWithDetailOpened = new();
 
     protected override async Task OnInitializedAsync()
     {
         var user = await UserManager.GetUserAsync((await AuthenticationStateProvider.GetAuthenticationStateAsync()).User);
-
+        
         _systems = ApplicationDbContext.ManagedSystems.GetManagedSystemsForUser(user);
 
         await base.OnInitializedAsync();

@@ -4,9 +4,13 @@
 @using Paco.Entities.Models
 @using Paco.Entities.Models.Identity
 @using Paco.Repositories.Database
+@using Microsoft.AspNetCore.Identity
+@using Serilog
+@using System.Threading
 
 @inject IDbContextFactory<ApplicationDbContext> DbFactory
 @inject NavigationManager NavigationManager
+@inject UserManager<User> UserManager
 
 @attribute [Authorize(Roles = "Administrator")]
 @if (Role == null)
@@ -30,13 +34,8 @@ else
                 <tbody>
                 @foreach (var user in _users)
                 {
-                    var userRole = user.UserRoles.FirstOrDefault() ?? new UserRole()
-                    {
-                        RoleId = RoleId,
-                        UserId = user.Id,
-                    };
-
                     var isAdded = user.UserRoles.FirstOrDefault() != null;
+                    var isAdded2 = user.UserRoles.FirstOrDefault() != null;
 
                     <tr>
                         <td>
@@ -46,7 +45,7 @@ else
                             @user.Email
                         </td>
                         <td style="text-align:center">
-                            <span @onclick="@(() => { if (isAdded){ OnRemoveAction(userRole);} else { OnAddAction(userRole);}})" class="oi @(isAdded ? "oi-trash" : "oi-plus")" style='cursor: pointer;'></span>
+                            <span @onclick="@(() => { OnUserAction(user, isAdded); })" class="oi @(isAdded ? "oi-trash" : "oi-plus")" style='cursor: pointer;'></span>
                         </td>
                     </tr>
                 }
@@ -268,5 +267,22 @@ else
     {
         RefreshGroups();
     }
-    
+
+    private async void OnUserAction(User user, bool isAdded)
+    {
+        User identity = await UserManager.FindByIdAsync(user.Id.ToString());
+
+        if (isAdded)
+        {
+            await UserManager.RemoveFromRoleAsync(identity, Role.Name);
+        }
+        else
+        {
+            await UserManager.AddToRoleAsync(identity, Role.Name);
+        }
+        
+        RefreshUsers();
+        StateHasChanged();
+    }
+
 }

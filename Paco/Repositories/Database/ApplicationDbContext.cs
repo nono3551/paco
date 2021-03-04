@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -25,7 +27,38 @@ namespace Paco.Repositories.Database
             
         }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+            
+            optionsBuilder.LogTo(Console.WriteLine);
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
+        {
+            SoftDelete();
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
         public override int SaveChanges()
+        {
+            SoftDelete();
+            return base.SaveChanges();
+        }
+
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            SoftDelete();
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+
+        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new CancellationToken())
+        {
+            SoftDelete();
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        private void SoftDelete()
         {
             ChangeTracker.DetectChanges();
 
@@ -53,8 +86,6 @@ namespace Paco.Repositories.Database
 
                 }
             }
-
-            return base.SaveChanges();
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -149,8 +180,8 @@ namespace Paco.Repositories.Database
             var user = new User
             {
                 Id = Guid.NewGuid(),
-                UserName = "asd@ads.asd",
-                Email = "asd@ads.asd",
+                UserName = "asd@asd.asd",
+                Email = "asd@asd.asd",
                 NormalizedEmail = "ASD@ASD.ASD",
                 NormalizedUserName = "ASD@ASD.ASD",
                 PasswordHash = "AQAAAAEAACcQAAAAEJdyASTL66Dd+IQPIPJsne7GQnFQ+H8G7ngSPb5+OUNH8+PU7YuCzPjjLMvj947dcg==",
@@ -187,7 +218,7 @@ namespace Paco.Repositories.Database
             builder.Entity<ManagedSystem>().HasData(system1);
             builder.Entity<ManagedSystem>().HasData(system2);
 
-            var role = new Role {Id = Guid.NewGuid(), Name = "Administrator"};
+            var role = new Role {Id = Guid.NewGuid(), Name = "Administrator", NormalizedName = "ADMINISTRATOR"};
             builder.Entity<Role>().HasData(role);
 
             builder.Entity<UserRole>().HasData(new UserRole
