@@ -146,7 +146,7 @@
 
     private void EditSystem(ManagedSystem system)
     {
-        NavManager.NavigateTo($"/systems/manage/{system.Id}");
+        NavManager.NavigateTo($"/systems/{system.Id}/edit");
     }
     
     private void DeleteSystem(ManagedSystem system)

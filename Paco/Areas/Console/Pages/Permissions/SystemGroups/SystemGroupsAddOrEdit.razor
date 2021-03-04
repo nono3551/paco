@@ -1,0 +1,61 @@
+﻿@page "/systemgroups/add"
+@page "/systemgroups/{GroupId:guid}/edit"
+
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using Paco.Entities.Models
+@using Paco.Entities.Models.Identity
+@using Paco.Repositories.Database
+
+@inject IDbContextFactory<ApplicationDbContext> DbContextFactory
+@inject NavigationManager NavigationManager
+@inject RoleManager<Role> RoleManager
+
+@attribute [Authorize(Roles = "Administrator")]
+
+@if (IsAdd)
+{
+    <h2>Add new system group</h2>
+}
+else
+{
+    <h2>Edit system group</h2>
+}
+
+<EditForm Model="@_managedSystemGroup" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    <FormInput @bind-Value="@_managedSystemGroup.Name" ElementId="RoleName" Label="System group name" InputType="text" Placeholder="City 17's computers" Help="Enter name which will represent this system group"/>
+    <Submit/>
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public Guid? GroupId { get; set; }
+
+    private bool IsAdd => GroupId == null;
+
+    private ManagedSystemGroup _managedSystemGroup;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        
+        if (GroupId == null)
+        {
+            _managedSystemGroup = new ManagedSystemGroup();
+        }
+        else
+        {
+            _managedSystemGroup = DbContextFactory.Find<ManagedSystemGroup>(GroupId);
+        }
+    }
+
+    private void HandleValidSubmit()
+    {
+        DbContextFactory.Upsert(_managedSystemGroup);
+        NavigationManager.NavigateTo("/systemgroups/list");
+    }
+
+}
