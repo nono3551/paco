@@ -7,84 +7,84 @@
     </button>
 </div>
 
-<div class="@NavMenuCssClass sidebar-content">
-    <ul class="navbar-nav flex-column">
-        <li class="nav-item px-3">
-            <NavLink class="nav-link px-3" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </li>
-        <li class="nav-item dropdown px-3">
-            <NavLink class="nav-link px-3" @onclick="@(() => expandSystemsSubmenu = !expandSystemsSubmenu)">
-                <span class="oi oi-monitor" aria-hidden="true"></span> Systems
-            </NavLink>
-            @if (expandSystemsSubmenu)
-            {
-                <div class="px-3">
-                    <NavLink class="nav-link px-3" href="systems/add">
-                        <span class="oi oi-plus" aria-hidden="true"></span> Add new
+<AuthorizeView>
+    <Authorized>
+        <div class="@NavMenuCssClass sidebar-content">
+            <ul class="navbar-nav flex-column">
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link px-3" href="" Match="NavLinkMatch.All">
+                        <span class="oi oi-home" aria-hidden="true"></span> Home
                     </NavLink>
-                    <NavLink class="nav-link px-3" href="systems/list">
-                        <span class="oi oi-list" aria-hidden="true"></span> List
-                    </NavLink>
-                </div>
-            }
-        </li>
-        <AuthorizeView Roles="Administrator">
-            <Authorized>
+                </li>
                 <li class="nav-item dropdown px-3">
-                    <NavLink class="nav-link px-3" @onclick="@(() => expandPermissionsSubmenu = !expandPermissionsSubmenu)">
-                        <span class="oi oi-lock-locked" aria-hidden="true"></span> Permissions
+                    <NavLink class="nav-link px-3" @onclick="@(() => expandSystemsSubmenu = !expandSystemsSubmenu)">
+                        <span class="oi oi-monitor" aria-hidden="true"></span> Systems
                     </NavLink>
-                    @if (expandPermissionsSubmenu)
+                    @if (expandSystemsSubmenu)
                     {
                         <div class="px-3">
-                            <NavLink class="nav-link px-3" href="roles/add">
-                                <span class="oi oi-plus" aria-hidden="true"></span> New role
+                            <NavLink class="nav-link px-3" href="systems/add">
+                                <span class="oi oi-plus" aria-hidden="true"></span> Add new
                             </NavLink>
-                            <NavLink class="nav-link px-3" href="roles/list">
-                                <span class="oi oi-list" aria-hidden="true"></span> List roles
+                            <NavLink class="nav-link px-3" href="systems/list">
+                                <span class="oi oi-list" aria-hidden="true"></span> List
                             </NavLink>
-                        </div>
-                        <div class="px-3">
-                            <NavLink class="nav-link px-3" @onclick="@(() => expandSystemGroupsSubmenu = !expandSystemGroupsSubmenu)">
-                                <span class="oi bi-collection" aria-hidden="true"></span> System groups
-                            </NavLink>
-                            @if (expandSystemGroupsSubmenu)
-                            {
-                                <div class="px-3">
-                                    <NavLink class="nav-link px-3" href="systemgroups/add">
-                                        <span class="oi oi-plus" aria-hidden="true"></span> Add group
-                                    </NavLink>
-                                    <NavLink class="nav-link px-3" href="systemgroups/list">
-                                        <span class="oi oi-list" aria-hidden="true"></span> List groups
-                                    </NavLink>
-                                </div>
-                            }
                         </div>
                     }
                 </li>
-
-            </Authorized>
-        </AuthorizeView>
-        <AuthorizeView>
-            <Authorized>
+                <AuthorizeView Roles="Administrator">
+                    <Authorized Context="Auth">
+                        <li class="nav-item dropdown px-3">
+                            <NavLink class="nav-link px-3" @onclick="@(() => expandPermissionsSubmenu = !expandPermissionsSubmenu)">
+                                <span class="oi oi-lock-locked" aria-hidden="true"></span> Permissions
+                            </NavLink>
+                            @if (expandPermissionsSubmenu)
+                            {
+                                <div class="px-3">
+                                    <NavLink class="nav-link px-3" href="roles/add">
+                                        <span class="oi oi-plus" aria-hidden="true"></span> New role
+                                    </NavLink>
+                                    <NavLink class="nav-link px-3" href="roles/list">
+                                        <span class="oi oi-list" aria-hidden="true"></span> List roles
+                                    </NavLink>
+                                </div>
+                                <div class="px-3">
+                                    <NavLink class="nav-link px-3" @onclick="@(() => expandSystemGroupsSubmenu = !expandSystemGroupsSubmenu)">
+                                        <span class="oi bi-collection" aria-hidden="true"></span> System groups
+                                    </NavLink>
+                                    @if (expandSystemGroupsSubmenu)
+                                    {
+                                        <div class="px-3">
+                                            <NavLink class="nav-link px-3" href="systemgroups/add">
+                                                <span class="oi oi-plus" aria-hidden="true"></span> Add group
+                                            </NavLink>
+                                            <NavLink class="nav-link px-3" href="systemgroups/list">
+                                                <span class="oi oi-list" aria-hidden="true"></span> List groups
+                                            </NavLink>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        </li>
+                    </Authorized>
+                </AuthorizeView>
                 <li class="nav-item px-3">
                     <NavLink class="nav-link px-3" href="Identity/Account/Manage">
                         <span class="oi oi-person" aria-hidden="true"></span> @context.User.Identity.Name
                     </NavLink>
                 </li>
-            </Authorized>
-        </AuthorizeView>
-    </ul>
-    <ul class="navbar-nav flex-column">
-        <li class="nav-item px-3">
-            <NavLink class="nav-link px-3" href="/Identity/Account/Logout" >
-                <span class="oi oi-account-logout" aria-hidden="true"></span> Logout
-            </NavLink>
-        </li>
-    </ul>
-</div>
+            </ul>
+            <ul class="navbar-nav flex-column">
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link px-3" href="/Identity/Account/Logout">
+                        <span class="oi oi-account-logout" aria-hidden="true"></span> Logout
+                    </NavLink>
+                </li>
+            </ul>
+        </div>
+    </Authorized>
+</AuthorizeView>
+
 
 @code {
     private bool expandSystemsSubmenu;

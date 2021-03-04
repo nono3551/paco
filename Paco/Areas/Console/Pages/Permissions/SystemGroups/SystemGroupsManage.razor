@@ -1,4 +1,4 @@
-﻿@page "/systemgroups/manage/{managedSystemGroupId:guid}"
+﻿@page "/systemgroups/{managedSystemGroupId:guid}/manage"
 @using Microsoft.EntityFrameworkCore
 @using Paco.Entities.Models
 @using Paco.Repositories.Database
@@ -44,7 +44,7 @@ else
                     @(managedSystemManagedSystemGroup.CreatedAt.ToString() ?? "")
                 </td>
                 <td style="text-align:center">
-                    <span @onclick="@(() => { if (isAdded){ OnRemoveAction(managedSystemManagedSystemGroup);} else { OnAddAction(managedSystemManagedSystemGroup);}})" class="oi @(isAdded ? "oi-trash" : "oi-plus")" style='cursor: pointer;'></span>
+                    <span @onclick="@(() => { if (isAdded){ OnRemoveAction(managedSystemManagedSystemGroup);} else { OnAddAction(managedSystemManagedSystemGroup);}})" class="oi @(isAdded ? "bi-trash" : "oi-plus")" style='cursor: pointer;'></span>
                 </td>
             </tr>
         }

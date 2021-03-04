@@ -10,23 +10,31 @@
 
 <table class="table">
     <thead>
-        <tr>
-            <th>Name</th>
-            <th>Created At</th>
-        </tr>
+    <tr>
+        <th>Name</th>
+        <th>Created At</th>
+        <th style="text-align:center">Action</th>
+    </tr>
     </thead>
     <tbody>
-        @foreach (var managedSystemGroup in _managedSystemGroups)
-        {
-            <tr @onclick="() => ManageManagedSystemGroup(managedSystemGroup)" style='cursor: pointer;'>
-                <td>
-                    @managedSystemGroup.Name
-                </td>
-                <td>
-                    @managedSystemGroup.CreatedAt
-                </td>
-            </tr>
-        }
+    @foreach (var managedSystemGroup in _managedSystemGroups)
+    {
+        <tr>
+            <td>
+                @managedSystemGroup.Name
+            </td>
+            <td>
+                @managedSystemGroup.CreatedAt
+            </td>
+            <td style="text-align:center">
+                <div>
+                    <span style='cursor: pointer;' class="oi bi-sliders" aria-hidden="true" @onclick="() => ManageManagedSystemGroup(managedSystemGroup)"></span>
+                    <span style='cursor: pointer;' class="oi bi-gear mx-3" aria-hidden="true" @onclick="() => EditManagedSystemGroup(managedSystemGroup)"></span>
+                    <span style='cursor: pointer;' class="oi bi-trash" aria-hidden="true" @onclick="() => DeleteManagedSystemGroup(managedSystemGroup)"></span>
+                </div>
+            </td>
+        </tr>
+    }
     </tbody>
 </table>
 
@@ -35,16 +43,30 @@
 
     protected override void OnInitialized()
     {
-        using var dbContext = DbContextFactory.CreateDbContext();
-
-        _managedSystemGroups = dbContext.ManagedSystemGroups.ToList();
-        
+        Refresh();
         base.OnInitializedAsync();
+    }
+
+    private void Refresh()
+    {
+        using var dbContext = DbContextFactory.CreateDbContext();
+        _managedSystemGroups = dbContext.ManagedSystemGroups.ToList();
     }
 
     private void ManageManagedSystemGroup(ManagedSystemGroup managedSystemGroup)
     {
+        NavManager.NavigateTo($"/systemgroups/{managedSystemGroup.Id}/manage");
+    }
+
+    private void EditManagedSystemGroup(ManagedSystemGroup managedSystemGroup)
+    {
         NavManager.NavigateTo($"/systemgroups/{managedSystemGroup.Id}/edit");
+    }
+
+    private void DeleteManagedSystemGroup(ManagedSystemGroup managedSystemGroup)
+    {
+        DbContextFactory.Remove(managedSystemGroup);
+        Refresh();
     }
 
 }

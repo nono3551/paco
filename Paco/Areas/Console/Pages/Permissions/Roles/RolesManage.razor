@@ -43,7 +43,7 @@ else
                             @user.Email
                         </td>
                         <td style="text-align:center">
-                            <span @onclick="@(() => { OnUserAction(user, isAdded); })" class="oi @(isAdded ? "oi-trash" : "oi-plus")" style='cursor: pointer;'></span>
+                            <span @onclick="@(() => { OnUserAction(user, isAdded); })" class="oi @(isAdded ? "bi-trash" : "oi-plus")" style='cursor: pointer;'></span>
                         </td>
                     </tr>
                 }
@@ -89,7 +89,7 @@ else
                             <input type="checkbox" checked=@rolePermission.Permissions.HasFlag(Permissions.Execute) @onchange="@(eventArgs => { UpdateSystemPermission(rolePermission, Permissions.Execute, eventArgs.Value); })">
                         </td>
                         <td style="text-align:center">
-                            <span @onclick="@(() => { if (isAdded){ OnRemoveAction(rolePermission);} else { OnAddAction(rolePermission);}})" class="oi @(isAdded ? "oi-trash" : "oi-plus")" style='cursor: pointer;'></span>
+                            <span @onclick="@(() => { if (isAdded){ OnRemoveAction(rolePermission);} else { OnAddAction(rolePermission);}})" class="oi @(isAdded ? "bi-trash" : "oi-plus")" style='cursor: pointer;'></span>
                         </td>
                     </tr>
                 }
@@ -135,7 +135,7 @@ else
                             <input type="checkbox" checked=@permissions.Permissions.HasFlag(Permissions.Execute) @onchange="@(eventArgs => { UpdateSystemPermission(permissions, Permissions.Execute, eventArgs.Value); })">
                         </td>
                         <td style="text-align:center">
-                            <span @onclick="@(() => { if (isAdded){ OnRemoveAction(permissions);} else { OnAddAction(permissions);}})" class="oi @(isAdded ? "oi-trash" : "oi-plus")" style='cursor: pointer;'></span>
+                            <span @onclick="@(() => { if (isAdded){ OnRemoveAction(permissions);} else { OnAddAction(permissions);}})" class="oi @(isAdded ? "bi-trash" : "oi-plus")" style='cursor: pointer;'></span>
                         </td>
                     </tr>
                 }
