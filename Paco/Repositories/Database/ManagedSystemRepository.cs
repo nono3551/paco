@@ -14,7 +14,8 @@ namespace Paco.Repositories.Database
             return systems
                 .Where(s => s.RoleManagedSystemPermissions.Any(p => p.Permissions > Permissions.None && p.Role.Users.Contains(user)) || 
                             s.ManagedSystemGroups.Any(g => g.RoleManagedSystemGroupPermissions.Any(gp => gp.Role.Users.Contains(user) && gp.Permissions > Permissions.None)))
-                .Include(s => s.RoleManagedSystemPermissions.Where(rp => rp.Role.Users.Contains(user))).ToList();
+                .Include(s => s.RoleManagedSystemPermissions.Where(rp => rp.Role.Users.Contains(user)))
+                .ToList();
         }
         
         public static List<ManagedSystem> GetManagedSystemsForTermWithRolePermissionsForRole(this DbSet<ManagedSystem> systems, Role role, string term, int limit = 15)

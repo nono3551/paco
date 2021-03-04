@@ -31,13 +31,22 @@ namespace Paco.Areas.Identity
             using var scope = _scopeFactory.CreateScope();
             var userManager = scope.ServiceProvider.GetService<UserManager<TUser>>();
             var state = base.GetAuthenticationStateAsync().Result;
-            var roles = await userManager!.GetRolesAsync(await userManager.GetUserAsync(state.User));
-            var user = await userManager.GetUserAsync(state.User);
-            var principalFactory = new UserClaimsPrincipalFactory<TUser>(userManager, new OptionsWrapper<IdentityOptions>(_options));
-            var principal = await principalFactory.CreateAsync(user);
-            var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(principal.Identity, roles.Select(role => new Claim(ClaimTypes.Role, role))));
+            var user = await userManager!.GetUserAsync(state.User);
+
+            AuthenticationState result = new AuthenticationState(new ClaimsPrincipal());
+            if (user != null)
+            {
+                var roles = await userManager!.GetRolesAsync(user);
+                var principalFactory = new UserClaimsPrincipalFactory<TUser>(userManager, new OptionsWrapper<IdentityOptions>(_options));
+                var principal = await principalFactory.CreateAsync(user);
+                var claimsPrincipal = new ClaimsPrincipal(new ClaimsIdentity(principal.Identity, roles.Select(role => new Claim(ClaimTypes.Role, role))));
             
-            return new AuthenticationState(claimsPrincipal);
+                result = new AuthenticationState(claimsPrincipal);
+            }
+            
+            NotifyAuthenticationStateChanged(Task.FromResult(result));
+
+            return result;
         }
 
         protected override async Task<bool> ValidateAuthenticationStateAsync(AuthenticationState authenticationState, CancellationToken cancellationToken)

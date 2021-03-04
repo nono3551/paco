@@ -1,6 +1,8 @@
 ﻿@page "/systems/add"
 @page "/systems/manage/{SystemId:guid}"
 
+@attribute [Authorize]
+
 @using SystemManagement
 @using Microsoft.EntityFrameworkCore
 @using Paco.Entities.Models

@@ -1,17 +1,20 @@
-﻿@using Microsoft.AspNetCore.Identity
+﻿@page "/systems/list"
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Identity
 @using Paco.Services
 @using Ancestor.Extensions
+@using Microsoft.EntityFrameworkCore
 @using Paco.Entities.Models
 @using Paco.Entities.Models.Identity
 @using Paco.Repositories.Database
-@inject ApplicationDbContext ApplicationDbContext
+@inject IDbContextFactory<ApplicationDbContext> DbContextFactory
 @inject SystemManagerService ManagerService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject UserManager<User> UserManager
 @inject NavigationManager NavManager
 
 
-@page "/systems/list"
 <h1>Managed systems</h1>
 <table class="table">
     <thead>
@@ -70,6 +73,7 @@
                                 <button type="button" class="btn btn-dark" @onclick="() => RefreshSystemInformation(system)">Refresh</button>
                                 <button type="button" class="btn btn-dark" @onclick="() => FetchSystemUpdates(system)">Fetch updates</button>
                                 <button type="button" class="btn btn-dark" @onclick="() => EditSystem(system)">Edit</button>
+                                <button type="button" class="btn btn-dark" @onclick="() => DeleteSystem(system)">Delete</button>
                             </div>
                         </div>
                     </td>
@@ -83,15 +87,20 @@
     private List<ManagedSystem> _systems = new();
     private readonly List<ManagedSystem> _systemsWithDetailOpened = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        var user = await UserManager.GetUserAsync((await AuthenticationStateProvider.GetAuthenticationStateAsync()).User);
-        
-        _systems = ApplicationDbContext.ManagedSystems.GetManagedSystemsForUser(user);
-
-        await base.OnInitializedAsync();
+        RefreshSystems();
+        base.OnInitialized();
     }
 
+    private async void RefreshSystems()
+    {
+        var user = await UserManager.GetUserAsync((await AuthenticationStateProvider.GetAuthenticationStateAsync()).User);
+        await using var dbContext = DbContextFactory.CreateDbContext();
+        _systems = dbContext.ManagedSystems.GetManagedSystemsForUser(user);
+        StateHasChanged();
+    }
+    
     private bool ShouldShowDetailForSystem(ManagedSystem system)
     {
         return _systemsWithDetailOpened.Contains(system);
@@ -131,16 +140,19 @@
         Task.Run(() =>
         {
             ManagerService.FetchSystemUpdates(system);
-            base.InvokeAsync(() =>
-            {
-                base.StateHasChanged();
-            });
+            InvokeAsync(StateHasChanged);
         });
     }
 
     private void EditSystem(ManagedSystem system)
     {
         NavManager.NavigateTo($"/systems/manage/{system.Id}");
+    }
+    
+    private void DeleteSystem(ManagedSystem system)
+    {
+        DbContextFactory.Remove(system);
+        RefreshSystems();
     }
 
 }
