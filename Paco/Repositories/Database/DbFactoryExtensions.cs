@@ -36,5 +36,12 @@ namespace Paco.Repositories.Database
 
             return entity;
         }
+        
+        public static T Find<T>(this IDbContextFactory<ApplicationDbContext> factory, params object[] keys) where T: class, IDbEntity
+        {
+            using var db = factory.CreateDbContext();
+            
+            return db.Find<T>(keys);
+        }
     }
 }

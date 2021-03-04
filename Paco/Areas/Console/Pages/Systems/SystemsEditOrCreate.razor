@@ -1,12 +1,22 @@
-﻿@using SystemManagement
+﻿@page "/systems/add"
+@page "/systems/manage/{SystemId:guid}"
+
+@using SystemManagement
+@using Microsoft.EntityFrameworkCore
 @using Paco.Entities.Models
 @using Paco.Repositories.Database
 @using Paco.SystemManagement.Ssh
-@inject ApplicationDbContext ApplicationDbContext
 @inject NavigationManager NavigationManager
-@page "/systems/add"
+@inject IDbContextFactory<ApplicationDbContext> DbContextFactory
 
-<h2>Add new system</h2>
+@if (IsAdd)
+{
+    <h2>Add new system</h2>
+}
+else
+{
+    <h2>Edit system</h2>
+}
 
 <EditForm Model="@_system" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
@@ -33,10 +43,29 @@
 </EditForm>
 
 @code {
+    
+    [Parameter]
+    public Guid? SystemId { get; set; }
 
+    private bool IsAdd => SystemId == null;
+    
     private string _currentDistributionString = "SelectDistribution";
 
-    private readonly ManagedSystem _system = new ManagedSystem();
+    private ManagedSystem _system;
+
+    protected override void OnParametersSet()
+    {
+        base.OnParametersSet();
+        
+        if (SystemId == null)
+        {
+            _system = new ManagedSystem();
+        }
+        else
+        {
+            _system = DbContextFactory.Find<ManagedSystem>(SystemId);
+        }
+    }
 
     private void SetDistribution(Distribution distribution)
     {
@@ -46,8 +75,7 @@
 
     private void HandleValidSubmit()
     {
-        ApplicationDbContext.Add(_system);
-        ApplicationDbContext.SaveChanges();
-        NavigationManager.NavigateTo("/systems");
+        DbContextFactory.Upsert(_system);
+        NavigationManager.NavigateTo("/systems/list");
     }
 }

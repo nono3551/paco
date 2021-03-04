@@ -8,6 +8,8 @@
 @inject SystemManagerService ManagerService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject UserManager<User> UserManager
+@inject NavigationManager NavManager
+
 
 @page "/systems/list"
 <h1>Managed systems</h1>
@@ -67,6 +69,7 @@
                                 <button type="button" class="btn btn-dark" @onclick="() => HideDetail(system)">Hide Details</button>
                                 <button type="button" class="btn btn-dark" @onclick="() => RefreshSystemInformation(system)">Refresh</button>
                                 <button type="button" class="btn btn-dark" @onclick="() => FetchSystemUpdates(system)">Fetch updates</button>
+                                <button type="button" class="btn btn-dark" @onclick="() => EditSystem(system)">Edit</button>
                             </div>
                         </div>
                     </td>
@@ -134,4 +137,10 @@
             });
         });
     }
+
+    private void EditSystem(ManagedSystem system)
+    {
+        NavManager.NavigateTo($"/systems/manage/{system.Id}");
+    }
+
 }
