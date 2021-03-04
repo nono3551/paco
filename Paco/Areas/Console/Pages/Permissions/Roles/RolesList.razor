@@ -1,45 +1,73 @@
-﻿@using Paco.Repositories.Database
+﻿@page "/roles/list"
+
+@using Paco.Repositories.Database
 @using Paco.Entities.Models.Identity
-@inject ApplicationDbContext ApplicationDbContext
+@using Microsoft.EntityFrameworkCore
 @inject NavigationManager NavManager
-@page "/roles/list"
+@inject IDbContextFactory<ApplicationDbContext> DbContextFactory
+
 @attribute [Authorize(Roles = "Administrator")]
 
 <table class="table">
     <thead>
-        <tr>
-            <th>Name</th>
-            <th>Created At</th>
-        </tr>
+    <tr>
+        <th>Name</th>
+        <th>Created At</th>
+        <th style="text-align:center">Actions</th>
+    </tr>
     </thead>
     <tbody>
-        @foreach (var role in _roles)
-        {
-            <tr @onclick="() => ManageRole(role)" style='cursor: pointer;'>
-                <td>
-                    @role.Name
-                </td>
-                <td>
-                    @role.CreatedAt
-                </td>
-            </tr>
-        }
+    @foreach (var role in _roles)
+    {
+        <tr>
+            <td>
+                @role.Name
+            </td>
+            <td>
+                @role.CreatedAt
+            </td>
+            <td style="text-align:center">
+                <div>
+                    <span style='cursor: pointer;' class="oi bi-sliders" aria-hidden="true" @onclick="() => Manage(role)"></span>
+                    <span style='cursor: pointer;' class="oi bi-pencil-square mx-3" aria-hidden="true" @onclick="() => Edit(role)"></span>
+                    <span style='cursor: pointer;' class="oi bi-trash" aria-hidden="true" @onclick="() => Delete(role)"></span>
+                </div>
+            </td>
+        </tr>
+    }
     </tbody>
 </table>
 
 @code {
     private List<Role> _roles = new();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        _roles = ApplicationDbContext.Roles.ToList();
-
-        await base.OnInitializedAsync();
+        Refresh();
+        base.OnInitializedAsync();
     }
 
-    private void ManageRole(Role role)
+    private void Refresh()
+    {
+        using var db = DbContextFactory.CreateDbContext();
+        _roles = db.Roles.ToList();
+    }
+
+    private void Manage(Role role)
     {
         NavManager.NavigateTo($"/roles/{role.Id}/manage");
+    }
+    
+
+    private void Edit(Role role)
+    {
+        NavManager.NavigateTo($"/roles/{role.Id}/edit");
+    }
+
+    private void Delete(Role role)
+    {
+        DbContextFactory.Remove(role);
+        Refresh();
     }
 
 }

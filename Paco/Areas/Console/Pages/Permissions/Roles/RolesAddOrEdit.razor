@@ -1,0 +1,79 @@
+﻿@page "/roles/add"
+@page "/roles/{RoleId:guid}/edit"
+
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using Paco.Entities.Models.Identity
+@using Paco.Repositories.Database
+@using Paco.Validations
+
+@inject NavigationManager NavigationManager
+@inject RoleManager<Role> RoleManager
+
+@attribute [Authorize(Roles = "Administrator")]
+
+@if (IsAdd)
+{
+    <h2>Add new role</h2>
+}
+else
+{
+    <h2>Edit role</h2>
+}
+
+<EditForm Model="@_role" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <CustomValidator @ref="@_customValidator" />
+    <ValidationSummary />
+    <FormInput @bind-Value="@_role.Name" ElementId="RoleName" Label="Role name" InputType="text" Placeholder="Administrators" Help="Enter name which will represent this role" />
+    <Submit />
+</EditForm>
+
+@code {
+    [Parameter]
+    public Guid? RoleId { get; set; }
+    private bool IsAdd => RoleId == null;
+    private Role _role = new Role();
+    private CustomValidator _customValidator;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (RoleId == null)
+        {
+            _role = new Role();
+        }
+        else
+        {
+            _role = await RoleManager.FindByIdAsync(RoleId.ToString());
+        }
+        
+        await base.OnInitializedAsync();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        IdentityResult result;
+        
+        if (IsAdd)
+        {
+            result = await RoleManager.CreateAsync(_role);
+        }
+        else
+        {
+            result = await RoleManager.UpdateAsync(_role);
+        }
+        
+        if (result.Errors.Any())
+        {
+            _customValidator.DisplayErrors(new Dictionary<string, IEnumerable<string>>()
+            {
+                { nameof(_role.Name), result.Errors.Select(x => x.Description) }
+            });
+        }
+        else
+        {
+            NavigationManager.NavigateTo($"/roles/{_role.Id}/manage");
+        }
+    }
+
+}
