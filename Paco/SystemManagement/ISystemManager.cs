@@ -7,8 +7,9 @@ namespace Paco.SystemManagement
     {
         ManagedSystem System { get; }
         Dictionary<string, string> GetSystemInformation();
-        void FetchSystemUpdates();
+        IEnumerable<string> GetPackagesUpdates(bool shouldRefresh = false);
         bool IsSystemUpdateAvailable();
         KeyValuePair<bool, string> UpdateNeedsInteraction();
+        void FetchPackagesUpdates();
     }
 }

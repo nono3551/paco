@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Paco.Entities.Models;
 using Paco.Repositories.Database;
@@ -9,14 +10,12 @@ namespace Paco.Services
 {
     public class SystemManagerService
     {
-        private static readonly object Lock = new object();
-
-        private readonly ApplicationDbContext _dbContext;
+        private readonly IDbContextFactory<ApplicationDbContext> _dbContextFactory;
         private readonly ILogger _logger;
 
-        public SystemManagerService(ApplicationDbContext dbContext, ILoggerFactory loggerFactory)
+        public SystemManagerService(IDbContextFactory<ApplicationDbContext> dbContextFactory, ILoggerFactory loggerFactory)
         {
-            _dbContext = dbContext;
+            _dbContextFactory = dbContextFactory;
             _logger = loggerFactory.CreateLogger<SystemManagerService>();
         }
 
@@ -39,45 +38,62 @@ namespace Paco.Services
             });
         }
 
-        public void FetchSystemUpdates(ManagedSystem system)
+        public IEnumerable<string> GetPackagesUpdates(ManagedSystem system, bool shouldRefresh = false)
         {
             _logger.LogInformation("Fetching update for {system}.", system.Name);
 
+            IEnumerable<string> updates = null;
+            
             ExecuteWorkWithSystem(system, managedSystem =>
             {
-                managedSystem.GetDistributionManager().FetchSystemUpdates();
+                updates = managedSystem.GetDistributionManager().GetPackagesUpdates();
             }, managedSystem =>
             {
                 managedSystem.UpdatesFetchedAt = DateTime.UtcNow;
             });
+
+            return updates;
         }
 
-        private void ExecuteWorkWithSystem(ManagedSystem system, Action<ManagedSystem> work, Action<ManagedSystem> updateSystem)
+        private void ExecuteWorkWithSystem(ManagedSystem system, Action<ManagedSystem> action, Action<ManagedSystem> onSuccess)
         {
-            lock (Lock)
-            {
-                try
-                {
-                    work(system);
+            using var dbContext = _dbContextFactory.CreateDbContext();
+                
+            try
+            { 
+                action(system);
 
-                    _dbContext.Entry(system).Reload();
+                dbContext.Entry(system).Reload();
+                    
+                system.NeedsInteraction = false;
 
-                    system.LastAccessed = DateTime.UtcNow;
-                    updateSystem(system);
-                }
-                catch (Exception e)
-                {
-                    _dbContext.Entry(system).Reload();
-
-                    system.NeedsInteraction = true;
-                    system.InteractionReason = $"{system.InteractionReason}\n{e.Message}";
-
-                    _logger.LogError(e, "While executing work with {system}: {exception}", system.Name, e.Message);
-                }
-
-                _dbContext.Update(system);
-                _dbContext.SaveChanges();
+                system.LastAccessed = DateTime.UtcNow;
+                onSuccess(system);
             }
+            catch (Exception e)
+            {
+                dbContext.Entry(system).Reload();
+
+                system.NeedsInteraction = true;
+                system.InteractionReason = $"{system.InteractionReason}\n{e.Message}";
+
+                _logger.LogError(e, "While executing work with {system}: {exception}", system.Name, e.Message);
+            }
+
+            dbContext.Update(system);
+            dbContext.SaveChanges();
+        }
+
+        public void FetchUpdates(ManagedSystem managedSystem)
+        {
+            ExecuteWorkWithSystem(managedSystem, managedSystem =>
+            {
+                managedSystem.GetDistributionManager().FetchPackagesUpdates();
+            }, managedSystem =>
+            {
+                managedSystem.UpdatesFetchedAt = DateTime.UtcNow;
+            });
+
         }
     }
 }

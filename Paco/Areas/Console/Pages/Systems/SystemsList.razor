@@ -8,6 +8,7 @@
 @using Paco.Entities.Models
 @using Paco.Entities.Models.Identity
 @using Paco.Repositories.Database
+@using Paco.SystemManagement
 @inject IDbContextFactory<ApplicationDbContext> DbContextFactory
 @inject SystemManagerService ManagerService
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -18,50 +19,54 @@
 <h1>Managed systems</h1>
 <table class="table">
     <thead>
-        <tr>
-            <th>Name</th>
-            <th>Hostname</th>
-            <th>Last Accessed</th>
-            <th>Updates fetched at</th>
-        </tr>
+    <tr>
+        <th>Name</th>
+        <th>Hostname</th>
+        <th>Last Accessed</th>
+        <th>Updates fetched at</th>
+    </tr>
     </thead>
     <tbody>
-        @foreach (var system in _systems)
+    @foreach (var system in _systems)
+    {
+        var background = "";
+        if (system.NeedsInteraction)
         {
-            var background = "";
-            if (system.NeedsInteraction)
-            {
-                background = "background: linear-gradient(90deg, rgba(255,255,0,0.25) 0%, rgba(255,255,0,0.5) 100%);";
-            }
+            background = "background: linear-gradient(90deg, rgba(200,0,0,0.25) 0%, rgba(200,0,0,0.5) 100%);";
+        }
 
-            <tr @onclick="() => ToggleSystemDetail(system)" style='cursor: pointer; @background'>
-                <td>
-                    @system.Name
-                </td>
-                <td>
-                    @system.Hostname
-                </td>
-                <td>
-                    @system.LastAccessed
-                </td>
-                <td>
-                    @(system.UpdatesFetchedAt?.ToString() ?? "Never")
-                </td>
-            </tr>
-            @if (ShouldShowDetailForSystem(system))
-            {
-                <tr role="row" class="b-table-details">
-                    <td colspan="4" class="">
-                        <div class="card">
-                            <div class="card-body">
-                                @{
-                                    var information = system.SystemInformation?.FromJson<Dictionary<string, string>>();
-                                    if (information != null)
+        <tr @onclick="() => ToggleSystemDetail(system)" style='cursor: pointer; @background'>
+            <td>
+                @system.Name
+            </td>
+            <td>
+                @system.Hostname
+            </td>
+            <td>
+                @system.LastAccessed
+            </td>
+            <td>
+                @(system.UpdatesFetchedAt?.ToString() ?? "Never")
+            </td>
+        </tr>
+        @if (ShouldShowDetailForSystem(system))
+        {
+            <tr role="row" class="b-table-details">
+                <td colspan="4" class="">
+                    <div class="card">
+                        <div class="card-body">
+                            @{
+                                var information = system.SystemInformation?.FromJson<Dictionary<string, string>>();
+                                if (information != null)
+                                {
+                                    foreach (var entry in information)
                                     {
-                                        /*@*/foreach (var entry in information)
+                                        if (entry.Value?.Any() == true)
                                         {
                                             <div class="row mb-2">
-                                                <div class="text-sm-right col-sm-3"><b>@entry.Key:</b></div>
+                                                <div class="text-sm-right col-sm-3">
+                                                    <b>@entry.Key:</b>
+                                                </div>
                                                 <div class="col">
                                                     <p style="white-space: pre-line">@entry.Value</p>
                                                 </div>
@@ -69,23 +74,29 @@
                                         }
                                     }
                                 }
-                                <button type="button" class="btn btn-dark" @onclick="() => HideDetail(system)">Hide Details</button>
-                                <button type="button" class="btn btn-dark" @onclick="() => RefreshSystemInformation(system)">Refresh</button>
-                                <button type="button" class="btn btn-dark" @onclick="() => FetchSystemUpdates(system)">Fetch updates</button>
-                                <button type="button" class="btn btn-dark" @onclick="() => EditSystem(system)">Edit</button>
-                                <button type="button" class="btn btn-dark" @onclick="() => DeleteSystem(system)">Delete</button>
-                            </div>
+                            }
+                            <button type="button" class="btn btn-dark" @onclick="() => HideDetail(system)">Hide Details</button>
+                            <button type="button" class="btn btn-dark" @onclick="() => RefreshSystemInformation(system)">Refresh</button>
+                            <button type="button" class="btn btn-dark" @onclick="() => FetchSystemUpdates(system)">Fetch updates</button>
+                            <button type="button" class="btn btn-dark" @onclick="() => EditSystem(system)">Edit</button>
+                            <button type="button" class="btn btn-dark" @onclick="() => UpdatePackages(system)">Update packages</button>
+                            <button type="button" class="btn btn-dark" @onclick="() => DeleteSystem(system)">Delete</button>
                         </div>
-                    </td>
-                </tr>
-            }
+                    </div>
+                </td>
+            </tr>
         }
+    }
     </tbody>
 </table>
+
+<FreeBsdUpdatingModal @ref="@_freeBsdUpdatingModal"/>
 
 @code {
     private List<ManagedSystem> _systems = new();
     private readonly List<ManagedSystem> _systemsWithDetailOpened = new();
+
+    private FreeBsdUpdatingModal _freeBsdUpdatingModal;
 
     protected override void OnInitialized()
     {
@@ -100,7 +111,7 @@
         _systems = dbContext.ManagedSystems.GetManagedSystemsForUser(user);
         StateHasChanged();
     }
-    
+
     private bool ShouldShowDetailForSystem(ManagedSystem system)
     {
         return _systemsWithDetailOpened.Contains(system);
@@ -128,10 +139,7 @@
         Task.Run(() =>
         {
             ManagerService.RefreshSystemInformation(system);
-            base.InvokeAsync(() =>
-            {
-                base.StateHasChanged();
-            });
+            base.InvokeAsync(() => { base.StateHasChanged(); });
         });
     }
 
@@ -139,7 +147,7 @@
     {
         Task.Run(() =>
         {
-            ManagerService.FetchSystemUpdates(system);
+            ManagerService.GetPackagesUpdates(system);
             InvokeAsync(StateHasChanged);
         });
     }
@@ -147,6 +155,14 @@
     private void EditSystem(ManagedSystem system)
     {
         NavManager.NavigateTo($"/systems/{system.Id}/edit");
+    }
+
+    private void UpdatePackages(ManagedSystem system)
+    {
+        if (system.Distribution == Distribution.FreeBsd)
+        {
+            _freeBsdUpdatingModal.ShowModal(system);
+        }
     }
     
     private void DeleteSystem(ManagedSystem system)

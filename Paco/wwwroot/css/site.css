@@ -9,6 +9,10 @@ a, .btn-link {
     color: #343a40;
 }
 
+.clickable {
+    cursor: pointer;
+}
+
 .btn-primary {
     color: #fff;
     background-color: #343a40;

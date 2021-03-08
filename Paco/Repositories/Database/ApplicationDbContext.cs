@@ -33,7 +33,7 @@ namespace Paco.Repositories.Database
         {
             base.OnConfiguring(optionsBuilder);
             
-            optionsBuilder.LogTo(Console.WriteLine);
+            //optionsBuilder.LogTo(Console.WriteLine);
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())

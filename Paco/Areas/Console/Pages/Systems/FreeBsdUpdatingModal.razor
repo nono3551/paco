@@ -1,0 +1,76 @@
+﻿@using Paco.Entities.Models
+@using Paco.Services
+
+@inject SystemManagerService SystemManagerService
+
+@if (_showModal)
+{
+    <div class="modal fade show" id="myModal" style="display:block" aria-modal="true" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Update @_system.Name</h4>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+
+                    @if (_updates != null)
+                    {
+                        <ul>
+                            @foreach (var update in _updates)
+                            {
+                                <li>
+                                    @update<span style="float: right;" class="oi bi-gear clickable px-3" aria-hidden="true" @onclick="() => { }"></span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>Loading...</p>
+                    }
+
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn" @onclick="@ModalCancel">Cancel</button>
+                    <button type="button" class="btn btn-danger" @onclick=@ModalOk>Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code
+{
+    private bool _showModal = false;
+    private ManagedSystem _system;
+    private IEnumerable<string> _updates = null;
+
+    private void ModalShow() => _showModal = true;
+    private void ModalCancel() => _showModal = false;
+
+    public void ShowModal(ManagedSystem managedSystem)
+    {
+        _system = managedSystem;
+        _showModal = true;
+        StateHasChanged();
+
+        Task.Run(() =>
+        {
+            _updates = SystemManagerService.GetPackagesUpdates(_system);
+            InvokeAsync(StateHasChanged);
+        });
+    }
+
+    void ModalOk()
+    {
+        _showModal = false;
+        _system = null;
+        _updates = null;
+    }
+}

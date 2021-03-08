@@ -28,9 +28,9 @@
             </td>
             <td style="text-align:center">
                 <div>
-                    <span style='cursor: pointer;' class="oi bi-sliders" aria-hidden="true" @onclick="() => ManageManagedSystemGroup(managedSystemGroup)"></span>
-                    <span style='cursor: pointer;' class="oi bi-pencil-square mx-3" aria-hidden="true" @onclick="() => EditManagedSystemGroup(managedSystemGroup)"></span>
-                    <span style='cursor: pointer;' class="oi bi-trash" aria-hidden="true" @onclick="() => DeleteManagedSystemGroup(managedSystemGroup)"></span>
+                    <span class="oi bi-sliders clickable" aria-hidden="true" @onclick="() => ManageManagedSystemGroup(managedSystemGroup)"></span>
+                    <span class="oi bi-pencil-square mx-3 clickable" aria-hidden="true" @onclick="() => EditManagedSystemGroup(managedSystemGroup)"></span>
+                    <span class="oi bi-trash clickable" aria-hidden="true" @onclick="() => DeleteManagedSystemGroup(managedSystemGroup)"></span>
                 </div>
             </td>
         </tr>

@@ -45,7 +45,7 @@ namespace Paco.Jobs
                 {
                     try
                     {
-                        manager.FetchSystemUpdates(managedSystem);
+                        manager.FetchUpdates(managedSystem);
                     }
                     catch (Exception exception)
                     {

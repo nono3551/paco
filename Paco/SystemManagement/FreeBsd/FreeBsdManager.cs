@@ -1,7 +1,9 @@
 ﻿using Paco.SystemManagement.FreeBsd.Commands;
 using System.Collections.Generic;
+using System.Linq;
 using Paco.Entities.Models;
 using Paco.SystemManagement.Ssh;
+using Renci.SshNet;
 
 namespace Paco.SystemManagement.FreeBsd
 {
@@ -26,24 +28,27 @@ namespace Paco.SystemManagement.FreeBsd
                 { "Userland version", new KarnelVersion().GetUserland(client) },
                 { "Running Karnel version", new KarnelVersion().GetRunning(client) },
                 { "Vulnerable packages", Audit.GetVulnerablePackages(client) },
-                { "pkg info", client.CreateCommand("sudo pkg info -a -d -r -s -b -B -l").Execute() },
-                { "portmaster -Ld", client.CreateCommand("sudo portmaster -Ld; echo $?").Execute().Replace("\n\n", "\n").Replace("===>>>", "") },
+                { "Packages updates", string.Join("\n", Audit.GetPackagesUpdates(client))},
             };
         }
 
         public KeyValuePair<bool, string> UpdateNeedsInteraction()
         {
             using var client = SshManager.CreateSshClient(System);
-
             return Audit.UpdateNeedsInteraction(client);
         }
 
-
-        public void FetchSystemUpdates()
+        public void FetchPackagesUpdates()
         {
             using var client = SshManager.CreateSshClient(System);
+            Audit.FetchPackagesUpdates(client);
+        }
 
-            var result = client.CreateCommand("sudo portsnap fetch update --interactive").Execute();
+
+        public IEnumerable<string> GetPackagesUpdates(bool shouldRefresh = false)
+        {
+            using var client = SshManager.CreateSshClient(System);
+            return Audit.GetPackagesUpdates(client);
         }
 
         public bool IsSystemUpdateAvailable()

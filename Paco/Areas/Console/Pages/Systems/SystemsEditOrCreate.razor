@@ -21,44 +21,47 @@ else
 }
 
 <EditForm Model="@_system" OnValidSubmit="HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <FormInput @bind-Value="@_system.Name" ElementId="SystemName" Label="System name" InputType="text" Placeholder="VM-City-Food-Bratislava" Help="Enter name which will represent this system" />
-    <FormInput @bind-Value="@_system.Hostname" ElementId="SystemHostname" Label="Hostname" InputType="text" Placeholder="city.food.com:22" Help="Enter address or system" />
-    <FormInput @bind-Value="@_system.Login" ElementId="SystemLogin" Label="Login" InputType="text" Placeholder="user" Help="Enter username which will be used for authentication" />
-    <FormInput @bind-Value="@_system.Password" ElementId="SystemPassword" Label="Password" InputType="password" Help="Enter password which will be used for authentication" />
-    <FormInput @bind-Value="@_system.SystemFingerprint" ElementId="SystemFingerprint" Label="System Fingerprint" InputType="text" Placeholder="@Fingerprint.FingerprintPlaceholder" Help="Paste system's fingerprint" />
-    <FormInput @bind-Value="@_system.SshPrivateKey" ElementId="SystemSshPrivateKey" Label="SSH Private key" InputType="text" Help="Paste private key which will be used for authentication" />
-    <div class="dropdown py-3">
-        <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            @_currentDistributionString
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    <FormInput @bind-Value="@_system.Name" ElementId="SystemName" Label="System name" InputType="text" Placeholder="VM-City-Food-Bratislava" Help="Enter name which will represent this system"/>
+    <FormInput @bind-Value="@_system.Hostname" ElementId="SystemHostname" Label="Hostname" InputType="text" Placeholder="city.food.com:22" Help="Enter address or system"/>
+    <FormInput @bind-Value="@_system.Login" ElementId="SystemLogin" Label="Login" InputType="text" Placeholder="user" Help="Enter username which will be used for authentication"/>
+    <FormInput @bind-Value="@_system.Password" ElementId="SystemPassword" Label="Password" InputType="password" Help="Enter password which will be used for authentication"/>
+    <FormInput @bind-Value="@_system.SystemFingerprint" ElementId="SystemFingerprint" Label="System Fingerprint" InputType="text" Placeholder="@Fingerprint.FingerprintPlaceholder" Help="Paste system's fingerprint"/>
+    <FormInput @bind-Value="@_system.SshPrivateKey" ElementId="SystemSshPrivateKey" Label="SSH Private key" InputType="text" Help="Paste private key which will be used for authentication"/>
 
+    <div class="dropdown py-3">
+        <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+            @CurrentDistributionString
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
             @foreach (Distribution item in Enum.GetValues(typeof(Distribution)))
             {
-                <a class="dropdown-item" @onclick="(e => SetDistribution(item))">@item.ToString()</a>
+                <li>
+                    <a class="dropdown-item" @onclick="(() => SetDistribution(item))">@item.ToString()</a>
+                </li>
             }
-        </div>
+        </ul>
     </div>
-    <Submit />
+    
+    <Submit/>
 </EditForm>
 
 @code {
-    
+
     [Parameter]
     public Guid? SystemId { get; set; }
 
     private bool IsAdd => SystemId == null;
-    
-    private string _currentDistributionString = "SelectDistribution";
 
-    private ManagedSystem _system;
+    private string CurrentDistributionString => _system?.Distribution.ToString() ?? "SelectDistribution";
+
+    private ManagedSystem _system = null;
 
     protected override void OnParametersSet()
     {
         base.OnParametersSet();
-        
+
         if (SystemId == null)
         {
             _system = new ManagedSystem();
@@ -71,7 +74,6 @@ else
 
     private void SetDistribution(Distribution distribution)
     {
-        _currentDistributionString = distribution.ToString();
         _system.Distribution = distribution;
     }
 
@@ -80,4 +82,5 @@ else
         DbContextFactory.Upsert(_system);
         NavigationManager.NavigateTo("/systems/list");
     }
+
 }
