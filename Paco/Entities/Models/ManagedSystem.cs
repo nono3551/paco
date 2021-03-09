@@ -42,8 +42,7 @@ namespace Paco.Entities.Models
         public List<ManagedSystemGroup> ManagedSystemGroups { get; set; }
         public List<ManagedSystemManagedSystemGroup> ManagedSystemManagedSystemGroups { get; set; }
         public List<RoleManagedSystemPermissions> RoleManagedSystemPermissions { get; set; }
-
-
+        
         public ISystemManager GetDistributionManager()
         {
             return new FreeBsdManager(this);

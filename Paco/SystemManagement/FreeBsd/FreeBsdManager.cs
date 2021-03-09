@@ -1,10 +1,7 @@
 ﻿using Paco.SystemManagement.FreeBsd.Commands;
 using System.Collections.Generic;
-using System.Linq;
-using Paco.Entities.FreeBsd;
 using Paco.Entities.Models;
 using Paco.SystemManagement.Ssh;
-using Renci.SshNet;
 
 namespace Paco.SystemManagement.FreeBsd
 {

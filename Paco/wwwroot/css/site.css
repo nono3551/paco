@@ -13,6 +13,10 @@ a, .btn-link {
     cursor: pointer;
 }
 
+.error-background {
+    background: linear-gradient(90deg, rgba(200,0,0,0.25) 0%, rgba(200,0,0,0.5) 100%);
+}
+
 .btn-primary {
     color: #fff;
     background-color: #343a40;

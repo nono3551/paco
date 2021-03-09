@@ -32,10 +32,10 @@
         var background = "";
         if (system.NeedsInteraction)
         {
-            background = "background: linear-gradient(90deg, rgba(200,0,0,0.25) 0%, rgba(200,0,0,0.5) 100%);";
+            background = "error-background";
         }
 
-        <tr @onclick="() => ToggleSystemDetail(system)" style='cursor: pointer; @background'>
+        <tr @onclick="() => ToggleSystemDetail(system)" style='cursor: pointer;' class="@background">
             <td>
                 @system.Name
             </td>

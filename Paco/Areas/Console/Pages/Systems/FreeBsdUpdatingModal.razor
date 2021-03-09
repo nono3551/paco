@@ -7,7 +7,7 @@
 @if (_showModal)
 {
     <div class="modal fade show" id="myModal" style="display:block" aria-modal="true" role="dialog">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog">
             <div class="modal-content">
 
                 <!-- Modal Header -->
@@ -20,14 +20,21 @@
 
                     @if (_updates != null)
                     {
-                        <ul>
-                            @foreach (var update in _updates)
+                        @foreach (PackageAction update in _updates)
+                        {
+                            var background = "";
+                            var tooltipMessage = "Looks great!";
+                            // Has undefined option
+                            if (update?.Options?.Any(x => x.Status == OptionSetStatus.Undefined) == true)
                             {
-                                <li>
-                                    @(update) <span style="float: right;" class="oi bi-gear clickable px-3" aria-hidden="true" @onclick="() => { }"></span>
-                                </li>
+                                background = "error-background";
+                                tooltipMessage = "Error: Has undefined options!";
                             }
-                        </ul>
+
+                            <div class="@background my-2 py-2 ps-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@tooltipMessage">
+                                @update?.Description <span style="float: right;" class="oi bi-gear clickable px-3" aria-hidden="true" @onclick="() => { }"></span>
+                            </div>
+                        }
                     }
                     else
                     {
@@ -52,7 +59,7 @@
     private ManagedSystem _system;
     private IEnumerable<object> _updates = null;
     private ModalType _modalType = ModalType.Systems;
-    
+
     public void ShowModal(ManagedSystem managedSystem)
     {
         _system = managedSystem;
