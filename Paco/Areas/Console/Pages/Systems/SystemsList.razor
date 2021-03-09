@@ -147,7 +147,7 @@
     {
         Task.Run(() =>
         {
-            ManagerService.GetPackagesUpdates(system);
+            ManagerService.GetPackagesActions(system);
             InvokeAsync(StateHasChanged);
         });
     }

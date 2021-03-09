@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Paco.Entities.FreeBsd;
 using Paco.Entities.Models;
 
 namespace Paco.SystemManagement
@@ -7,9 +8,8 @@ namespace Paco.SystemManagement
     {
         ManagedSystem System { get; }
         Dictionary<string, string> GetSystemInformation();
-        IEnumerable<string> GetPackagesUpdates(bool shouldRefresh = false);
+        IEnumerable<object> GetPackagesActions(bool shouldRefresh = false);
         bool IsSystemUpdateAvailable();
         KeyValuePair<bool, string> UpdateNeedsInteraction();
-        void FetchPackagesUpdates();
     }
 }

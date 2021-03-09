@@ -1,12 +1,13 @@
 ﻿@using Paco.Entities.Models
 @using Paco.Services
+@using Paco.Entities.FreeBsd
 
 @inject SystemManagerService SystemManagerService
 
 @if (_showModal)
 {
     <div class="modal fade show" id="myModal" style="display:block" aria-modal="true" role="dialog">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
 
                 <!-- Modal Header -->
@@ -23,7 +24,7 @@
                             @foreach (var update in _updates)
                             {
                                 <li>
-                                    @update<span style="float: right;" class="oi bi-gear clickable px-3" aria-hidden="true" @onclick="() => { }"></span>
+                                    @(update) <span style="float: right;" class="oi bi-gear clickable px-3" aria-hidden="true" @onclick="() => { }"></span>
                                 </li>
                             }
                         </ul>
@@ -37,8 +38,8 @@
 
                 <!-- Modal footer -->
                 <div class="modal-footer">
-                    <button type="button" class="btn" @onclick="@ModalCancel">Cancel</button>
-                    <button type="button" class="btn btn-danger" @onclick=@ModalOk>Delete</button>
+                    <button type="button" class="btn" @onclick="@CloseModal">Cancel</button>
+                    <button type="button" class="btn btn-danger" @onclick=@CloseModal>Delete</button>
                 </div>
             </div>
         </div>
@@ -49,11 +50,9 @@
 {
     private bool _showModal = false;
     private ManagedSystem _system;
-    private IEnumerable<string> _updates = null;
-
-    private void ModalShow() => _showModal = true;
-    private void ModalCancel() => _showModal = false;
-
+    private IEnumerable<object> _updates = null;
+    private ModalType _modalType = ModalType.Systems;
+    
     public void ShowModal(ManagedSystem managedSystem)
     {
         _system = managedSystem;
@@ -62,15 +61,21 @@
 
         Task.Run(() =>
         {
-            _updates = SystemManagerService.GetPackagesUpdates(_system);
+            _updates = SystemManagerService.GetPackagesActions(_system);
             InvokeAsync(StateHasChanged);
         });
     }
 
-    void ModalOk()
+    void CloseModal()
     {
         _showModal = false;
         _system = null;
         _updates = null;
+    }
+
+    enum ModalType
+    {
+        Systems,
+        Options
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using Ancestor.Extensions;
-using Paco.SystemManagement.FreeBsd.Entities.Uptime;
+using Paco.Entities.FreeBsd.Uptime;
 using Renci.SshNet;
 
 namespace Paco.SystemManagement.FreeBsd.Commands

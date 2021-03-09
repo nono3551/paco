@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Paco.SystemManagement.FreeBsd.Entities.Uptime
+namespace Paco.Entities.FreeBsd.Uptime
 {
     public class UptimeInformation
     {

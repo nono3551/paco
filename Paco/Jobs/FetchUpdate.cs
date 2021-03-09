@@ -45,7 +45,7 @@ namespace Paco.Jobs
                 {
                     try
                     {
-                        manager.FetchUpdates(managedSystem);
+                        var updates = manager.GetPackagesActions(managedSystem, true);
                     }
                     catch (Exception exception)
                     {

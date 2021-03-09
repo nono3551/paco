@@ -1,6 +1,7 @@
 ﻿using Paco.SystemManagement.FreeBsd.Commands;
 using System.Collections.Generic;
 using System.Linq;
+using Paco.Entities.FreeBsd;
 using Paco.Entities.Models;
 using Paco.SystemManagement.Ssh;
 using Renci.SshNet;
@@ -28,7 +29,7 @@ namespace Paco.SystemManagement.FreeBsd
                 { "Userland version", new KarnelVersion().GetUserland(client) },
                 { "Running Karnel version", new KarnelVersion().GetRunning(client) },
                 { "Vulnerable packages", Audit.GetVulnerablePackages(client) },
-                { "Packages updates", string.Join("\n", Audit.GetPackagesUpdates(client))},
+                { "Packages updates", string.Join("\n", Audit.GetPackagesActions(client))},
             };
         }
 
@@ -38,17 +39,11 @@ namespace Paco.SystemManagement.FreeBsd
             return Audit.UpdateNeedsInteraction(client);
         }
 
-        public void FetchPackagesUpdates()
+        public IEnumerable<object> GetPackagesActions(bool shouldRefresh = false)
         {
             using var client = SshManager.CreateSshClient(System);
-            Audit.FetchPackagesUpdates(client);
-        }
-
-
-        public IEnumerable<string> GetPackagesUpdates(bool shouldRefresh = false)
-        {
-            using var client = SshManager.CreateSshClient(System);
-            return Audit.GetPackagesUpdates(client);
+            var actions = Audit.GetPackagesActions(client, shouldRefresh);
+            return actions;
         }
 
         public bool IsSystemUpdateAvailable()

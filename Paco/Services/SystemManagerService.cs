@@ -38,18 +38,21 @@ namespace Paco.Services
             });
         }
 
-        public IEnumerable<string> GetPackagesUpdates(ManagedSystem system, bool shouldRefresh = false)
+        public IEnumerable<object> GetPackagesActions(ManagedSystem system, bool shouldRefresh = false)
         {
             _logger.LogInformation("Fetching update for {system}.", system.Name);
 
-            IEnumerable<string> updates = null;
+            IEnumerable<object> updates = null;
             
             ExecuteWorkWithSystem(system, managedSystem =>
             {
-                updates = managedSystem.GetDistributionManager().GetPackagesUpdates();
+                updates = managedSystem.GetDistributionManager().GetPackagesActions();
             }, managedSystem =>
             {
-                managedSystem.UpdatesFetchedAt = DateTime.UtcNow;
+                if (shouldRefresh)
+                {
+                    managedSystem.UpdatesFetchedAt = DateTime.UtcNow;
+                }
             });
 
             return updates;
@@ -82,18 +85,6 @@ namespace Paco.Services
 
             dbContext.Update(system);
             dbContext.SaveChanges();
-        }
-
-        public void FetchUpdates(ManagedSystem managedSystem)
-        {
-            ExecuteWorkWithSystem(managedSystem, managedSystem =>
-            {
-                managedSystem.GetDistributionManager().FetchPackagesUpdates();
-            }, managedSystem =>
-            {
-                managedSystem.UpdatesFetchedAt = DateTime.UtcNow;
-            });
-
         }
     }
 }
