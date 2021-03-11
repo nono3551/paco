@@ -1,11 +1,16 @@
-﻿namespace Paco.Entities.FreeBsd
+﻿using System;
+
+namespace Paco.Entities.FreeBsd
 {
+    [Flags]
     public enum OptionSetStatus
     {
-        Undefined,
-        PackageSet,
-        PackageUnset,
-        GloballySet,
-        GloballyUnset
+        Undefined = 1,
+        PackageSet = 2,
+        PackageUnset = 4,
+        GloballySet = 8,
+        GloballyUnset = 16,
+        IsSet = GloballySet | PackageSet,
+        IsUnset = GloballyUnset | Undefined | PackageUnset
     }
 }

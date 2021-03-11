@@ -6,59 +6,118 @@
 
 @if (_showModal)
 {
-    <div class="modal fade show" id="myModal" style="display:block" aria-modal="true" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
+    if (_shouldErrorDialogBeVisible)
+    {
+        <ErrorModal @bind-ShouldBeVisible="@_shouldErrorDialogBeVisible" ErrorMessage="@_lastError"/>
+    }
+    else if (_currentPackageAction == null)
+    {
+        <div class="modal fade show" id="myModal" style="display:block" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
 
-                <!-- Modal Header -->
-                <div class="modal-header">
-                    <h4 class="modal-title">Update @_system.Name</h4>
-                </div>
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">Update @_system.Name</h4>
+                    </div>
 
-                <!-- Modal body -->
-                <div class="modal-body">
+                    <!-- Modal body -->
+                    <div class="modal-body">
 
-                    @if (_updates != null)
-                    {
-                        @foreach (PackageAction update in _updates)
+                        @if (_packagesActions != null)
                         {
-                            var background = "";
-                            var tooltipMessage = "Looks great!";
-                            // Has undefined option
-                            if (update?.Options?.Any(x => x.Status == OptionSetStatus.Undefined) == true)
+                            @foreach (PackageAction update in _packagesActions)
                             {
-                                background = "error-background";
-                                tooltipMessage = "Error: Has undefined options!";
+                                var background = "";
+                                var tooltipMessage = "Looks great!";
+
+                                // Has undefined option
+                                if (update?.Options?.Any(x => x.Status == OptionSetStatus.Undefined) == true)
+                                {
+                                    background = "error-background";
+                                    tooltipMessage = "Error: Has undefined options!";
+                                }
+
+                                <div class="@background my-2 py-2 ps-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@tooltipMessage">
+                                    @update?.Description <span style="float: right;" class="oi bi-gear clickable px-3" aria-hidden="true" @onclick="() => OpenPackageActionSettings(update)"></span>
+                                </div>
                             }
-
-                            <div class="@background my-2 py-2 ps-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@tooltipMessage">
-                                @update?.Description <span style="float: right;" class="oi bi-gear clickable px-3" aria-hidden="true" @onclick="() => { }"></span>
-                            </div>
                         }
-                    }
-                    else
-                    {
-                        <p>Loading...</p>
-                    }
+                        else
+                        {
+                            <p>Loading...</p>
+                        }
 
-                </div>
+                    </div>
 
-                <!-- Modal footer -->
-                <div class="modal-footer">
-                    <button type="button" class="btn" @onclick="@CloseModal">Cancel</button>
-                    <button type="button" class="btn btn-danger" @onclick=@CloseModal>Delete</button>
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn" @onclick="@CloseModal">Cancel</button>
+                        <button type="button" class="btn btn-dark" @onclick=@PrepareUpdate>Prepare</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="modal fade show" id="myModal" style="display:block" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">@_currentPackageAction.NewVersion options</h4>
+                    </div>
+
+                    <!-- Modal body -->
+                    <div class="modal-body">
+
+                        @if (_currentPackageAction.Options?.Any() == true)
+                        {
+                            @foreach (var option in _currentPackageAction.Options)
+                            {
+                                var isChecked = (OptionSetStatus.IsSet.HasFlag(option.Status));
+
+                                <div class="form-check py-1">
+                                    <input class="checkbox form-check-input" type="checkbox" id="flexCheckDefault-@option.Name"
+                                           checked=@isChecked @onchange="@(eventArgs => { OnOptionChanged(option, eventArgs.Value); })">
+                                    <div style="display: block">
+                                        <label class="form-check-label" for="flexCheckDefault-@option.Name">
+                                            @option.Name
+                                        </label>
+
+                                        @if (option.Status == OptionSetStatus.Undefined)
+                                        {
+                                            <span class="badge bg-dark" style="float: right">New</span>
+                                        }
+                                    </div>
+
+                                    <small class="form-text text-muted">@option.Description</small>
+                                </div>
+                            }
+                        }
+                    </div>
+
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-dark" @onclick=@OnBackFromOptionsSettings>Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 }
 
 @code
 {
     private bool _showModal = false;
     private ManagedSystem _system;
-    private IEnumerable<object> _updates = null;
-    private ModalType _modalType = ModalType.Systems;
+    private IEnumerable<object> _packagesActions = null;
+    private PackageAction _currentPackageAction = null;
+
+    private bool _shouldErrorDialogBeVisible = false;
+    private string _lastError = null;
 
     public void ShowModal(ManagedSystem managedSystem)
     {
@@ -68,21 +127,65 @@
 
         Task.Run(() =>
         {
-            _updates = SystemManagerService.GetPackagesActions(_system);
+            _packagesActions = SystemManagerService.GetPackagesActions(_system);
             InvokeAsync(StateHasChanged);
         });
+    }
+
+    void OpenPackageActionSettings(PackageAction packageAction)
+    {
+        _currentPackageAction = packageAction;
+        StateHasChanged();
+    }
+
+    private void OnOptionChanged(PackageOption option, object value)
+    {
+        option.Status = true.Equals(value) ? OptionSetStatus.IsSet : OptionSetStatus.IsUnset;
     }
 
     void CloseModal()
     {
         _showModal = false;
         _system = null;
-        _updates = null;
+        _packagesActions = null;
+    }
+    
+    void PrepareUpdate()
+    {
+        var actions = _packagesActions as IEnumerable<PackageAction>;
+        
+        if (actions?.All(x => x.Options.All(y => y.Status != OptionSetStatus.Undefined)) == true)
+        {
+            try
+            {
+                SystemManagerService.PreparePackagesActions(_system, _packagesActions);
+                
+                _showModal = false;
+                _system = null;
+                _packagesActions = null;
+            }
+            catch (Exception e)
+            {
+                _lastError = e.Message;
+                _shouldErrorDialogBeVisible = true;
+            }
+        }
     }
 
-    enum ModalType
+    private void OnBackFromOptionsSettings()
     {
-        Systems,
-        Options
+        foreach (var packageOption in _currentPackageAction.Options.Where(x => x.Status == OptionSetStatus.Undefined))
+        {
+            packageOption.Status = OptionSetStatus.PackageUnset;
+        }
+
+        _currentPackageAction = null;
+
+        StateHasChanged();
+    }
+
+    private void ContinueAfterError()
+    {
+        _lastError = null;
     }
 }

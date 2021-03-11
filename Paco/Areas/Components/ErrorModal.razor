@@ -1,0 +1,40 @@
+﻿<div class="modal fade show" id="myModal" style="display:block" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Error</h4>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <label>
+                    @ErrorMessage
+                </label>
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-dark" @onclick=@HideDialog>Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string ErrorMessage { get; set; }
+    
+    [Parameter]
+    public bool ShouldBeVisible { get; set; }
+    
+    [Parameter]
+    public EventCallback<bool> ShouldBeVisibleChanged { get; set; }
+
+    private void HideDialog()
+    {
+        ShouldBeVisible = false;
+        ShouldBeVisibleChanged.InvokeAsync();
+    }
+}

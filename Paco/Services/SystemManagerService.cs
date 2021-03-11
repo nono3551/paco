@@ -40,7 +40,7 @@ namespace Paco.Services
 
         public IEnumerable<object> GetPackagesActions(ManagedSystem system, bool shouldRefresh = false)
         {
-            _logger.LogInformation("Fetching update for {system}.", system.Name);
+            _logger.LogInformation("Getting packages actions for {system}.", system.Name);
 
             IEnumerable<object> updates = null;
             
@@ -58,7 +58,20 @@ namespace Paco.Services
             return updates;
         }
 
-        private void ExecuteWorkWithSystem(ManagedSystem system, Action<ManagedSystem> action, Action<ManagedSystem> onSuccess)
+        public void PreparePackagesActions(ManagedSystem system, IEnumerable<object> actions)
+        {
+            _logger.LogInformation("Preparing packages actions for {system}.", system.Name);
+            
+            ExecuteWorkWithSystem(system, managedSystem =>
+            {
+                managedSystem.GetDistributionManager().PreparePackagesActions(actions);
+            }, managedSystem =>
+            {
+                
+            }, true);
+        }
+
+        private void ExecuteWorkWithSystem(ManagedSystem system, Action<ManagedSystem> action, Action<ManagedSystem> onSuccess, bool shouldThrow = false)
         {
             using var dbContext = _dbContextFactory.CreateDbContext();
                 
@@ -81,6 +94,11 @@ namespace Paco.Services
                 system.InteractionReason = $"{system.InteractionReason}\n{e.Message}";
 
                 _logger.LogError(e, "While executing work with {system}: {exception}", system.Name, e.Message);
+
+                if (shouldThrow)
+                {
+                    throw;
+                }
             }
 
             dbContext.Update(system);

@@ -203,6 +203,11 @@ app {
     }
 }
 
+.form-check-input:checked {
+    background-color: #212529;
+    border-color: #212529;
+}
+
 .mx-3 {
     margin-right: 1rem!important;
     margin-left: 1rem!important;

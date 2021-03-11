@@ -44,10 +44,12 @@ namespace Paco.SystemManagement.FreeBsd.Commands
         public static IEnumerable<PackageAction> GetPackagesActions(SshClient sshClient, bool shouldRefresh = false)
         {
             var portDirectoryKey = "===>>> Port directory: ";
-            var distVersionKey = "DISTVERSION=\t";
-            var portVersionKey = "PORTVERSION=\t";
-            var portRevisionKey = "PORTREVISION=\t";
-            var portEpochKey = "PORTEPOCH=\t";
+            var portNameKey = "PORTNAME";
+            var distVersionKey = "DISTVERSION";
+            var portVersionKey = "PORTVERSION";
+            var portRevisionKey = "PORTREVISION";
+            var portEpochKey = "PORTEPOCH";
+            var categoriesKey = "CATEGORIES";
             var optionsDefinitionKey = "OPTIONS_DEFINE=\t";
             var descriptionSuffix = "_DESC=\t";
             var optionsFileSetKey = "OPTIONS_FILE_SET+=";
@@ -94,32 +96,56 @@ namespace Paco.SystemManagement.FreeBsd.Commands
 
                 string currentVersion;
                 string newVersion = null;
+                
+                var startOfParameters = makefile.IndexOf(portNameKey, StringComparison.Ordinal);
+                var startOfCategories = makefile.IndexOf(categoriesKey, StringComparison.Ordinal);
+                var packageNameParameters = makefile.Substring(startOfParameters, startOfCategories - startOfParameters);
 
-                if (makefile.Contains(portVersionKey))
+                //Name
+                if (packageNameParameters.Contains(portNameKey))
                 {
-                    newVersion = makefile.Split(portVersionKey).Last().Split("\n").First();
+                    newVersion = packageNameParameters.Split(portNameKey).Last().Split("\n").First().Split("=").Last().Trim();
                 }
                 
-                if (makefile.Contains(distVersionKey))
+                //PortVersion
+                if (packageNameParameters.Contains(portVersionKey))
                 {
-                    newVersion = makefile.Split(distVersionKey).Last().Split("\n").First();
+                    newVersion = $"{newVersion}-{packageNameParameters.Split(portVersionKey).Last().Split("\n").First().Split("=").Last().Trim()}";
                 }
-
-                if (makefile.Contains(portRevisionKey))
+                
+                //DistVersion
+                if (packageNameParameters.Contains(distVersionKey))
                 {
-                    newVersion = $"{newVersion}_{makefile.Split(portRevisionKey).Last().Split("\n").First()}";
+                    newVersion = $"{newVersion}-{packageNameParameters.Split(distVersionKey).Last().Split("\n").First().Split("=").Last().Trim()}";
                 }
-
-                if (makefile.Contains(portEpochKey))
+                
+                //Revision
+                if (packageNameParameters.Contains(portRevisionKey))
                 {
-                    newVersion = $"{newVersion},{makefile.Split(portEpochKey).Last().Split("\n").First()}";
+                    var revision = packageNameParameters.Split(portRevisionKey).Last().Split("\n").First().Split("=").Last().Trim();
+
+                    if (revision != "0")
+                    {
+                        newVersion = $"{newVersion}_{revision}";
+                    }
+                }
+                
+                //PortEpoch
+                if (packageNameParameters.Contains(portEpochKey))
+                {
+                    var epoch = packageNameParameters.Split(portEpochKey).Last().Split("=").Last().Trim();
+
+                    if (epoch != "0")
+                    {
+                        newVersion = $"{newVersion},{epoch}";
+                    }
                 }
 
                 var optionsKeys = new List<string>();
 
                 if (makefile.Contains(optionsDefinitionKey))
                 {
-                    optionsKeys.AddRange(makefile.Split(optionsDefinitionKey)[1].Split("\n").First().Split(" "));
+                    optionsKeys.AddRange(makefile.Split(optionsDefinitionKey)[1].Split("\n").First().Split(" ").Select(x => x.Trim()));
                 }
 
                 var options = new List<PackageOption>();
