@@ -26,7 +26,7 @@ namespace Paco.SystemManagement.FreeBsd
                 { "Userland version", new KarnelVersion().GetUserland(client) },
                 { "Running Karnel version", new KarnelVersion().GetRunning(client) },
                 { "Vulnerable packages", Audit.GetVulnerablePackages(client) },
-                { "Packages updates", string.Join("\n", Audit.GetPackagesActions(client))},
+                { "Packages updates", string.Join("\n", ActionsProvider.GetPackagesActions(client))},
             };
         }
 
@@ -39,13 +39,13 @@ namespace Paco.SystemManagement.FreeBsd
         public void PreparePackagesActions(IEnumerable<object> actions)
         {
             using var client = SshManager.CreateSshClient(System);
-            Updating.PreparePackageActions(client, actions);
+            PrepareActions.PreparePackageActions(client, actions);
         }
 
         public IEnumerable<object> GetPackagesActions(bool shouldRefresh = false)
         {
             using var client = SshManager.CreateSshClient(System);
-            var actions = Audit.GetPackagesActions(client, shouldRefresh);
+            var actions = ActionsProvider.GetPackagesActions(client, shouldRefresh);
             return actions;
         }
 

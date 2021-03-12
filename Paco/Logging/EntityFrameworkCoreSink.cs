@@ -29,7 +29,7 @@ namespace Paco.Logging
             _dbContextProvider = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
             _jsonFormatter = new JsonFormatter(formatProvider: formatProvider);
         }
-        
+
         public void Emit(LogEvent logEvent)
         {
             lock (Lock)
@@ -97,10 +97,8 @@ namespace Paco.Logging
             }
 
             StringBuilder sb = new StringBuilder();
-            using (StringWriter writer = new StringWriter(sb))
-            {
-                this._jsonFormatter.Format(logEvent, writer);
-            }
+            using StringWriter writer = new StringWriter(sb);
+            this._jsonFormatter.Format(logEvent, writer);
 
             return sb.ToString();
         }

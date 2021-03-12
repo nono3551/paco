@@ -21,6 +21,8 @@ namespace Paco.Services
 
         public void RefreshSystemInformation(ManagedSystem system)
         {
+            _logger.LogInformation("Refreshing system information for {system}.", system.Name);
+
             Dictionary<string, string> systemInformation = null;
             bool updateNeedsInteraction = false;
             string interactionReason = null;

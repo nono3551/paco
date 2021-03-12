@@ -77,9 +77,9 @@
                             }
                             <button type="button" class="btn btn-dark" @onclick="() => HideDetail(system)">Hide Details</button>
                             <button type="button" class="btn btn-dark" @onclick="() => RefreshSystemInformation(system)">Refresh</button>
-                            <button type="button" class="btn btn-dark" @onclick="() => FetchSystemUpdates(system)">Fetch updates</button>
+                            <button type="button" class="btn btn-dark" @onclick="() => GetPackagesActions(system)">Get packages actions</button>
                             <button type="button" class="btn btn-dark" @onclick="() => EditSystem(system)">Edit</button>
-                            <button type="button" class="btn btn-dark" @onclick="() => UpdatePackages(system)">Update packages</button>
+                            <button type="button" class="btn btn-dark" @onclick="() => ExecutePackagesActions(system)">Execute package actions</button>
                             <button type="button" class="btn btn-dark" @onclick="() => DeleteSystem(system)">Delete</button>
                         </div>
                     </div>
@@ -106,8 +106,8 @@
 
     private async void RefreshSystems()
     {
-        var user = await UserManager.GetUserAsync((await AuthenticationStateProvider.GetAuthenticationStateAsync()).User);
         await using var dbContext = DbContextFactory.CreateDbContext();
+        var user = await UserManager.GetUserAsync((await AuthenticationStateProvider.GetAuthenticationStateAsync()).User);
         _systems = dbContext.ManagedSystems.GetManagedSystemsForUser(user);
         StateHasChanged();
     }
@@ -139,11 +139,11 @@
         Task.Run(() =>
         {
             ManagerService.RefreshSystemInformation(system);
-            base.InvokeAsync(() => { base.StateHasChanged(); });
+            base.InvokeAsync(StateHasChanged);
         });
     }
 
-    private void FetchSystemUpdates(ManagedSystem system)
+    private void GetPackagesActions(ManagedSystem system)
     {
         Task.Run(() =>
         {
@@ -157,7 +157,7 @@
         NavManager.NavigateTo($"/systems/{system.Id}/edit");
     }
 
-    private void UpdatePackages(ManagedSystem system)
+    private void ExecutePackagesActions(ManagedSystem system)
     {
         if (system.Distribution == Distribution.FreeBsd)
         {

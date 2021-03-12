@@ -9,7 +9,7 @@ namespace Paco.SystemManagement.FreeBsd.Commands
     {
         public static string CurrentLoggedUsers(SshClient sshClient)
         {
-            var loggedUsers = sshClient.CreateCommand("LANG=C w -n --libxo=json,pretty").Execute().FromJson<SystemUptime>().UptimeInformation.UserTable.UserEntry.Select(user => user.User);
+            var loggedUsers = sshClient.CreateCommand("sudo LANG=C w -n --libxo=json,pretty").Execute().FromJson<SystemUptime>().UptimeInformation.UserTable.UserEntry.Select(user => user.User);
 
             return string.Join("\n", loggedUsers);
         }

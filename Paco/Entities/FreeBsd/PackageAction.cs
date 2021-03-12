@@ -14,7 +14,9 @@ namespace Paco.Entities.FreeBsd
         public string DbRoot { get; init; }
 
         public IEnumerable<PackageOption> Options { get; init; }
-        
+
+        public IEnumerable<PackageOptionsGroup> OptionsGroups { get; init; }
+
         public override string ToString()
         {
             return Description;

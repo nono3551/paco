@@ -8,7 +8,7 @@ using Sentry.Extensibility;
 
 namespace Paco.SystemManagement.FreeBsd.Commands
 {
-    public static class Updating
+    public static class PrepareActions
     {
         public static void PreparePackageActions(SshClient client, IEnumerable<object> actions)
         {
@@ -36,8 +36,13 @@ namespace Paco.SystemManagement.FreeBsd.Commands
                 var optionsFile = $"{action.DbRoot}/options";
 
                 var newOptions = builder.ToString().Replace("\r", "");
+
+                var createOptionsFileCommand = $"echo $'{newOptions}' | sudo tee {optionsFile} > /dev/null ; echo -n $?";
+                var createOptionsFolder = $"sudo /bin/mkdir -p {action.DbRoot}";
+
+                client.CreateCommand(createOptionsFolder).Execute();
                 
-                var result = client.CreateCommand($"echo $'{newOptions}' > {optionsFile} ; echo -n $?").Execute();
+                var result = client.CreateCommand(createOptionsFileCommand).Execute();
 
                 if (result != "0")
                 {
