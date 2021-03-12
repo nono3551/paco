@@ -6,11 +6,8 @@ namespace Paco.Entities.FreeBsd
     public enum OptionSetStatus
     {
         Undefined = 1,
-        PackageSet = 2,
-        PackageUnset = 4,
-        GloballySet = 8,
-        GloballyUnset = 16,
-        IsSet = GloballySet | PackageSet,
-        IsUnset = GloballyUnset | Undefined | PackageUnset
+        Set = 2,
+        Unset = 4,
+        IsUnset = Unset | Undefined
     }
 }

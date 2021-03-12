@@ -1,6 +1,7 @@
 ﻿@using Paco.Entities.Models
 @using Paco.Services
 @using Paco.Entities.FreeBsd
+@using System.ComponentModel.DataAnnotations
 
 @inject SystemManagerService SystemManagerService
 
@@ -31,11 +32,11 @@
                                 var background = "";
                                 var tooltipMessage = "Looks great!";
 
-                                // Has undefined option
-                                if (update?.Options?.Any(x => x.Status == OptionSetStatus.Undefined) == true)
+                                var problems = update.GetOptionsProblems();
+                                if (problems.Any())
                                 {
                                     background = "error-background";
-                                    tooltipMessage = "Error: Has undefined options!";
+                                    tooltipMessage = string.Join("\n", problems);
                                 }
 
                                 <div class="@background my-2 py-2 ps-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@tooltipMessage">
@@ -72,16 +73,14 @@
 
                     <!-- Modal body -->
                     <div class="modal-body">
-
-                        @if (_currentPackageAction.Options?.Any() == true)
+                        @if (_currentPackageAction.SimpleOptions?.Any() == true)
                         {
-                            @foreach (var option in _currentPackageAction.Options)
+                            @foreach (var option in _currentPackageAction.SimpleOptions)
                             {
-                                var isChecked = (OptionSetStatus.IsSet.HasFlag(option.Status));
+                                var isChecked = (OptionSetStatus.Set.HasFlag(option.Status));
 
                                 <div class="form-check py-1">
-                                    <input class="checkbox form-check-input" type="checkbox" id="flexCheckDefault-@option.Name"
-                                           checked=@isChecked @onchange="@(eventArgs => { OnOptionChanged(option, eventArgs.Value); })">
+                                    <input class="checkbox form-check-input" type="checkbox" id="flexCheckDefault-@option.Name" checked=@isChecked @onchange="@(eventArgs => { OnOptionChanged(option, eventArgs.Value); })">
                                     <div style="display: block">
                                         <label class="form-check-label" for="flexCheckDefault-@option.Name">
                                             @option.Name
@@ -96,12 +95,36 @@
                                     <small class="form-text text-muted">@option.Description</small>
                                 </div>
                             }
+
+                            @foreach (var group in _currentPackageAction.OptionsGroups)
+                            {
+                                <div class="py-1">
+                                    <label style="display: block">
+                                        @group.Name
+                                    </label>
+                                    <small class="form-text text-muted">@group.Description</small>
+
+                                    <div class="form-check">
+                                        @foreach (var option in @group.Options)
+                                        {
+                                            var checkedStatus = (OptionSetStatus.Set.HasFlag(option.Status));
+                                            var id = $"{group.Name}-{option.Name}";
+
+                                            <div class="form-check pt-2">
+                                                <input class="form-check-input" type="checkbox" id="@id" checked="@checkedStatus" @onchange="@(eventArgs => { OnGroupOptionChanged(group, option, eventArgs.Value); })">
+                                                <label class="form-check-label" style="display: block" for="@id">@option.Name</label>
+                                                <small class="form-text text-muted">@option.Description</small>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
                         }
                     </div>
 
                     <!-- Modal footer -->
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-dark" @onclick=@OnBackFromOptionsSettings>Apply</button>
+                        <button type="button" class="btn btn-dark" @onclick=@OnApplyOptionsSettings>Apply</button>
                     </div>
                 </div>
             </div>
@@ -115,10 +138,9 @@
     private ManagedSystem _system;
     private IEnumerable<object> _packagesActions = null;
     private PackageAction _currentPackageAction = null;
-
     private bool _shouldErrorDialogBeVisible = false;
     private string _lastError = null;
-
+    
     public void ShowModal(ManagedSystem managedSystem)
     {
         _system = managedSystem;
@@ -140,7 +162,7 @@
 
     private void OnOptionChanged(PackageOption option, object value)
     {
-        option.Status = true.Equals(value) ? OptionSetStatus.IsSet : OptionSetStatus.IsUnset;
+        option.Status = true.Equals(value) ? OptionSetStatus.Set : OptionSetStatus.IsUnset;
     }
 
     void CloseModal()
@@ -149,43 +171,68 @@
         _system = null;
         _packagesActions = null;
     }
-    
+
     void PrepareUpdate()
     {
         var actions = _packagesActions as IEnumerable<PackageAction>;
-        
-        if (actions?.All(x => x.Options.All(y => y.Status != OptionSetStatus.Undefined)) == true)
+
+        try
         {
-            try
+            var problems = actions?.SelectMany(x => x.GetOptionsProblems()).ToList();
+
+            if (problems?.Any() == true)
             {
-                SystemManagerService.PreparePackagesActions(_system, _packagesActions);
-                
-                _showModal = false;
-                _system = null;
-                _packagesActions = null;
+                throw new ValidationException(string.Join("\n", problems));
             }
-            catch (Exception e)
-            {
-                _lastError = e.Message;
-                _shouldErrorDialogBeVisible = true;
-            }
+            
+            SystemManagerService.PreparePackagesActions(_system, _packagesActions);
+
+            _showModal = false;
+            _system = null;
+            _packagesActions = null;
+        }
+        catch (Exception e)
+        {
+            _lastError = e.Message;
+            _shouldErrorDialogBeVisible = true;
         }
     }
 
-    private void OnBackFromOptionsSettings()
+    private void OnApplyOptionsSettings()
     {
-        foreach (var packageOption in _currentPackageAction.Options.Where(x => x.Status == OptionSetStatus.Undefined))
+        _currentPackageAction.SetUndefinedOptionsAsUnset();
+
+        var optionsProblems = _currentPackageAction.GetOptionsProblems();
+        
+        if (optionsProblems.Any())
         {
-            packageOption.Status = OptionSetStatus.PackageUnset;
+            _lastError = string.Join("\n", optionsProblems);
+            _shouldErrorDialogBeVisible = true;
         }
-
-        _currentPackageAction = null;
-
+        else
+        {
+            _currentPackageAction = null;
+        }
+        
         StateHasChanged();
     }
 
-    private void ContinueAfterError()
+    private void OnGroupOptionChanged(PackageOptionsGroup @group, PackageOption option, object isChecked)
     {
-        _lastError = null;
+        if (true.Equals(isChecked))
+        {
+            if (group.OptionsGroupType == OptionsGroupType.Single)
+            {
+                group.Options.Where(x => x != option).ToList().ForEach(x => x.Status = OptionSetStatus.Unset);
+            }
+
+            option.Status = OptionSetStatus.Set;
+        }
+        else
+        {
+            option.Status = OptionSetStatus.Unset;
+        }
+
+        StateHasChanged();
     }
 }

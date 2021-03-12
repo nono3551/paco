@@ -83,7 +83,7 @@ namespace Paco.SystemManagement.FreeBsd.Commands
                     DbRoot = dbRoot,
                     CurrentVersion = currentVersion,
                     NewVersion = newVersion,
-                    Options = ParseOptions(makefile, portOptionsFile, makeConf),
+                    SimpleOptions = ParseOptions(makefile, portOptionsFile, makeConf),
                     OptionsGroups = ParseOptionsGroups(makefile, portOptionsFile, makeConf)
                 });
             }
@@ -91,7 +91,7 @@ namespace Paco.SystemManagement.FreeBsd.Commands
             return actions;
         }
 
-        private static IEnumerable<PackageOptionsGroup> ParseOptionsGroups(string makefile, string portOptionsFile, string makeConf)
+        private static List<PackageOptionsGroup> ParseOptionsGroups(string makefile, string portOptionsFile, string makeConf)
         {
             var groups = new List<PackageOptionsGroup>();
             
@@ -116,12 +116,13 @@ namespace Paco.SystemManagement.FreeBsd.Commands
                             Name = option,
                             Status = ParseOptionSetStatus(portOptionsFile, globallySetOptions, globallyUnsetOptions, option),
                             Description = GetDescription(makefile, option)
-                        });
+                        }).ToList();
 
                         groups.Add(new PackageOptionsGroup()
                         {
                             Options = groupOptions,
                             OptionsGroupType = value,
+                            Name = groupOptionsKey,
                             Description = GetDescription(makefile, groupOptionsKey)
                         });
                     }
@@ -183,7 +184,7 @@ namespace Paco.SystemManagement.FreeBsd.Commands
             return newVersion;
         }
 
-        private static IEnumerable<PackageOption> ParseOptions(string makefile, string portOptionsFile, string makeConf)
+        private static List<PackageOption> ParseOptions(string makefile, string portOptionsFile, string makeConf)
         {
             var options = new List<PackageOption>();
             var optionsKeys = new List<string>();
@@ -218,19 +219,19 @@ namespace Paco.SystemManagement.FreeBsd.Commands
 
             if (HasOptionInOptionsFile(portOptionsFile, optionsKey, false))
             {
-                state = OptionSetStatus.PackageUnset;
+                state = OptionSetStatus.Unset;
             }
             else if (HasOptionInOptionsFile(portOptionsFile, optionsKey, true))
             {
-                state = OptionSetStatus.PackageSet;
+                state = OptionSetStatus.Set;
             }
             else if (globallySetOptions.Contains(optionsKey))
             {
-                state = OptionSetStatus.GloballySet;
+                state = OptionSetStatus.Set;
             }
             else if (globallyUnsetOptions.Contains(optionsKey))
             {
-                state = OptionSetStatus.GloballyUnset;
+                state = OptionSetStatus.Unset;
             }
 
             return state;
