@@ -23,6 +23,14 @@ namespace Paco.SystemManagement.FreeBsd.Commands
         private const string OptionsFileUnsetKey = "OPTIONS_FILE_UNSET";
         private const string OptionsGloballySetKey = "OPTIONS_SET";
         private const string OptionsGloballyUnsetKey = "OPTIONS_UNSET";
+        
+        private static readonly Dictionary<string, OptionsGroupType> OptionsGroupTypesMapping = new()
+        {
+            {"OPTIONS_SINGLE", OptionsGroupType.Single},
+            {"OPTIONS_RADIO", OptionsGroupType.Radio},
+            {"OPTIONS_MULTI", OptionsGroupType.Multi},
+            {"OPTIONS_GROUP", OptionsGroupType.Group}
+        };
 
         public static IEnumerable<PackageAction> GetPackagesActions(SshClient sshClient, bool shouldRefresh = false)
         {
@@ -66,7 +74,7 @@ namespace Paco.SystemManagement.FreeBsd.Commands
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-
+                
                 actions.Add(new PackageAction()
                 {
                     Description = description,
@@ -76,13 +84,54 @@ namespace Paco.SystemManagement.FreeBsd.Commands
                     CurrentVersion = currentVersion,
                     NewVersion = newVersion,
                     Options = ParseOptions(makefile, portOptionsFile, makeConf),
-                    OptionsGroups = null
+                    OptionsGroups = ParseOptionsGroups(makefile, portOptionsFile, makeConf)
                 });
             }
 
             return actions;
         }
+
+        private static IEnumerable<PackageOptionsGroup> ParseOptionsGroups(string makefile, string portOptionsFile, string makeConf)
+        {
+            var groups = new List<PackageOptionsGroup>();
+            
+            var globallySetOptions = new List<string>();
+            var globallyUnsetOptions = new List<string>();
+
+            GetValueFromFile(makeConf, OptionsGloballySetKey)?.Split(" ", StringSplitOptions.RemoveEmptyEntries).ToList().ForEach(globallySetOptions.Add);
+            GetValueFromFile(makeConf, OptionsGloballyUnsetKey)?.Split(" ", StringSplitOptions.RemoveEmptyEntries).ToList().ForEach(globallyUnsetOptions.Add);
+
+            foreach (var (key, value) in OptionsGroupTypesMapping)
+            {
+                var optionsKeys = GetValueFromFile(makefile, key)?.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+                
+                if (optionsKeys != null)
+                {
+                    foreach (var groupOptionsKey in optionsKeys)
+                    {
+                        var groupOptionsKeys = GetValueFromFile(makefile, $"{key}_{groupOptionsKey}").Split(" ");
+                        
+                        var groupOptions = groupOptionsKeys.Select(option => new PackageOption()
+                        {
+                            Name = option,
+                            Status = ParseOptionSetStatus(portOptionsFile, globallySetOptions, globallyUnsetOptions, option),
+                            Description = GetDescription(makefile, option)
+                        });
+
+                        groups.Add(new PackageOptionsGroup()
+                        {
+                            Options = groupOptions,
+                            OptionsGroupType = value,
+                            Description = GetDescription(makefile, groupOptionsKey)
+                        });
+                    }
+                }
+            }
+            
+            return groups;
+        }
         
+
         private static string ParseNewVersion(string makefile)
         {
             string newVersion = null;
@@ -135,7 +184,7 @@ namespace Paco.SystemManagement.FreeBsd.Commands
         }
 
         private static IEnumerable<PackageOption> ParseOptions(string makefile, string portOptionsFile, string makeConf)
-        { 
+        {
             var options = new List<PackageOption>();
             var optionsKeys = new List<string>();
             var globallySetOptions = new List<string>();
@@ -145,21 +194,22 @@ namespace Paco.SystemManagement.FreeBsd.Commands
             GetValueFromFile(makeConf, OptionsGloballySetKey)?.Split(" ", StringSplitOptions.RemoveEmptyEntries).ToList().ForEach(globallySetOptions.Add);
             GetValueFromFile(makeConf, OptionsGloballyUnsetKey)?.Split(" ", StringSplitOptions.RemoveEmptyEntries).ToList().ForEach(globallyUnsetOptions.Add);
 
-            foreach (var optionsKey in optionsKeys)
+            foreach (var optionKey in optionsKeys)
             {
-                string optionDescription = GetValueFromFile(makefile, $"{optionsKey}_{DescriptionSuffix}");
-
-                
-
                 options.Add(new PackageOption()
                 {
-                    Description = optionDescription,
-                    Name = optionsKey,
-                    Status = ParseOptionSetStatus(portOptionsFile, globallySetOptions, globallyUnsetOptions, optionsKey)
+                    Description = GetDescription(makefile, optionKey),
+                    Name = optionKey,
+                    Status = ParseOptionSetStatus(portOptionsFile, globallySetOptions, globallyUnsetOptions, optionKey)
                 });
             }
 
             return options;
+        }
+
+        private static string GetDescription(string makefile, string optionKey)
+        {
+            return GetValueFromFile(makefile, $"{optionKey}_{DescriptionSuffix}");
         }
 
         private static OptionSetStatus ParseOptionSetStatus(string portOptionsFile, IEnumerable<string> globallySetOptions, IEnumerable<string> globallyUnsetOptions, string optionsKey)
