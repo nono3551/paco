@@ -2,8 +2,10 @@
 @using Paco.Services
 @using Paco.Entities.FreeBsd
 @using System.ComponentModel.DataAnnotations
+@using System.Globalization
 
 @inject SystemManagerService SystemManagerService
+@inject IJSRuntime JsRuntime
 
 @if (_showModal)
 {
@@ -11,9 +13,35 @@
     {
         <ErrorModal @bind-ShouldBeVisible="@_shouldErrorDialogBeVisible" ErrorMessage="@_lastError"/>
     }
+    else if (_scheduling)
+    {
+        <div class="modal fade show" style="display:block" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">Update @_system.Name</h4>
+                    </div>
+
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <FormInput InputType="time" @bind-Value="@TimeProxy"/>
+                        <FormInput InputType="date" @bind-Value="@DateProxy"/>
+                    </div>
+
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn" @onclick="@(() => { _scheduling = false; })">Back</button>
+                        <button type="button" class="btn btn-dark" @onclick=@ScheduleUpdate>Schedule</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
     else if (_currentPackageAction == null)
     {
-        <div class="modal fade show" id="myModal" style="display:block" aria-modal="true" role="dialog">
+        <div class="modal fade show" style="display:block" aria-modal="true" role="dialog">
             <div class="modal-dialog modal-dialog-scrollable">
                 <div class="modal-content">
 
@@ -54,7 +82,7 @@
                     <!-- Modal footer -->
                     <div class="modal-footer">
                         <button type="button" class="btn" @onclick="@CloseModal">Cancel</button>
-                        <button type="button" class="btn btn-dark" @onclick=@PrepareUpdate>Prepare</button>
+                        <button type="button" class="btn btn-dark" @onclick=@PrepareUpdate>Continue</button>
                     </div>
                 </div>
             </div>
@@ -62,7 +90,7 @@
     }
     else
     {
-        <div class="modal fade show" id="myModal" style="display:block" aria-modal="true" role="dialog">
+        <div class="modal fade show" style="display:block" aria-modal="true" role="dialog">
             <div class="modal-dialog modal-dialog-scrollable">
                 <div class="modal-content">
 
@@ -140,7 +168,30 @@
     private PackageAction _currentPackageAction = null;
     private bool _shouldErrorDialogBeVisible = false;
     private string _lastError = null;
+    private bool _scheduling = false;
     
+    private DateTime _scheduleDate = DateTime.UtcNow.Date;
+    private string DateProxy
+    {
+        get => _scheduleDate.ToString("yyyy-MM-dd");
+        set => DateTime.TryParse(value, out _scheduleDate);
+    }
+
+    private TimeSpan _scheduleTime = TimeSpan.FromMinutes(Math.Floor(DateTime.Now.TimeOfDay.TotalMinutes));
+    private string TimeProxy
+    {
+        get => _scheduleTime.ToString();
+        set => TimeSpan.TryParse(value, out _scheduleTime);
+    }
+
+    private async Task CalculateFinalDate()
+    {
+        var offset = TimeSpan.FromMinutes(await JsRuntime.InvokeAsync<int>("blazorGetTimezoneOffset"));
+        var finalScheduledDate = _scheduleDate + offset + _scheduleTime;
+
+        return;
+    }
+
     public void ShowModal(ManagedSystem managedSystem)
     {
         _system = managedSystem;
@@ -184,12 +235,10 @@
             {
                 throw new ValidationException(string.Join("\n", problems));
             }
-            
+
             SystemManagerService.PreparePackagesActions(_system, _packagesActions);
 
-            _showModal = false;
-            _system = null;
-            _packagesActions = null;
+            _scheduling = true;
         }
         catch (Exception e)
         {
@@ -198,12 +247,13 @@
         }
     }
 
+
     private void OnApplyOptionsSettings()
     {
         _currentPackageAction.SetUndefinedOptionsAsUnset();
 
         var optionsProblems = _currentPackageAction.GetOptionsProblems();
-        
+
         if (optionsProblems.Any())
         {
             _lastError = string.Join("\n", optionsProblems);
@@ -213,8 +263,13 @@
         {
             _currentPackageAction = null;
         }
-        
+
         StateHasChanged();
+    }
+
+    private async Task ScheduleUpdate()
+    {
+        await CalculateFinalDate();
     }
 
     private void OnGroupOptionChanged(PackageOptionsGroup @group, PackageOption option, object isChecked)

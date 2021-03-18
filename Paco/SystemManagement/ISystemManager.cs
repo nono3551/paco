@@ -12,5 +12,6 @@ namespace Paco.SystemManagement
         bool IsSystemUpdateAvailable();
         KeyValuePair<bool, string> UpdateNeedsInteraction();
         void PreparePackagesActions(IEnumerable<object> actions);
+        void UpdatePackages();
     }
 }

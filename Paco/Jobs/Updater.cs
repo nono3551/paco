@@ -12,13 +12,13 @@ using Timer = System.Threading.Timer;
 
 namespace Paco.Jobs
 {
-    public class FetchUpdates : IHostedService
+    public class Updater : IHostedService
     {
-        private readonly ILogger<FetchUpdates> _logger;
+        private readonly ILogger<Updater> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private Timer _timer;
 
-        public FetchUpdates(ILogger<FetchUpdates> logger, IServiceScopeFactory serviceScopeFactory)
+        public Updater(ILogger<Updater> logger, IServiceScopeFactory serviceScopeFactory)
         {
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
@@ -45,7 +45,7 @@ namespace Paco.Jobs
                 {
                     try
                     {
-                        var updates = manager.GetPackagesActions(managedSystem, true);
+                        manager.UpdatePackages(managedSystem);
                     }
                     catch (Exception exception)
                     {

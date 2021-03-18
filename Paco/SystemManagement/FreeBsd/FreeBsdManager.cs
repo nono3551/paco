@@ -42,6 +42,12 @@ namespace Paco.SystemManagement.FreeBsd
             PrepareActions.PreparePackageActions(client, actions);
         }
 
+        public void UpdatePackages()
+        {
+            using var client = SshManager.CreateSshClient(System);
+            Update.UpdatePackages(client);
+        }
+
         public IEnumerable<object> GetPackagesActions(bool shouldRefresh = false)
         {
             using var client = SshManager.CreateSshClient(System);

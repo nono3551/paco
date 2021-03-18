@@ -19,7 +19,8 @@ namespace Paco
                     webBuilder.UseStartup<Startup>();
                 }).ConfigureServices(services =>
                 {
-                    services.AddHostedService<FetchUpdates>();
+                    services.AddHostedService<Fetcher>();
+                    services.AddHostedService<Updater>();
                 });
     }
 }

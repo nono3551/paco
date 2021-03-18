@@ -59,6 +59,19 @@ namespace Paco.Services
 
             return updates;
         }
+        
+        public void UpdatePackages(ManagedSystem system)
+        {
+            _logger.LogInformation("Updating {system}.", system.Name);
+
+            ExecuteWorkWithSystem(system, managedSystem =>
+            {
+                managedSystem.GetDistributionManager().UpdatePackages();
+            }, managedSystem =>
+            {
+                
+            });
+        }
 
         public void PreparePackagesActions(ManagedSystem system, IEnumerable<object> actions)
         {
