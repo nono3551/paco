@@ -1,6 +1,6 @@
 ﻿namespace Paco.Entities.Models.Updating
 {
-    public enum UpdateStatus
+    public enum ScheduledActionStatus
     {
         Queued,
         Started,

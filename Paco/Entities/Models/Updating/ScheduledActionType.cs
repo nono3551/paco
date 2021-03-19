@@ -1,6 +1,6 @@
 ﻿namespace Paco.Entities.Models.Updating
 {
-    public enum UpdateType
+    public enum ScheduledActionType
     {
         Packages, System
     }

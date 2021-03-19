@@ -20,7 +20,7 @@ namespace Paco
                 }).ConfigureServices(services =>
                 {
                     services.AddHostedService<Fetcher>();
-                    services.AddHostedService<Updater>();
+                    services.AddHostedService<ScheduleExecutor>();
                 });
     }
 }

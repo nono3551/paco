@@ -25,8 +25,8 @@ namespace Paco.SystemManagement.FreeBsd.Commands
 
             return detail;
         }
-
-        public static KeyValuePair<bool, string> UpdateNeedsInteraction(SshClient sshClient)
+        
+        public static KeyValuePair<bool, string> PackagesActionsNeedsInteraction(SshClient sshClient)
         {
             var reason = sshClient.CreateCommand("sudo portmaster -L ; echo $?").Execute();
             var needs = reason.Replace("\n\n", "\n").Split('\n').Last(x => !string.IsNullOrEmpty(x)) != "0";

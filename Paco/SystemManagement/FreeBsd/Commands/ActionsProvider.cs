@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Paco.Entities.FreeBsd;
+using Paco.Entities.FreeBsd.Packages;
 using Renci.SshNet;
 
 namespace Paco.SystemManagement.FreeBsd.Commands
@@ -49,7 +50,7 @@ namespace Paco.SystemManagement.FreeBsd.Commands
 
             foreach (var portMasterInformation in packagesActionsInformation)
             {
-                var actionType = Enum.Parse<ActionType>(portMasterInformation.Split(" ").First(), true);
+                var actionType = Enum.Parse<PackageActionType>(portMasterInformation.Split(" ").First(), true);
                 var collectionRoot = portMasterInformation.Split(PortDirectoryKey).Last().Split("\n", StringSplitOptions.RemoveEmptyEntries).First().Split("@").First();
                 var dbRoot = collectionRoot.Replace("/", "_").Replace("_usr_ports_", "/var/db/ports/");
                 var description = portMasterInformation.Split("\n").First();
@@ -62,13 +63,13 @@ namespace Paco.SystemManagement.FreeBsd.Commands
                 
                 switch (actionType)
                 {
-                    case ActionType.Install:
+                    case PackageActionType.Install:
                         currentVersion = null;
                         break;
-                    case ActionType.Reinstall:
+                    case PackageActionType.Reinstall:
                         currentVersion = newVersion;
                         break;
-                    case ActionType.Update:
+                    case PackageActionType.Update:
                         currentVersion = portMasterInformation.Split(" ")[1];
                         break;
                     default:
@@ -78,7 +79,7 @@ namespace Paco.SystemManagement.FreeBsd.Commands
                 actions.Add(new PackageAction()
                 {
                     Description = description,
-                    ActionType = actionType,
+                    PackageActionType = actionType,
                     CollectionRoot = collectionRoot,
                     DbRoot = dbRoot,
                     CurrentVersion = currentVersion,
@@ -114,7 +115,7 @@ namespace Paco.SystemManagement.FreeBsd.Commands
                         var groupOptions = groupOptionsKeys.Select(option => new PackageOption()
                         {
                             Name = option,
-                            Status = ParseOptionSetStatus(portOptionsFile, globallySetOptions, globallyUnsetOptions, option),
+                            OptionSetStatus = ParseOptionSetStatus(portOptionsFile, globallySetOptions, globallyUnsetOptions, option),
                             Description = GetDescription(makefile, option)
                         }).ToList();
 
@@ -201,7 +202,7 @@ namespace Paco.SystemManagement.FreeBsd.Commands
                 {
                     Description = GetDescription(makefile, optionKey),
                     Name = optionKey,
-                    Status = ParseOptionSetStatus(portOptionsFile, globallySetOptions, globallyUnsetOptions, optionKey)
+                    OptionSetStatus = ParseOptionSetStatus(portOptionsFile, globallySetOptions, globallyUnsetOptions, optionKey)
                 });
             }
 

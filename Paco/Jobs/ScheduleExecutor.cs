@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,15 +13,15 @@ using Timer = System.Threading.Timer;
 
 namespace Paco.Jobs
 {
-    public class Updater : IHostedService
+    public class ScheduleExecutor : IHostedService
     {
         private readonly object _lock = new();
-        private readonly List<Guid> _startedUpdates = new();
-        private readonly ILogger<Updater> _logger;
+        private readonly List<Guid> _startedActions = new();
+        private readonly ILogger<ScheduleExecutor> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private Timer _timer;
 
-        public Updater(ILogger<Updater> logger, IServiceScopeFactory serviceScopeFactory)
+        public ScheduleExecutor(ILogger<ScheduleExecutor> logger, IServiceScopeFactory serviceScopeFactory)
         {
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
@@ -38,7 +38,7 @@ namespace Paco.Jobs
         {
             try
             {
-                _logger.LogInformation("Update fetcher started.");
+                _logger.LogInformation("Schedule execution started.");
 
                 using IServiceScope workScope = _serviceScopeFactory.CreateScope();
                 
@@ -49,39 +49,41 @@ namespace Paco.Jobs
                 var updates = workScope
                     .ServiceProvider
                     .GetRequiredService<ApplicationDbContext>()
-                    .SystemUpdates
-                    .GetQueuedAndStartedSystemUpdates();
+                    .ScheduledActions
+                    .GetQueuedAndStartedScheduledActions();
+
+                _logger.LogInformation($"Scheduler found {updates.Count()} actions.");
 
                 Parallel.ForEach(updates, (update) =>
                 {
                     try
                     {
-                        if (update.UpdateType == UpdateType.Packages)
+                        if (update.ScheduledActionType == ScheduledActionType.Packages)
                         {
                             lock (_lock)
                             {
-                                if (!_startedUpdates.Contains(update.Id))
+                                if (!_startedActions.Contains(update.Id))
                                 {
-                                    _startedUpdates.Add(update.Id);
-                                    manager.UpdatePackages(update);
+                                    _startedActions.Add(update.Id);
+                                    manager.ExecuteScheduledAction(update);
                                 }
                             }
                         }
                     }
                     catch (Exception exception)
                     {
-                        _logger.LogError(exception, "While trying to fetch update for {system}: {exception}", update.ManagedSystem.Name, exception.Message);
+                        _logger.LogError(exception, "While trying to execute update {updateId}: {exception}", update.Id, exception.Message);
                     }
 
                     lock (_lock)
                     {
-                        _startedUpdates.Remove(update.Id);
+                        _startedActions.Remove(update.Id);
                     }
                 });
             }
             catch (Exception e)
             {
-                _logger.LogError("Update fetcher failed. {exception}", e.Message);
+                _logger.LogError("Schedule executor failed. {exception}", e.Message);
             }
         }
 

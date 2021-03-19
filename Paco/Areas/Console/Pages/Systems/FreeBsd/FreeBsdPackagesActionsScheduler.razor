@@ -4,6 +4,7 @@
 @using System.ComponentModel.DataAnnotations
 @using System.Globalization
 @using Microsoft.EntityFrameworkCore
+@using Paco.Entities.FreeBsd.Packages
 @using Paco.Entities.Models.Updating
 @using Paco.Repositories.Database
 @using Sentry.Protocol
@@ -26,7 +27,7 @@
 
                     <!-- Modal Header -->
                     <div class="modal-header">
-                        <h4 class="modal-title">Update @_system.Name</h4>
+                        <h4 class="modal-title">@_system.Name</h4>
                     </div>
 
                     <!-- Modal body -->
@@ -38,7 +39,7 @@
                     <!-- Modal footer -->
                     <div class="modal-footer">
                         <button type="button" class="btn" @onclick="@(() => { _scheduling = false; })">Back</button>
-                        <button type="button" class="btn btn-dark" @onclick=@SchedulePackageUpdate>Schedule</button>
+                        <button type="button" class="btn btn-dark" @onclick=@SchedulePackagesActions>Schedule</button>
                     </div>
                 </div>
             </div>
@@ -52,7 +53,7 @@
 
                     <!-- Modal Header -->
                     <div class="modal-header">
-                        <h4 class="modal-title">Update @_system.Name</h4>
+                        <h4 class="modal-title">@_system.Name</h4>
                     </div>
 
                     <!-- Modal body -->
@@ -60,12 +61,12 @@
 
                         @if (_packagesActions != null)
                         {
-                            @foreach (PackageAction update in _packagesActions)
+                            @foreach (PackageAction packageAction in _packagesActions)
                             {
                                 var background = "";
                                 var tooltipMessage = "Looks great!";
 
-                                var problems = update.GetOptionsProblems();
+                                var problems = packageAction.GetOptionsProblems();
                                 if (problems.Any())
                                 {
                                     background = "error-background";
@@ -73,7 +74,7 @@
                                 }
 
                                 <div class="@background my-2 py-2 ps-3" data-bs-toggle="tooltip" data-bs-placement="bottom" title="@tooltipMessage">
-                                    @update?.Description <span style="float: right;" class="oi bi-gear clickable px-3" aria-hidden="true" @onclick="() => OpenPackageActionSettings(update)"></span>
+                                    @packageAction?.Description <span style="float: right;" class="oi bi-gear clickable px-3" aria-hidden="true" @onclick="() => OpenPackageActionSettings(packageAction)"></span>
                                 </div>
                             }
                         }
@@ -87,7 +88,7 @@
                     <!-- Modal footer -->
                     <div class="modal-footer">
                         <button type="button" class="btn" @onclick="@CloseModal">Cancel</button>
-                        <button type="button" class="btn btn-dark" @onclick=@PrepareUpdate>Continue</button>
+                        <button type="button" class="btn btn-dark" @onclick=@PrepareActions>Continue</button>
                     </div>
                 </div>
             </div>
@@ -110,7 +111,7 @@
                         {
                             @foreach (var option in _currentPackageAction.SimpleOptions)
                             {
-                                var isChecked = (OptionSetStatus.Set.HasFlag(option.Status));
+                                var isChecked = (OptionSetStatus.Set.HasFlag(option.OptionSetStatus));
 
                                 <div class="form-check py-1">
                                     <input class="checkbox form-check-input" type="checkbox" id="flexCheckDefault-@option.Name" checked=@isChecked @onchange="@(eventArgs => { OnOptionChanged(option, eventArgs.Value); })">
@@ -119,7 +120,7 @@
                                             @option.Name
                                         </label>
 
-                                        @if (option.Status == OptionSetStatus.Undefined)
+                                        @if (option.OptionSetStatus == OptionSetStatus.Undefined)
                                         {
                                             <span class="badge bg-dark" style="float: right">New</span>
                                         }
@@ -140,7 +141,7 @@
                                     <div class="form-check">
                                         @foreach (var option in @group.Options)
                                         {
-                                            var checkedStatus = (OptionSetStatus.Set.HasFlag(option.Status));
+                                            var checkedStatus = (OptionSetStatus.Set.HasFlag(option.OptionSetStatus));
                                             var id = $"{group.Name}-{option.Name}";
 
                                             <div class="form-check pt-2">
@@ -211,7 +212,7 @@
 
     private void OnOptionChanged(PackageOption option, object value)
     {
-        option.Status = true.Equals(value) ? OptionSetStatus.Set : OptionSetStatus.IsUnset;
+        option.OptionSetStatus = true.Equals(value) ? OptionSetStatus.Set : OptionSetStatus.IsUnset;
     }
 
     void CloseModal()
@@ -221,7 +222,7 @@
         _packagesActions = null;
     }
 
-    void PrepareUpdate()
+    void PrepareActions()
     {
         var actions = _packagesActions as IEnumerable<PackageAction>;
 
@@ -265,16 +266,16 @@
         StateHasChanged();
     }
 
-    private async Task SchedulePackageUpdate()
+    private async Task SchedulePackagesActions()
     {
-        var systemUpdate = new SystemUpdate()
+        var packagesAction = new ScheduledAction()
         {
-            UpdateType = UpdateType.Packages,
+            ScheduledActionType = ScheduledActionType.Packages,
             ScheduledAt = _scheduleDate  + _scheduleTime + TimeSpan.FromMinutes(await JsRuntime.InvokeAsync<int>("blazorGetTimezoneOffset")),
             ManagedSystemId = _system.Id
         };
 
-        DbContextFactory.Upsert(systemUpdate);
+        DbContextFactory.Upsert(packagesAction);
         
         CloseModal();
     }
@@ -285,14 +286,14 @@
         {
             if (group.OptionsGroupType == OptionsGroupType.Single)
             {
-                group.Options.Where(x => x != option).ToList().ForEach(x => x.Status = OptionSetStatus.Unset);
+                group.Options.Where(x => x != option).ToList().ForEach(x => x.OptionSetStatus = OptionSetStatus.Unset);
             }
 
-            option.Status = OptionSetStatus.Set;
+            option.OptionSetStatus = OptionSetStatus.Set;
         }
         else
         {
-            option.Status = OptionSetStatus.Unset;
+            option.OptionSetStatus = OptionSetStatus.Unset;
         }
 
         StateHasChanged();

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Paco.Repositories.Database;
 
 namespace Paco.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210319144108_updatessssss")]
+    partial class updatessssss
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,8 +65,8 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("9241a27f-2059-4067-8cf3-69f5d7f280f4"),
-                            ConcurrencyStamp = "aa6b91cf-6b3a-412d-810f-f3fd3555d446",
+                            Id = new Guid("d01997a1-4a32-4623-a28a-dbf986da766e"),
+                            ConcurrencyStamp = "43a08c13-15f5-4ee2-ba12-7745700263e9",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         });
@@ -179,7 +181,7 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("248f87b1-6382-4c82-95e3-feb6824dcbe2"),
+                            Id = new Guid("d6c1da36-0f7c-4a25-8586-70bd67a027da"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "34acbb54-9ae3-4742-af3c-89de44e306e0",
                             Email = "asd@asd.asd",
@@ -289,9 +291,9 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("b62db8cf-e416-4f90-a3f0-263f03e35c45"),
-                            UserId = new Guid("248f87b1-6382-4c82-95e3-feb6824dcbe2"),
-                            RoleId = new Guid("9241a27f-2059-4067-8cf3-69f5d7f280f4")
+                            Id = new Guid("90579e5a-b144-4cfa-bfec-8f5b8bc6edc5"),
+                            UserId = new Guid("d6c1da36-0f7c-4a25-8586-70bd67a027da"),
+                            RoleId = new Guid("d01997a1-4a32-4623-a28a-dbf986da766e")
                         });
                 });
 
@@ -417,9 +419,6 @@ namespace Paco.Migrations
                     b.Property<bool>("NeedsInteraction")
                         .HasColumnType("bit");
 
-                    b.Property<int>("PackageActions")
-                        .HasColumnType("int");
-
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -447,25 +446,23 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("aa33052b-e176-4e55-873b-11cb99a9362d"),
+                            Id = new Guid("f4297d25-80b6-4cf1-a8f7-7894c3ed1465"),
                             Distribution = 0,
                             Hostname = "none.test.test",
                             Login = "test",
                             Name = "PermNone",
                             NeedsInteraction = false,
-                            PackageActions = 0,
                             Password = "test",
                             SystemFingerprint = "12:f8:7e:78:61:b4:bf:e2:de:24:15:96:4e:d4:72:53"
                         },
                         new
                         {
-                            Id = new Guid("ee290dc1-d530-4fce-9c4c-dcf586ea3924"),
+                            Id = new Guid("8ae3271b-cede-4f40-8318-c8fd591645e4"),
                             Distribution = 0,
                             Hostname = "multiple.test.test",
                             Login = "test",
                             Name = "PermMultiple",
                             NeedsInteraction = false,
-                            PackageActions = 0,
                             Password = "test",
                             SystemFingerprint = "12:f8:7e:78:61:b4:bf:e2:de:24:15:96:4e:d4:72:53"
                         });
@@ -592,16 +589,16 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("524392ff-6a23-43bd-9804-af5799ec2a45"),
-                            RoleId = new Guid("9241a27f-2059-4067-8cf3-69f5d7f280f4"),
-                            ManagedSystemId = new Guid("aa33052b-e176-4e55-873b-11cb99a9362d"),
+                            Id = new Guid("944f2e5d-aa96-4617-beb9-250e047d092a"),
+                            RoleId = new Guid("d01997a1-4a32-4623-a28a-dbf986da766e"),
+                            ManagedSystemId = new Guid("f4297d25-80b6-4cf1-a8f7-7894c3ed1465"),
                             Permissions = (short)0
                         },
                         new
                         {
-                            Id = new Guid("68fe8784-defe-49ea-a7e9-2f00ba764b41"),
-                            RoleId = new Guid("9241a27f-2059-4067-8cf3-69f5d7f280f4"),
-                            ManagedSystemId = new Guid("ee290dc1-d530-4fce-9c4c-dcf586ea3924"),
+                            Id = new Guid("71513efe-0fc3-48e5-afdc-87cec5ea79ed"),
+                            RoleId = new Guid("d01997a1-4a32-4623-a28a-dbf986da766e"),
+                            ManagedSystemId = new Guid("8ae3271b-cede-4f40-8318-c8fd591645e4"),
                             Permissions = (short)7
                         });
                 });

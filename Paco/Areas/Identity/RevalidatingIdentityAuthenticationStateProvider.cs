@@ -33,7 +33,8 @@ namespace Paco.Areas.Identity
             var state = base.GetAuthenticationStateAsync().Result;
             var user = await userManager!.GetUserAsync(state.User);
 
-            AuthenticationState result = new AuthenticationState(new ClaimsPrincipal());
+            AuthenticationState result = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+
             if (user != null)
             {
                 var roles = await userManager!.GetRolesAsync(user);

@@ -23,6 +23,7 @@ namespace Paco.Entities.Models
         [Required]
         public string Password { get; set; }
         public string SystemInformation { get; set; }
+        public int PackageActions { get; set; }
         [Required]
         [RegularExpression(Fingerprint.FingerprintRegex, ErrorMessage = Fingerprint.FingerprintRegexError)]
         public string SystemFingerprint { get; set; }
@@ -43,7 +44,7 @@ namespace Paco.Entities.Models
         public List<ManagedSystemGroup> ManagedSystemGroups { get; set; }
         public List<ManagedSystemManagedSystemGroup> ManagedSystemManagedSystemGroups { get; set; }
         public List<RoleManagedSystemPermissions> RoleManagedSystemPermissions { get; set; }
-        public List<SystemUpdate> SystemUpdates { get; set; }
+        public List<ScheduledAction> ScheduledActions { get; set; }
 
         public ISystemManager GetDistributionManager()
         {

@@ -1,0 +1,141 @@
+﻿@using Paco.Entities.Models
+@using Paco.Services
+@using Paco.Entities.FreeBsd
+@using System.ComponentModel.DataAnnotations
+@using System.Globalization
+@using Microsoft.EntityFrameworkCore
+@using Paco.Entities.FreeBsd.Packages
+@using Paco.Entities.Models.Updating
+@using Paco.Repositories.Database
+@using Sentry.Protocol
+
+@inject SystemManagerService SystemManagerService
+@inject IJSRuntime JsRuntime
+@inject IDbContextFactory<ApplicationDbContext> DbContextFactory
+
+@if (_showModal)
+{
+    if (_shouldErrorDialogBeVisible)
+    {
+        <ErrorModal @bind-ShouldBeVisible="@_shouldErrorDialogBeVisible" ErrorMessage="@_lastError"/>
+    }
+    else if (_detailsText != null)
+    {
+        <div class="modal fade show" style="display:block" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                <div class="modal-content">
+
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">@_system.Name</h4>
+                    </div>
+
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <p style="white-space: pre-line">
+                            @_detailsText
+                        </p>
+                    </div>
+
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn" @onclick="@BackFromDetails">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (_scheduledActions != null)
+    {
+        <div class="modal fade show" style="display:block" aria-modal="true" role="dialog">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                <div class="modal-content">
+
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">@_system.Name</h4>
+                    </div>
+
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        @foreach (var scheduledAction in _scheduledActions)
+                        {
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>Scheduled at</th>
+                                    <th>Started at</th>
+                                    <th>Action type</th>
+                                    <th>Status</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr @onclick="() => ShowActionDetails(scheduledAction)" style='cursor: pointer;' >
+                                    <td>@scheduledAction.ScheduledAt</td>
+                                    <td>@scheduledAction.StartedAt</td>
+                                    <td>@scheduledAction.ScheduledActionType</td>
+                                    <td>@scheduledAction.ScheduledActionStatus</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        }
+                    </div>
+
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn" @onclick="@CloseModal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+@code
+{
+    private bool _showModal = false;
+    private ManagedSystem _system;
+    private IEnumerable<ScheduledAction> _scheduledActions = null;
+
+    private bool _shouldErrorDialogBeVisible = false;
+    private string _lastError = null;
+    
+    private bool _details;
+    private string _detailsText = null;
+    public void ShowModal(ManagedSystem managedSystem)
+    {
+        _system = managedSystem;
+        _showModal = true;
+        StateHasChanged();
+
+        Task.Run(() =>
+        {
+            using var context = DbContextFactory.CreateDbContext();
+            _scheduledActions = context.ScheduledActions.GetQueuedAndStartedScheduledActionsForSystem(_system);
+            InvokeAsync(StateHasChanged);
+        });
+    }
+
+    void CloseModal()
+    {
+        _showModal = false;
+        _system = null;
+        _scheduledActions = null;
+    }
+
+    private void ShowActionDetails(ScheduledAction scheduledAction)
+    {
+        _details = true;
+
+        _detailsText = null;
+        _detailsText = SystemManagerService.GetUpdateDetails(scheduledAction);
+
+        StateHasChanged();
+    }
+
+    private void BackFromDetails()
+    {
+        _detailsText = null;
+        StateHasChanged();
+    }
+}

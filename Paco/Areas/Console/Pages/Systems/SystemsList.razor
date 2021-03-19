@@ -5,10 +5,12 @@
 @using Paco.Services
 @using Ancestor.Extensions
 @using Microsoft.EntityFrameworkCore
+@using Paco.Areas.Console.Pages.Systems.FreeBsd
 @using Paco.Entities.Models
 @using Paco.Entities.Models.Identity
 @using Paco.Repositories.Database
 @using Paco.SystemManagement
+
 @inject IDbContextFactory<ApplicationDbContext> DbContextFactory
 @inject SystemManagerService ManagerService
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -59,16 +61,16 @@
                                 var information = system.SystemInformation?.FromJson<Dictionary<string, string>>();
                                 if (information != null)
                                 {
-                                    foreach (var entry in information)
+                                    foreach (var (key, value) in information)
                                     {
-                                        if (entry.Value?.Any() == true)
+                                        if (value?.Any() == true)
                                         {
                                             <div class="row mb-2">
                                                 <div class="text-sm-right col-sm-3">
-                                                    <b>@entry.Key:</b>
+                                                    <b style="white-space: pre-line">@key</b>
                                                 </div>
                                                 <div class="col">
-                                                    <p style="white-space: pre-line">@entry.Value</p>
+                                                    <p style="white-space: pre-line">@value</p>
                                                 </div>
                                             </div>
                                         }
@@ -76,10 +78,11 @@
                                 }
                             }
                             <button type="button" class="btn btn-dark" @onclick="() => HideDetail(system)">Hide Details</button>
+                            <button type="button" class="btn btn-dark" @onclick="() => EditSystem(system)">Edit</button>
                             <button type="button" class="btn btn-dark" @onclick="() => RefreshSystemInformation(system)">Refresh</button>
                             <button type="button" class="btn btn-dark" @onclick="() => GetPackagesActions(system)">Get packages actions</button>
-                            <button type="button" class="btn btn-dark" @onclick="() => EditSystem(system)">Edit</button>
-                            <button type="button" class="btn btn-dark" @onclick="() => ExecutePackagesActions(system)">Schedule packages updates</button>
+                            <button type="button" class="btn btn-dark" @onclick="() => ViewSchedule(system)">View schedule</button>
+                            <button type="button" class="btn btn-dark" @onclick="() => ScheduledActions(system)">Schedule packages action</button>
                             <button type="button" class="btn btn-dark" @onclick="() => DeleteSystem(system)">Delete</button>
                         </div>
                     </div>
@@ -90,13 +93,16 @@
     </tbody>
 </table>
 
-<FreeBsdUpdatingModal @ref="@_freeBsdUpdatingModal"/>
+<FreeBsdPackagesActionsScheduler @ref="@_freeBsdFreeBsdPackagesActionsScheduler"/>
+<FreeBsdActionsViewer @ref="@_freeBsdFreeBsdActionsViewer"/>
+
 
 @code {
     private List<ManagedSystem> _systems = new();
     private readonly List<ManagedSystem> _systemsWithDetailOpened = new();
 
-    private FreeBsdUpdatingModal _freeBsdUpdatingModal;
+    private FreeBsdPackagesActionsScheduler _freeBsdFreeBsdPackagesActionsScheduler;
+    private FreeBsdActionsViewer _freeBsdFreeBsdActionsViewer;
 
     protected override void OnInitialized()
     {
@@ -152,19 +158,24 @@
         });
     }
 
+    private void ViewSchedule(ManagedSystem system)
+    {
+        _freeBsdFreeBsdActionsViewer.ShowModal(system);
+    }
+    
     private void EditSystem(ManagedSystem system)
     {
         NavManager.NavigateTo($"/systems/{system.Id}/edit");
     }
 
-    private void ExecutePackagesActions(ManagedSystem system)
+    private void ScheduledActions(ManagedSystem system)
     {
         if (system.Distribution == Distribution.FreeBsd)
         {
-            _freeBsdUpdatingModal.ShowModal(system);
+            _freeBsdFreeBsdPackagesActionsScheduler.ShowModal(system);
         }
     }
-    
+
     private void DeleteSystem(ManagedSystem system)
     {
         DbContextFactory.Remove(system);

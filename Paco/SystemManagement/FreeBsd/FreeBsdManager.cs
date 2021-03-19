@@ -1,5 +1,7 @@
 ﻿using Paco.SystemManagement.FreeBsd.Commands;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Authentication.ExtendedProtection;
 using Paco.Entities.Models;
 using Paco.Entities.Models.Updating;
 using Paco.SystemManagement.Ssh;
@@ -19,20 +21,24 @@ namespace Paco.SystemManagement.FreeBsd
         {
             using var client = SshManager.CreateSshClient(System);
 
+            var packagesActions = ActionsProvider.GetPackagesActions(client).ToList();
+
+            System.PackageActions = packagesActions.Count();
+            
             return new Dictionary<string, string>
             {
                 { "Hostname", new Hostname().GetHostname(client) },
                 { "Logged users", Uptime.CurrentLoggedUsers(client) },
-                { "Karnel/Userland/Running", $"{SystemVersion.GetKarnel(client)}/${SystemVersion.GetUserland(client)}/{SystemVersion.GetRunning(client)}" },
+                { "Karnel\nUserland\nRunning", $"{SystemVersion.GetKarnel(client)}{SystemVersion.GetUserland(client)}{SystemVersion.GetRunning(client)}" },
                 { "Vulnerable packages", Audit.GetVulnerablePackages(client) },
-                { "Packages updates", string.Join("\n", ActionsProvider.GetPackagesActions(client))},
+                { $"Packages actions ({System.PackageActions})", string.Join("\n", packagesActions)},
             };
         }
 
-        public KeyValuePair<bool, string> UpdateNeedsInteraction()
+        public KeyValuePair<bool, string> PackagesActionsNeedsInteraction()
         {
             using var client = SshManager.CreateSshClient(System);
-            return Audit.UpdateNeedsInteraction(client);
+            return Audit.PackagesActionsNeedsInteraction(client);
         }
 
         public void PreparePackagesActions(IEnumerable<object> actions)
@@ -41,10 +47,27 @@ namespace Paco.SystemManagement.FreeBsd
             PrepareActions.PreparePackageActions(client, actions);
         }
 
-        public void UpdatePackages(SystemUpdate systemUpdate)
+        public void ExecuteScheduledAction(ScheduledAction scheduledAction)
         {
             using var client = SshManager.CreateSshClient(System);
-            Update.UpdatePackages(client, systemUpdate);
+            if (scheduledAction.ScheduledActionType == ScheduledActionType.Packages)
+            {
+                Packages.UpdatePackages(client, scheduledAction);
+            }
+            
+        }
+
+        public string GetScheduledActionDetails(ScheduledAction scheduledAction)
+        {
+            using var client = SshManager.CreateSshClient(System);
+            if (scheduledAction.ScheduledActionType == ScheduledActionType.Packages)
+            {
+                return Packages.GetScheduledActionDetail(client, scheduledAction);
+            }
+            else
+            {
+                return "Not yet supported";
+            }
         }
 
         public IEnumerable<object> GetPackagesActions(bool shouldRefresh = false)

@@ -11,8 +11,9 @@ namespace Paco.SystemManagement
         Dictionary<string, string> GetSystemInformation();
         IEnumerable<object> GetPackagesActions(bool shouldRefresh = false);
         bool IsSystemUpdateAvailable();
-        KeyValuePair<bool, string> UpdateNeedsInteraction();
+        KeyValuePair<bool, string> PackagesActionsNeedsInteraction();
         void PreparePackagesActions(IEnumerable<object> actions);
-        void UpdatePackages(SystemUpdate systemUpdate);
+        void ExecuteScheduledAction(ScheduledAction scheduledAction);
+        string GetScheduledActionDetails(ScheduledAction scheduledAction);
     }
 }

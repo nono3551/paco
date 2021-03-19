@@ -32,7 +32,7 @@ namespace Paco.Services
             {
                 var distribution = managedSystem.GetDistributionManager();
                 systemInformation = distribution.GetSystemInformation();
-                (updateNeedsInteraction, interactionReason) = distribution.UpdateNeedsInteraction();
+                (updateNeedsInteraction, interactionReason) = distribution.PackagesActionsNeedsInteraction();
             }, managedSystem =>
             {
                 managedSystem.SystemInformation = JsonSerializer.Serialize(systemInformation);
@@ -61,24 +61,28 @@ namespace Paco.Services
             return updates;
         }
         
-        public void UpdatePackages(SystemUpdate update)
+        public void ExecuteScheduledAction(ScheduledAction update)
         {
-            _logger.LogInformation("Updating {system} packages.", update.ManagedSystem.Name);
+            _logger.LogInformation("Starting scheduled action {actionId}.", update.Id);
 
             ExecuteWorkWithSystem(update.ManagedSystem, managedSystem =>
             {
-                update.UpdateStatus = UpdateStatus.Started;
-                update.StartedAt = DateTime.Now;
+                if (update.ScheduledActionStatus == ScheduledActionStatus.Queued)
+                {
+                    update.ScheduledActionStatus = ScheduledActionStatus.Started;
+                    update.StartedAt = DateTime.Now;
+                }
+                
                 _dbContextFactory.Upsert(update);
                 
-                managedSystem.GetDistributionManager().UpdatePackages(update);
+                managedSystem.GetDistributionManager().ExecuteScheduledAction(update);
             }, managedSystem =>
             {
-                update.UpdateStatus = UpdateStatus.Successful;
+                update.ScheduledActionStatus = ScheduledActionStatus.Successful;
                 _dbContextFactory.Upsert(update);
             }, managedSystem =>
             {
-                update.UpdateStatus = UpdateStatus.Failure;
+                update.ScheduledActionStatus = ScheduledActionStatus.Failure;
             });
         }
 
@@ -95,6 +99,22 @@ namespace Paco.Services
             }, null, true);
         }
 
+        public string GetUpdateDetails(ScheduledAction scheduledAction)
+        {
+            var result = "Could not retrieve scheduled action details.";
+            
+            ExecuteWorkWithSystem(scheduledAction.ManagedSystem, system =>
+            {
+                var manager = scheduledAction.ManagedSystem.GetDistributionManager();
+                result = manager.GetScheduledActionDetails(scheduledAction);
+            }, system =>
+            {
+                
+            });
+
+            return result;
+        }
+        
         private void ExecuteWorkWithSystem(ManagedSystem system,
             Action<ManagedSystem> action,
             Action<ManagedSystem> onSuccess,

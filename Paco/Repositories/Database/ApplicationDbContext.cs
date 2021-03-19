@@ -24,7 +24,7 @@ namespace Paco.Repositories.Database
         public DbSet<ManagedSystemGroup> ManagedSystemGroups { get; set; }
         public DbSet<ManagedSystemManagedSystemGroup> ManagedSystemManagedSystemGroups { get; set; }
         public DbSet<RoleManagedSystemGroupPermissions> RoleManagedSystemGroupPermissions { get; set; }
-        public DbSet<SystemUpdate> SystemUpdates { get; set; }
+        public DbSet<ScheduledAction> ScheduledActions { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ILoggerFactory loggerFactory): base(options)
         {
@@ -115,9 +115,9 @@ namespace Paco.Repositories.Database
                 .WithMany(b => b.RoleManagedSystemPermissions)
                 .HasForeignKey(a => a.ManagedSystemId);
 
-            builder.Entity<SystemUpdate>()
+            builder.Entity<ScheduledAction>()
                 .HasOne(su => su.ManagedSystem)
-                .WithMany(ms => ms.SystemUpdates)
+                .WithMany(ms => ms.ScheduledActions)
                 .HasForeignKey(su => su.ManagedSystemId);
             
             builder.Entity<User>()
@@ -182,7 +182,7 @@ namespace Paco.Repositories.Database
             builder.Entity<ManagedSystemGroup>().HasQueryFilter(p => p.DeletedAt == null);
             builder.Entity<ManagedSystemManagedSystemGroup>().HasQueryFilter(p => p.DeletedAt == null);
             builder.Entity<RoleManagedSystemGroupPermissions>().HasQueryFilter(p => p.DeletedAt == null);
-            builder.Entity<SystemUpdate>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<ScheduledAction>().HasQueryFilter(p => p.DeletedAt == null);
         }
 
         private void SeedDatabase(ModelBuilder builder)

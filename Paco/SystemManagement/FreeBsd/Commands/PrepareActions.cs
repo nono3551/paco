@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Paco.Entities.FreeBsd;
+using Paco.Entities.FreeBsd.Packages;
 using Renci.SshNet;
 using Sentry.Extensibility;
 
@@ -30,7 +31,7 @@ namespace Paco.SystemManagement.FreeBsd.Commands
                 
                 foreach (var option in action.AllOptions)
                 {
-                    builder.AppendLine($"{(OptionSetStatus.Set.HasFlag(option.Status) ? setKey : unsetKey)}+={option.Name}");
+                    builder.AppendLine($"{(OptionSetStatus.Set.HasFlag(option.OptionSetStatus) ? setKey : unsetKey)}+={option.Name}");
                 }
 
                 var optionsFile = $"{action.DbRoot}/options";
