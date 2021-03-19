@@ -9,10 +9,10 @@ namespace Paco.Repositories.Database
 {
     public static class SystemUpdateRepository
     {
-        public static List<SystemUpdate> GetQueuedSystemUpdates(this DbSet<SystemUpdate> updates)
+        public static List<SystemUpdate> GetQueuedAndStartedSystemUpdates(this DbSet<SystemUpdate> updates)
         {
             return updates
-                .Where(x => x.ScheduledAt <= DateTime.Now && x.UpdateStatus == UpdateStatus.Queued)
+                .Where(x => x.ScheduledAt <= DateTime.Now && (x.UpdateStatus == UpdateStatus.Queued || x.UpdateStatus == UpdateStatus.Started))
                 .Include(x => x.ManagedSystem)
                 .ToList();
         }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Paco.Entities.FreeBsd;
 using Paco.Entities.Models;
+using Paco.Entities.Models.Updating;
 
 namespace Paco.SystemManagement
 {
@@ -12,6 +13,6 @@ namespace Paco.SystemManagement
         bool IsSystemUpdateAvailable();
         KeyValuePair<bool, string> UpdateNeedsInteraction();
         void PreparePackagesActions(IEnumerable<object> actions);
-        void UpdatePackages();
+        void UpdatePackages(SystemUpdate systemUpdate);
     }
 }

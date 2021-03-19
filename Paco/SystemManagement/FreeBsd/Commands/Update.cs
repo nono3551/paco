@@ -1,14 +1,15 @@
 ﻿using System.IO;
 using System.Threading;
+using Paco.Entities.Models.Updating;
 using Renci.SshNet;
 
 namespace Paco.SystemManagement.FreeBsd.Commands
 {
     public static class Update
     {
-        public static void UpdatePackages(SshClient sshClient)
+        public static void UpdatePackages(SshClient sshClient, SystemUpdate systemUpdate)
         {
-            var sessionName = "paco.update";
+            var sessionName = $"paco.update.{systemUpdate.Id}";
 
             if (!StillUpdating(sshClient, sessionName))
             {

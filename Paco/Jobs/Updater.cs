@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Paco.Entities.Models;
 using Paco.Entities.Models.Updating;
 using Paco.Repositories.Database;
 using Paco.Services;
@@ -15,6 +15,8 @@ namespace Paco.Jobs
 {
     public class Updater : IHostedService
     {
+        private readonly object _lock = new();
+        private readonly List<Guid> _startedUpdates = new();
         private readonly ILogger<Updater> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private Timer _timer;
@@ -48,7 +50,7 @@ namespace Paco.Jobs
                     .ServiceProvider
                     .GetRequiredService<ApplicationDbContext>()
                     .SystemUpdates
-                    .GetQueuedSystemUpdates();
+                    .GetQueuedAndStartedSystemUpdates();
 
                 Parallel.ForEach(updates, (update) =>
                 {
@@ -56,12 +58,24 @@ namespace Paco.Jobs
                     {
                         if (update.UpdateType == UpdateType.Packages)
                         {
-                            manager.UpdatePackages(update);
+                            lock (_lock)
+                            {
+                                if (!_startedUpdates.Contains(update.Id))
+                                {
+                                    _startedUpdates.Add(update.Id);
+                                    manager.UpdatePackages(update);
+                                }
+                            }
                         }
                     }
                     catch (Exception exception)
                     {
                         _logger.LogError(exception, "While trying to fetch update for {system}: {exception}", update.ManagedSystem.Name, exception.Message);
+                    }
+
+                    lock (_lock)
+                    {
+                        _startedUpdates.Remove(update.Id);
                     }
                 });
             }

@@ -1,6 +1,7 @@
 ﻿using Paco.SystemManagement.FreeBsd.Commands;
 using System.Collections.Generic;
 using Paco.Entities.Models;
+using Paco.Entities.Models.Updating;
 using Paco.SystemManagement.Ssh;
 
 namespace Paco.SystemManagement.FreeBsd
@@ -22,9 +23,7 @@ namespace Paco.SystemManagement.FreeBsd
             {
                 { "Hostname", new Hostname().GetHostname(client) },
                 { "Logged users", Uptime.CurrentLoggedUsers(client) },
-                { "Karnel version", new KarnelVersion().GetKarnel(client) },
-                { "Userland version", new KarnelVersion().GetUserland(client) },
-                { "Running Karnel version", new KarnelVersion().GetRunning(client) },
+                { "Karnel/Userland/Running", $"{SystemVersion.GetKarnel(client)}/${SystemVersion.GetUserland(client)}/{SystemVersion.GetRunning(client)}" },
                 { "Vulnerable packages", Audit.GetVulnerablePackages(client) },
                 { "Packages updates", string.Join("\n", ActionsProvider.GetPackagesActions(client))},
             };
@@ -42,10 +41,10 @@ namespace Paco.SystemManagement.FreeBsd
             PrepareActions.PreparePackageActions(client, actions);
         }
 
-        public void UpdatePackages()
+        public void UpdatePackages(SystemUpdate systemUpdate)
         {
             using var client = SshManager.CreateSshClient(System);
-            Update.UpdatePackages(client);
+            Update.UpdatePackages(client, systemUpdate);
         }
 
         public IEnumerable<object> GetPackagesActions(bool shouldRefresh = false)

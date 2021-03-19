@@ -71,7 +71,7 @@ namespace Paco.Services
                 update.StartedAt = DateTime.Now;
                 _dbContextFactory.Upsert(update);
                 
-                managedSystem.GetDistributionManager().UpdatePackages();
+                managedSystem.GetDistributionManager().UpdatePackages(update);
             }, managedSystem =>
             {
                 update.UpdateStatus = UpdateStatus.Successful;
