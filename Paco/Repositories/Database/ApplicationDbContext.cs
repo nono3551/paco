@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Paco.Entities;
 using Paco.Entities.Models;
 using Paco.Entities.Models.Identity;
+using Paco.Entities.Models.Updating;
 using Paco.SystemManagement;
 using Paco.SystemManagement.Ssh;
 
@@ -23,6 +24,7 @@ namespace Paco.Repositories.Database
         public DbSet<ManagedSystemGroup> ManagedSystemGroups { get; set; }
         public DbSet<ManagedSystemManagedSystemGroup> ManagedSystemManagedSystemGroups { get; set; }
         public DbSet<RoleManagedSystemGroupPermissions> RoleManagedSystemGroupPermissions { get; set; }
+        public DbSet<SystemUpdate> SystemUpdates { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ILoggerFactory loggerFactory): base(options)
         {
@@ -113,6 +115,11 @@ namespace Paco.Repositories.Database
                 .WithMany(b => b.RoleManagedSystemPermissions)
                 .HasForeignKey(a => a.ManagedSystemId);
 
+            builder.Entity<SystemUpdate>()
+                .HasOne(su => su.ManagedSystem)
+                .WithMany(ms => ms.SystemUpdates)
+                .HasForeignKey(su => su.ManagedSystemId);
+            
             builder.Entity<User>()
                 .HasMany(u => u.Roles)
                 .WithMany(r => r.Users)
@@ -175,6 +182,7 @@ namespace Paco.Repositories.Database
             builder.Entity<ManagedSystemGroup>().HasQueryFilter(p => p.DeletedAt == null);
             builder.Entity<ManagedSystemManagedSystemGroup>().HasQueryFilter(p => p.DeletedAt == null);
             builder.Entity<RoleManagedSystemGroupPermissions>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<SystemUpdate>().HasQueryFilter(p => p.DeletedAt == null);
         }
 
         private void SeedDatabase(ModelBuilder builder)

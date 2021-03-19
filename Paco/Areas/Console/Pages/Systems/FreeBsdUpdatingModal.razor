@@ -3,9 +3,14 @@
 @using Paco.Entities.FreeBsd
 @using System.ComponentModel.DataAnnotations
 @using System.Globalization
+@using Microsoft.EntityFrameworkCore
+@using Paco.Entities.Models.Updating
+@using Paco.Repositories.Database
+@using Sentry.Protocol
 
 @inject SystemManagerService SystemManagerService
 @inject IJSRuntime JsRuntime
+@inject IDbContextFactory<ApplicationDbContext> DbContextFactory
 
 @if (_showModal)
 {
@@ -33,7 +38,7 @@
                     <!-- Modal footer -->
                     <div class="modal-footer">
                         <button type="button" class="btn" @onclick="@(() => { _scheduling = false; })">Back</button>
-                        <button type="button" class="btn btn-dark" @onclick=@ScheduleUpdate>Schedule</button>
+                        <button type="button" class="btn btn-dark" @onclick=@SchedulePackageUpdate>Schedule</button>
                     </div>
                 </div>
             </div>
@@ -178,18 +183,11 @@
     }
 
     private TimeSpan _scheduleTime = TimeSpan.FromMinutes(Math.Floor(DateTime.Now.TimeOfDay.TotalMinutes));
+
     private string TimeProxy
     {
         get => _scheduleTime.ToString();
         set => TimeSpan.TryParse(value, out _scheduleTime);
-    }
-
-    private async Task CalculateFinalDate()
-    {
-        var offset = TimeSpan.FromMinutes(await JsRuntime.InvokeAsync<int>("blazorGetTimezoneOffset"));
-        var finalScheduledDate = _scheduleDate + offset + _scheduleTime;
-
-        return;
     }
 
     public void ShowModal(ManagedSystem managedSystem)
@@ -267,9 +265,18 @@
         StateHasChanged();
     }
 
-    private async Task ScheduleUpdate()
+    private async Task SchedulePackageUpdate()
     {
-        await CalculateFinalDate();
+        var systemUpdate = new SystemUpdate()
+        {
+            UpdateType = UpdateType.Packages,
+            ScheduledAt = _scheduleDate  + _scheduleTime + TimeSpan.FromMinutes(await JsRuntime.InvokeAsync<int>("blazorGetTimezoneOffset")),
+            ManagedSystemId = _system.Id
+        };
+
+        DbContextFactory.Upsert(systemUpdate);
+        
+        CloseModal();
     }
 
     private void OnGroupOptionChanged(PackageOptionsGroup @group, PackageOption option, object isChecked)

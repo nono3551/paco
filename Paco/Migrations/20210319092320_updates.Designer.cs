@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Paco.Repositories.Database;
 
 namespace Paco.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210319092320_updates")]
+    partial class updates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,8 +65,8 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("6ea13974-8a28-4de6-abdb-05bb85e24dfe"),
-                            ConcurrencyStamp = "29cee10b-d7b0-4cbc-8371-5378ae9f547a",
+                            Id = new Guid("02dde930-f86f-4c6e-a57a-61a9de646983"),
+                            ConcurrencyStamp = "e22a08ff-5102-4bf4-8acc-c55b2075df08",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         });
@@ -179,7 +181,7 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("026f2802-ed5a-457d-b452-85a330187de7"),
+                            Id = new Guid("5ee5d73e-adcb-4360-a5c9-fcb158f0ab3d"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "34acbb54-9ae3-4742-af3c-89de44e306e0",
                             Email = "asd@asd.asd",
@@ -289,9 +291,9 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("eb2d4b6d-0a90-49ba-b2c7-f64b85052f9b"),
-                            UserId = new Guid("026f2802-ed5a-457d-b452-85a330187de7"),
-                            RoleId = new Guid("6ea13974-8a28-4de6-abdb-05bb85e24dfe")
+                            Id = new Guid("9df776f0-5284-4675-8637-2ba1c81954a1"),
+                            UserId = new Guid("5ee5d73e-adcb-4360-a5c9-fcb158f0ab3d"),
+                            RoleId = new Guid("02dde930-f86f-4c6e-a57a-61a9de646983")
                         });
                 });
 
@@ -444,7 +446,7 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("5c4132ab-0ca6-4393-bef5-5674695fcd8e"),
+                            Id = new Guid("c39bc67d-39db-4bbd-91a6-8248260b53c6"),
                             Distribution = 0,
                             Hostname = "none.test.test",
                             Login = "test",
@@ -455,7 +457,7 @@ namespace Paco.Migrations
                         },
                         new
                         {
-                            Id = new Guid("448d7f2a-178d-46a2-bf4b-accb484fee4b"),
+                            Id = new Guid("6b9cbe27-3397-49e6-841f-6fe3fabf754d"),
                             Distribution = 0,
                             Hostname = "multiple.test.test",
                             Login = "test",
@@ -587,21 +589,21 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("4ef781ac-7750-4216-94f3-2950d14613b2"),
-                            RoleId = new Guid("6ea13974-8a28-4de6-abdb-05bb85e24dfe"),
-                            ManagedSystemId = new Guid("5c4132ab-0ca6-4393-bef5-5674695fcd8e"),
+                            Id = new Guid("8eab6cca-1d4a-44a5-9344-e14c570e9936"),
+                            RoleId = new Guid("02dde930-f86f-4c6e-a57a-61a9de646983"),
+                            ManagedSystemId = new Guid("c39bc67d-39db-4bbd-91a6-8248260b53c6"),
                             Permissions = (short)0
                         },
                         new
                         {
-                            Id = new Guid("67f31bd1-dbf7-42e8-9e14-e4348ac73e83"),
-                            RoleId = new Guid("6ea13974-8a28-4de6-abdb-05bb85e24dfe"),
-                            ManagedSystemId = new Guid("448d7f2a-178d-46a2-bf4b-accb484fee4b"),
+                            Id = new Guid("f984d574-ec03-4273-9c90-bdab8657c1d7"),
+                            RoleId = new Guid("02dde930-f86f-4c6e-a57a-61a9de646983"),
+                            ManagedSystemId = new Guid("6b9cbe27-3397-49e6-841f-6fe3fabf754d"),
                             Permissions = (short)7
                         });
                 });
 
-            modelBuilder.Entity("Paco.Entities.Models.Updating.SystemUpdate", b =>
+            modelBuilder.Entity("Paco.Entities.Models.SystemUpdate", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -619,15 +621,6 @@ namespace Paco.Migrations
                     b.Property<DateTime>("ScheduledAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("StartedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UpdateStatus")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UpdateType")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -635,7 +628,7 @@ namespace Paco.Migrations
 
                     b.HasIndex("ManagedSystemId");
 
-                    b.ToTable("SystemUpdates");
+                    b.ToTable("SystemUpdate");
                 });
 
             modelBuilder.Entity("Paco.Entities.Models.Identity.Role", b =>
@@ -757,7 +750,7 @@ namespace Paco.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Paco.Entities.Models.Updating.SystemUpdate", b =>
+            modelBuilder.Entity("Paco.Entities.Models.SystemUpdate", b =>
                 {
                     b.HasOne("Paco.Entities.Models.ManagedSystem", "ManagedSystem")
                         .WithMany("SystemUpdates")

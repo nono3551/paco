@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Paco.Entities.Models.Updating;
 using Paco.SystemManagement;
 using Paco.SystemManagement.FreeBsd;
 using Paco.SystemManagement.Ssh;
@@ -42,7 +43,8 @@ namespace Paco.Entities.Models
         public List<ManagedSystemGroup> ManagedSystemGroups { get; set; }
         public List<ManagedSystemManagedSystemGroup> ManagedSystemManagedSystemGroups { get; set; }
         public List<RoleManagedSystemPermissions> RoleManagedSystemPermissions { get; set; }
-        
+        public List<SystemUpdate> SystemUpdates { get; set; }
+
         public ISystemManager GetDistributionManager()
         {
             return new FreeBsdManager(this);

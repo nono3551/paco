@@ -12,7 +12,7 @@ namespace Paco.SystemManagement.FreeBsd.Commands
 
             if (!StillUpdating(sshClient, sessionName))
             {
-                //sshClient.CreateCommand($"screen -dmS {sessionName} -L -Logfile /tmp/{sessionName}.log sh -c 'echo \"y\" | sudo portmaster -ad'").Execute();
+                sshClient.CreateCommand($"screen -dmS {sessionName} -L -Logfile /tmp/{sessionName}.log sh -c 'echo \"y\" | sudo portmaster -ad'").Execute();
             }
 
             while (StillUpdating(sshClient, sessionName))

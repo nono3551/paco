@@ -57,7 +57,7 @@ namespace Paco
             services.AddServerSideBlazor();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<User>>();
 
-            services.AddScoped<SystemManagerService>();
+            services.AddTransient<SystemManagerService>();
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 

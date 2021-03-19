@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Paco.Entities.Models;
+using Paco.Entities.Models.Updating;
 using Paco.Repositories.Database;
 
 namespace Paco.Services
@@ -60,16 +61,24 @@ namespace Paco.Services
             return updates;
         }
         
-        public void UpdatePackages(ManagedSystem system)
+        public void UpdatePackages(SystemUpdate update)
         {
-            _logger.LogInformation("Updating {system}.", system.Name);
+            _logger.LogInformation("Updating {system} packages.", update.ManagedSystem.Name);
 
-            ExecuteWorkWithSystem(system, managedSystem =>
+            ExecuteWorkWithSystem(update.ManagedSystem, managedSystem =>
             {
+                update.UpdateStatus = UpdateStatus.Started;
+                update.StartedAt = DateTime.Now;
+                _dbContextFactory.Upsert(update);
+                
                 managedSystem.GetDistributionManager().UpdatePackages();
             }, managedSystem =>
             {
-                
+                update.UpdateStatus = UpdateStatus.Successful;
+                _dbContextFactory.Upsert(update);
+            }, managedSystem =>
+            {
+                update.UpdateStatus = UpdateStatus.Failure;
             });
         }
 
@@ -83,10 +92,14 @@ namespace Paco.Services
             }, managedSystem =>
             {
                 
-            }, true);
+            }, null, true);
         }
 
-        private void ExecuteWorkWithSystem(ManagedSystem system, Action<ManagedSystem> action, Action<ManagedSystem> onSuccess, bool shouldThrow = false)
+        private void ExecuteWorkWithSystem(ManagedSystem system,
+            Action<ManagedSystem> action,
+            Action<ManagedSystem> onSuccess,
+            Action<ManagedSystem> onFailure = null,
+            bool shouldThrow = false)
         {
             using var dbContext = _dbContextFactory.CreateDbContext();
                 
@@ -110,6 +123,8 @@ namespace Paco.Services
 
                 _logger.LogError(e, "While executing work with {system}: {exception}", system.Name, e.Message);
 
+                onFailure?.Invoke(system);
+                
                 if (shouldThrow)
                 {
                     throw;
