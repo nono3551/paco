@@ -99,8 +99,8 @@
     private bool _shouldErrorDialogBeVisible = false;
     private string _lastError = null;
     
-    private bool _details;
     private string _detailsText = null;
+    
     public void ShowModal(ManagedSystem managedSystem)
     {
         _system = managedSystem;
@@ -124,8 +124,6 @@
 
     private void ShowActionDetails(ScheduledAction scheduledAction)
     {
-        _details = true;
-
         _detailsText = null;
         _detailsText = SystemManagerService.GetUpdateDetails(scheduledAction);
 
