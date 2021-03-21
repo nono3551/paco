@@ -48,7 +48,7 @@
     else if (_currentPackageAction == null)
     {
         <div class="modal fade show" style="display:block" aria-modal="true" role="dialog">
-            <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
                 <div class="modal-content">
 
                     <!-- Modal Header -->
@@ -224,7 +224,7 @@
 
     void PrepareActions()
     {
-        var actions = _packagesActions as IEnumerable<PackageAction>;
+        var actions = _packagesActions as List<PackageAction>;
 
         try
         {
@@ -235,7 +235,7 @@
                 throw new ValidationException(string.Join("\n", problems));
             }
 
-            SystemManagerService.PreparePackagesActions(_system, _packagesActions);
+            SystemManagerService.PreparePackagesActions(_system, new List<object>(_packagesActions));
 
             _scheduling = true;
         }

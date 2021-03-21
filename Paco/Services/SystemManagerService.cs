@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Paco.Entities;
 using Paco.Entities.Models;
 using Paco.Entities.Models.Updating;
 using Paco.Repositories.Database;
@@ -41,22 +42,36 @@ namespace Paco.Services
             });
         }
 
-        public IEnumerable<object> GetPackagesActions(ManagedSystem system, bool shouldRefresh = false)
+        public List<object> GetPackagesActions(ManagedSystem system)
         {
             _logger.LogInformation("Getting packages actions for {system}.", system.Name);
 
-            IEnumerable<object> updates = null;
+            List<object> updates = null;
             
             ExecuteWorkWithSystem(system, managedSystem =>
             {
                 updates = managedSystem.GetDistributionManager().GetPackagesActions();
             }, managedSystem =>
             {
-                if (shouldRefresh)
-                {
-                    managedSystem.UpdatesFetchedAt = DateTime.UtcNow;
-                }
+                managedSystem.UpdatesFetchedAt = DateTime.UtcNow;
             });
+
+            return updates;
+        }
+        
+        public List<PackageInformation> GetPackagesList(ManagedSystem system)
+        {
+            _logger.LogInformation("Getting packages list for {system}.", system.Name);
+
+            List<PackageInformation> updates = null;
+            
+            ExecuteWorkWithSystem(system, managedSystem =>
+            {
+                updates = managedSystem.GetDistributionManager().GetPackagesList();
+            }, managedSystem =>
+            {
+                
+            }, null, false);
 
             return updates;
         }
@@ -86,7 +101,7 @@ namespace Paco.Services
             });
         }
 
-        public void PreparePackagesActions(ManagedSystem system, IEnumerable<object> actions)
+        public void PreparePackagesActions(ManagedSystem system, List<object> actions)
         {
             _logger.LogInformation("Preparing packages actions for {system}.", system.Name);
             

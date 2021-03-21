@@ -77,13 +77,42 @@
                                     }
                                 }
                             }
-                            <button type="button" class="btn btn-dark" @onclick="() => HideDetail(system)">Hide Details</button>
-                            <button type="button" class="btn btn-dark" @onclick="() => EditSystem(system)">Edit</button>
-                            <button type="button" class="btn btn-dark" @onclick="() => RefreshSystemInformation(system)">Refresh</button>
-                            <button type="button" class="btn btn-dark" @onclick="() => GetPackagesActions(system)">Get packages actions</button>
-                            <button type="button" class="btn btn-dark" @onclick="() => ViewSchedule(system)">View schedule</button>
-                            <button type="button" class="btn btn-dark" @onclick="() => ScheduledActions(system)">Schedule packages action</button>
-                            <button type="button" class="btn btn-dark" @onclick="() => DeleteSystem(system)">Delete</button>
+
+
+                            <div class="dropdown">
+                                <button class="btn btn-dark dropdown-toggle" type="button" id="actionsMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                    More
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="actionsMenuButton">
+                                    <li>
+                                        <a class="dropdown-item" @onclick="() => RefreshSystemInformation(system)">Refresh</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" @onclick="() => EditSystem(system)">Edit</a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" @onclick="() => ListPackages(system)">List packages</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" @onclick="() => SchedulePackagesActions(system)">Schedule packages actions</a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" @onclick="() => ViewSchedule(system)">View schedule</a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item btn-danger" @onclick="() => DeleteSystem(system)">Delete</a>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </td>
@@ -93,16 +122,18 @@
     </tbody>
 </table>
 
-<FreeBsdPackagesActionsScheduler @ref="@_freeBsdFreeBsdPackagesActionsScheduler"/>
-<FreeBsdActionsViewer @ref="@_freeBsdFreeBsdActionsViewer"/>
+<FreeBsdPackagesActionsScheduler @ref="@_freeBsdPackagesActionsScheduler"/>
+<FreeBsdScheduleViewer @ref="@_freeBsdScheduleViewer"/>
+<FreeBsdPackagesViewer @ref="@_freeBsdPackagesViewer"/>
 
 
 @code {
     private List<ManagedSystem> _systems = new();
     private readonly List<ManagedSystem> _systemsWithDetailOpened = new();
 
-    private FreeBsdPackagesActionsScheduler _freeBsdFreeBsdPackagesActionsScheduler;
-    private FreeBsdActionsViewer _freeBsdFreeBsdActionsViewer;
+    private FreeBsdPackagesActionsScheduler _freeBsdPackagesActionsScheduler;
+    private FreeBsdScheduleViewer _freeBsdScheduleViewer;
+    private FreeBsdPackagesViewer _freeBsdPackagesViewer;
 
     protected override void OnInitialized()
     {
@@ -121,11 +152,6 @@
     private bool ShouldShowDetailForSystem(ManagedSystem system)
     {
         return _systemsWithDetailOpened.Contains(system);
-    }
-
-    private void HideDetail(ManagedSystem system)
-    {
-        _systemsWithDetailOpened.Remove(system);
     }
 
     private void ToggleSystemDetail(ManagedSystem system)
@@ -149,30 +175,21 @@
         });
     }
 
-    private void GetPackagesActions(ManagedSystem system)
-    {
-        Task.Run(() =>
-        {
-            ManagerService.GetPackagesActions(system);
-            InvokeAsync(StateHasChanged);
-        });
-    }
-
     private void ViewSchedule(ManagedSystem system)
     {
-        _freeBsdFreeBsdActionsViewer.ShowModal(system);
+        _freeBsdScheduleViewer.ShowModal(system);
     }
-    
+
     private void EditSystem(ManagedSystem system)
     {
         NavManager.NavigateTo($"/systems/{system.Id}/edit");
     }
 
-    private void ScheduledActions(ManagedSystem system)
+    private void SchedulePackagesActions(ManagedSystem system)
     {
         if (system.Distribution == Distribution.FreeBsd)
         {
-            _freeBsdFreeBsdPackagesActionsScheduler.ShowModal(system);
+            _freeBsdPackagesActionsScheduler.ShowModal(system);
         }
     }
 
@@ -180,6 +197,11 @@
     {
         DbContextFactory.Remove(system);
         RefreshSystems();
+    }
+
+    private void ListPackages(ManagedSystem system)
+    {
+        _freeBsdPackagesViewer.ShowModal(system);
     }
 
 }
