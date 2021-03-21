@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Paco.Entities.FreeBsd;
-using Paco.Entities.FreeBsd.Packages;
+using Paco.Entities.FreeBsd.PackagesActions;
 using Renci.SshNet;
 
 namespace Paco.SystemManagement.FreeBsd.Commands

@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Paco.Entities.FreeBsd;
-using Paco.Entities.FreeBsd.Packages;
+using Paco.Entities.FreeBsd.PackagesActions;
 using Renci.SshNet;
 using Sentry.Extensibility;
 
