@@ -125,9 +125,10 @@
 <FreeBsdPackagesActionsScheduler @ref="@_freeBsdPackagesActionsScheduler"/>
 <FreeBsdScheduleViewer @ref="@_freeBsdScheduleViewer"/>
 <FreeBsdPackagesViewer @ref="@_freeBsdPackagesViewer"/>
-
+<ExecutionModal @ref="@_executionModal"/>
 
 @code {
+    private ExecutionModal _executionModal;
     private List<ManagedSystem> _systems = new();
     private readonly List<ManagedSystem> _systemsWithDetailOpened = new();
 
@@ -168,10 +169,10 @@
 
     private void RefreshSystemInformation(ManagedSystem system)
     {
-        Task.Run(() =>
+        _executionModal.ExecuteOperation(() =>
         {
             ManagerService.RefreshSystemInformation(system);
-            base.InvokeAsync(StateHasChanged);
+            InvokeAsync(StateHasChanged);
         });
     }
 
@@ -203,5 +204,4 @@
     {
         _freeBsdPackagesViewer.ShowModal(system);
     }
-
 }

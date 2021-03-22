@@ -7,13 +7,14 @@
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <h4 class="modal-title">Executing</h4>
+                    <h4 class="modal-title">Loading</h4>
                 </div>
 
                 <div class="modal-body">
                     <div class="spinner-border" role="status">
                         <span class="visually-hidden">Please wait</span>
-                    </div>Please wait for operation to finish.
+                    </div>
+                    <span class="px-3"></span>Please wait for operation to finish.
                 </div>
             </div>
         </div>
@@ -54,19 +55,28 @@ else if (_errorMessage != null)
     public void ExecuteOperation(Action operation, Action<Exception> onFailure = null)
     {
         _isExecuting = true;
-
-        try
-        {
-            operation.Invoke();
-        }
-        catch (Exception e)
-        {
-            Log.Error(e, "An error occured during execution \"{message}\".", e.Message);
-            _errorMessage = e.Message;
-            onFailure?.Invoke(e);
-        }
+        StateHasChanged();
         
-        _isExecuting = false;
+        Task.Run(async () =>
+        {
+            try
+            {
+                await InvokeAsync(operation);
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, "An error occured during execution \"{message}\".", e.Message);
+                _errorMessage = $"An error occured during execution \"{e.Message}\".";
+
+                await InvokeAsync(() =>
+                {
+                   onFailure?.Invoke(e);     
+                });
+            }
+
+            _isExecuting = false;
+            await InvokeAsync(StateHasChanged);
+        });
     }
 
     private void HideDialog()

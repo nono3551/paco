@@ -47,10 +47,6 @@
                             </tbody>
                         </table>
                     }
-                    else if (_packageInformation == null)
-                    {
-                        <p>Loading...</p>
-                    }
                     <!-- Modal footer -->
                 </div>
                 <div class="modal-footer">
@@ -60,25 +56,24 @@
         </div>
     </div>
 }
+<ExecutionModal @ref="@_executionModal"/>
 
 
 @code
 {
+    private ExecutionModal _executionModal;
     private bool _showModal = false;
     private ManagedSystem _system;
     private List<PackageInformation> _packageInformation = null;
 
     public void ShowModal(ManagedSystem managedSystem)
     {
-        _system = managedSystem;
-        _showModal = true;
-        StateHasChanged();
-
-        Task.Run(() =>
+        _executionModal.ExecuteOperation(() =>
         {
-            using var context = DbContextFactory.CreateDbContext();
+            _system = managedSystem;
             _packageInformation = SystemManagerService.GetPackagesList(_system);
-            InvokeAsync(StateHasChanged);
+            _showModal = true;
+            StateHasChanged();
         });
     }
 

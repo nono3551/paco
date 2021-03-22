@@ -71,7 +71,7 @@ namespace Paco.Services
             }, managedSystem =>
             {
                 
-            }, null, false);
+            });
 
             return updates;
         }
@@ -111,7 +111,7 @@ namespace Paco.Services
             }, managedSystem =>
             {
                 
-            }, null, true);
+            });
         }
 
         public string GetUpdateDetails(ScheduledAction scheduledAction)
@@ -133,8 +133,7 @@ namespace Paco.Services
         private void ExecuteWorkWithSystem(ManagedSystem system,
             Action<ManagedSystem> action,
             Action<ManagedSystem> onSuccess,
-            Action<ManagedSystem> onFailure = null,
-            bool shouldThrow = false)
+            Action<ManagedSystem> onFailure = null)
         {
             using var dbContext = _dbContextFactory.CreateDbContext();
                 
@@ -160,10 +159,7 @@ namespace Paco.Services
 
                 onFailure?.Invoke(system);
                 
-                if (shouldThrow)
-                {
-                    throw;
-                }
+                throw;
             }
 
             dbContext.Update(system);
