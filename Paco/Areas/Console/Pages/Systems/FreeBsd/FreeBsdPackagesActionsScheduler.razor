@@ -15,11 +15,7 @@
 
 @if (_showModal)
 {
-    if (_shouldErrorDialogBeVisible)
-    {
-        <ErrorModal @bind-ShouldBeVisible="@_shouldErrorDialogBeVisible" ErrorMessage="@_lastError"/>
-    }
-    else if (_scheduling)
+    if (_scheduling)
     {
         <div class="modal fade show" style="display:block" aria-modal="true" role="dialog">
             <div class="modal-dialog modal-dialog-scrollable">
@@ -166,17 +162,19 @@
     }
 }
 
+<ExecutionModal @ref="@_executionModal"/>
+
 @code
 {
     private bool _showModal = false;
     private ManagedSystem _system;
     private IEnumerable<object> _packagesActions = null;
     private PackageAction _currentPackageAction = null;
-    private bool _shouldErrorDialogBeVisible = false;
-    private string _lastError = null;
     private bool _scheduling = false;
-    
+    private ExecutionModal _executionModal;
+
     private DateTime _scheduleDate = DateTime.UtcNow.Date;
+
     private string DateProxy
     {
         get => _scheduleDate.ToString("yyyy-MM-dd");
@@ -204,30 +202,25 @@
         });
     }
 
-    void OpenPackageActionSettings(PackageAction packageAction)
+    private void OpenPackageActionSettings(PackageAction packageAction)
     {
         _currentPackageAction = packageAction;
         StateHasChanged();
     }
 
-    private void OnOptionChanged(PackageOption option, object value)
-    {
-        option.OptionSetStatus = true.Equals(value) ? OptionSetStatus.Set : OptionSetStatus.IsUnset;
-    }
-
-    void CloseModal()
+    private void CloseModal()
     {
         _showModal = false;
         _system = null;
         _packagesActions = null;
     }
 
-    void PrepareActions()
+    private void PrepareActions()
     {
-        var actions = _packagesActions as IEnumerable<PackageAction>;
-
-        try
+        _executionModal.ExecuteOperation(() =>
         {
+            var actions = _packagesActions as IEnumerable<PackageAction>;
+
             var problems = actions?.SelectMany(x => x.GetOptionsProblems()).ToList();
 
             if (problems?.Any() == true)
@@ -238,46 +231,49 @@
             SystemManagerService.PreparePackagesActions(_system, _packagesActions);
 
             _scheduling = true;
-        }
-        catch (Exception e)
-        {
-            _lastError = e.Message;
-            _shouldErrorDialogBeVisible = true;
-        }
+        });
     }
 
 
     private void OnApplyOptionsSettings()
     {
-        _currentPackageAction.SetUndefinedOptionsAsUnset();
-
-        var optionsProblems = _currentPackageAction.GetOptionsProblems();
-
-        if (optionsProblems.Any())
+        _executionModal.ExecuteOperation(() =>
         {
-            _lastError = string.Join("\n", optionsProblems);
-            _shouldErrorDialogBeVisible = true;
-        }
-        else
-        {
+            _currentPackageAction.SetUndefinedOptionsAsUnset();
+
+            var optionsProblems = _currentPackageAction.GetOptionsProblems();
+
+            if (optionsProblems.Any())
+            {
+                throw new ValidationException(string.Join("\n", optionsProblems));
+            }
+
             _currentPackageAction = null;
-        }
 
-        StateHasChanged();
+            StateHasChanged();
+        });
     }
 
-    private async Task SchedulePackagesActions()
+    private void SchedulePackagesActions()
     {
-        var packagesAction = new ScheduledAction()
+        _executionModal.ExecuteOperation(async () =>
         {
-            ScheduledActionType = ScheduledActionType.Packages,
-            ScheduledAt = _scheduleDate  + _scheduleTime + TimeSpan.FromMinutes(await JsRuntime.InvokeAsync<int>("blazorGetTimezoneOffset")),
-            ManagedSystemId = _system.Id
-        };
+            var packagesAction = new ScheduledAction()
+            {
+                ScheduledActionType = ScheduledActionType.Packages,
+                ScheduledAt = _scheduleDate + _scheduleTime + TimeSpan.FromMinutes(await JsRuntime.InvokeAsync<int>("blazorGetTimezoneOffset")),
+                ManagedSystemId = _system.Id
+            };
 
-        DbContextFactory.Upsert(packagesAction);
-        
-        CloseModal();
+            DbContextFactory.Upsert(packagesAction);
+
+            CloseModal();
+        });
+    }
+
+    private void OnOptionChanged(PackageOption option, object value)
+    {
+        option.OptionSetStatus = true.Equals(value) ? OptionSetStatus.Set : OptionSetStatus.IsUnset;
     }
 
     private void OnGroupOptionChanged(PackageOptionsGroup @group, PackageOption option, object isChecked)

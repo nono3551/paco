@@ -1,0 +1,76 @@
+﻿@using Serilog
+
+@if (_isExecuting)
+{
+    <div class="modal fade show" id="executingModal" style="display:block" aria-modal="true" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h4 class="modal-title">Executing</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Please wait</span>
+                    </div>Please wait for operation to finish.
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else if (_errorMessage != null)
+{
+    <div class="modal fade show" id="errorModal" style="display:block" aria-modal="true" role="dialog">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">Error</h4>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                    <label>
+                        @_errorMessage
+                    </label>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-dark" @onclick=@HideDialog>Ok</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+
+    private string _errorMessage;
+    private bool _isExecuting;
+    
+    public void ExecuteOperation(Action operation, Action<Exception> onFailure = null)
+    {
+        _isExecuting = true;
+
+        try
+        {
+            operation.Invoke();
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, "An error occured during execution \"{message}\".", e.Message);
+            _errorMessage = e.Message;
+            onFailure?.Invoke(e);
+        }
+        
+        _isExecuting = false;
+    }
+
+    private void HideDialog()
+    {
+        _errorMessage = null;
+    }
+}

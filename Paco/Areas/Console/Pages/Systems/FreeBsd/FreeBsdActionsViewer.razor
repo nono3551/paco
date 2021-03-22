@@ -14,11 +14,7 @@
 
 @if (_showModal)
 {
-    if (_shouldErrorDialogBeVisible)
-    {
-        <ErrorModal @bind-ShouldBeVisible="@_shouldErrorDialogBeVisible" ErrorMessage="@_lastError"/>
-    }
-    else if (_detailsText != null)
+    if (_detailsText != null)
     {
         <div class="modal fade show" style="display:block" aria-modal="true" role="dialog">
             <div class="modal-dialog modal-xl modal-dialog-scrollable">
@@ -69,7 +65,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr @onclick="() => ShowActionDetails(scheduledAction)" style='cursor: pointer;' >
+                                <tr @onclick="() => ShowActionDetails(scheduledAction)" style='cursor: pointer;'>
                                     <td>@scheduledAction.ScheduledAt</td>
                                     <td>@scheduledAction.StartedAt</td>
                                     <td>@scheduledAction.ScheduledActionType</td>
@@ -89,47 +85,49 @@
         </div>
     }
 }
+<ExecutionModal @ref="@_executionModal"/>
+
 
 @code
 {
+    private ExecutionModal _executionModal;
+
     private bool _showModal = false;
     private ManagedSystem _system;
     private IEnumerable<ScheduledAction> _scheduledActions = null;
 
-    private bool _shouldErrorDialogBeVisible = false;
-    private string _lastError = null;
-    
-    private bool _details;
     private string _detailsText = null;
-    public void ShowModal(ManagedSystem managedSystem)
-    {
-        _system = managedSystem;
-        _showModal = true;
-        StateHasChanged();
 
-        Task.Run(() =>
+    public void Show(ManagedSystem managedSystem)
+    {
+        _executionModal.ExecuteOperation(() =>
         {
+            _system = managedSystem;
+            _showModal = true;
+            StateHasChanged();
+
             using var context = DbContextFactory.CreateDbContext();
             _scheduledActions = context.ScheduledActions.GetQueuedAndStartedScheduledActionsForSystem(_system);
             InvokeAsync(StateHasChanged);
         });
     }
 
-    void CloseModal()
+    private void ShowActionDetails(ScheduledAction scheduledAction)
+    {
+        _executionModal.ExecuteOperation(() =>
+        {
+            _detailsText = null;
+            _detailsText = SystemManagerService.GetUpdateDetails(scheduledAction);
+
+            StateHasChanged();
+        });
+    }
+
+    private void CloseModal()
     {
         _showModal = false;
         _system = null;
         _scheduledActions = null;
-    }
-
-    private void ShowActionDetails(ScheduledAction scheduledAction)
-    {
-        _details = true;
-
-        _detailsText = null;
-        _detailsText = SystemManagerService.GetUpdateDetails(scheduledAction);
-
-        StateHasChanged();
     }
 
     private void BackFromDetails()
