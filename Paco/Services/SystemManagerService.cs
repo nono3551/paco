@@ -136,13 +136,13 @@ namespace Paco.Services
             Action<ManagedSystem> onFailure = null)
         {
             using var dbContext = _dbContextFactory.CreateDbContext();
-                
+
             try
-            { 
+            {
                 action(system);
 
                 dbContext.Entry(system).Reload();
-                    
+
                 system.NeedsInteraction = false;
 
                 system.LastAccessed = DateTime.UtcNow;
@@ -158,12 +158,14 @@ namespace Paco.Services
                 _logger.LogError(e, "While executing work with {system}: {exception}", system.Name, e.Message);
 
                 onFailure?.Invoke(system);
-                
+
                 throw;
             }
-
-            dbContext.Update(system);
-            dbContext.SaveChanges();
+            finally
+            {
+                dbContext.Update(system);
+                dbContext.SaveChanges();
+            }
         }
     }
 }

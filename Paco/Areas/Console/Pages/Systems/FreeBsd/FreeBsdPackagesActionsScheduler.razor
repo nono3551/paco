@@ -166,7 +166,6 @@
     private IEnumerable<object> _packagesActions = null;
     private PackageAction _currentPackageAction = null;
     private bool _shouldErrorDialogBeVisible = false;
-    private string _lastError = null;
     private bool _scheduling = false;
     private ExecutionModal _executionModal;
 
@@ -191,10 +190,8 @@
         _executionModal.ExecuteOperation(() =>
         {
             _system = managedSystem;
-            _showModal = true;
-            StateHasChanged();
-
             _packagesActions = SystemManagerService.GetPackagesActions(_system);
+            _showModal = true;
             InvokeAsync(StateHasChanged);
         });
     }
@@ -207,9 +204,11 @@
 
     private void CloseModal()
     {
+        _scheduling = false;
         _showModal = false;
         _system = null;
         _packagesActions = null;
+        InvokeAsync(StateHasChanged);
     }
 
     private void PrepareActions()
@@ -228,6 +227,8 @@
             SystemManagerService.PreparePackagesActions(_system, new List<object>(_packagesActions));
 
             _scheduling = true;
+
+            InvokeAsync(StateHasChanged);
         });
     }
 
@@ -247,7 +248,7 @@
 
             _currentPackageAction = null;
 
-            StateHasChanged();
+            InvokeAsync(StateHasChanged);
         });
     }
 

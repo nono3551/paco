@@ -24,5 +24,13 @@ namespace Paco.Repositories.Database
                 .Include(x => x.ManagedSystem)
                 .ToList();
         }
+        
+        public static List<ScheduledAction> GetScheduledActionsForSystem(this DbSet<ScheduledAction> updates, ManagedSystem managedSystem)
+        {
+            return updates
+                .Where(x => managedSystem.Id == x.ManagedSystemId)
+                .Include(x => x.ManagedSystem)
+                .ToList();
+        }
     }
 }
