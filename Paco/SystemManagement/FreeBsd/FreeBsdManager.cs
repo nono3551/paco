@@ -1,7 +1,7 @@
 ﻿using Paco.SystemManagement.FreeBsd.Commands;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Authentication.ExtendedProtection;
+using Paco.Entities;
 using Paco.Entities.Models;
 using Paco.Entities.Models.Updating;
 using Paco.SystemManagement.Ssh;
@@ -41,7 +41,7 @@ namespace Paco.SystemManagement.FreeBsd
             return Audit.PackagesActionsNeedsInteraction(client);
         }
 
-        public void PreparePackagesActions(IEnumerable<object> actions)
+        public void PreparePackagesActions(List<object> actions)
         {
             using var client = SshManager.CreateSshClient(System);
             PrepareActions.PreparePackageActions(client, actions);
@@ -54,7 +54,6 @@ namespace Paco.SystemManagement.FreeBsd
             {
                 Packages.UpdatePackages(client, scheduledAction);
             }
-            
         }
 
         public string GetScheduledActionDetails(ScheduledAction scheduledAction)
@@ -70,11 +69,17 @@ namespace Paco.SystemManagement.FreeBsd
             }
         }
 
-        public IEnumerable<object> GetPackagesActions(bool shouldRefresh = false)
+        public List<PackageInformation> GetPackagesList()
         {
             using var client = SshManager.CreateSshClient(System);
-            var actions = ActionsProvider.GetPackagesActions(client, shouldRefresh);
-            return actions;
+            return Audit.ListAllPackages(client);
+        }
+
+        public List<object> GetPackagesActions()
+        {
+            using var client = SshManager.CreateSshClient(System);
+            var actions = ActionsProvider.GetPackagesActions(client);
+            return new List<object>(actions);
         }
 
         public bool IsSystemUpdateAvailable()

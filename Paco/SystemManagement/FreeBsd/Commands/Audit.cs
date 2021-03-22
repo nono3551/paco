@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Paco.Entities;
 using Renci.SshNet;
 
 namespace Paco.SystemManagement.FreeBsd.Commands
@@ -37,6 +39,26 @@ namespace Paco.SystemManagement.FreeBsd.Commands
         public static void UpdatePortsCollection(SshClient sshClient)
         {
             sshClient.CreateCommand("sudo portsnap fetch update --interactive").Execute();
+        }
+
+        public static List<PackageInformation> ListAllPackages(SshClient sshClient)
+        {
+            var packages = sshClient.CreateCommand("sudo pkg info").Execute().Split("\n", StringSplitOptions.RemoveEmptyEntries);
+            
+            var packageInformation = packages.Select(package =>
+            {
+                var endOfPackageName = package.IndexOf(" ", StringComparison.Ordinal);
+                var name = package.Substring(0, endOfPackageName).Trim();
+                var description = package.Substring(endOfPackageName).Trim();
+
+                return new PackageInformation()
+                {
+                    Name = name,
+                    Description = description
+                };
+            }).ToList();
+
+            return packageInformation;
         }
     }
 }

@@ -44,7 +44,7 @@
     else if (_currentPackageAction == null)
     {
         <div class="modal fade show" style="display:block" aria-modal="true" role="dialog">
-            <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
                 <div class="modal-content">
 
                     <!-- Modal Header -->
@@ -170,6 +170,8 @@
     private ManagedSystem _system;
     private IEnumerable<object> _packagesActions = null;
     private PackageAction _currentPackageAction = null;
+    private bool _shouldErrorDialogBeVisible = false;
+    private string _lastError = null;
     private bool _scheduling = false;
     private ExecutionModal _executionModal;
 
@@ -228,7 +230,7 @@
                 throw new ValidationException(string.Join("\n", problems));
             }
 
-            SystemManagerService.PreparePackagesActions(_system, _packagesActions);
+            SystemManagerService.PreparePackagesActions(_system, new List<object>(_packagesActions));
 
             _scheduling = true;
         });
