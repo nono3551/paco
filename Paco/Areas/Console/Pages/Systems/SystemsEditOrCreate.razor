@@ -7,9 +7,11 @@
 @using Microsoft.EntityFrameworkCore
 @using Paco.Entities.Models
 @using Paco.Repositories.Database
+@using Paco.Services
 @using Paco.SystemManagement.Ssh
 @inject NavigationManager NavigationManager
 @inject IDbContextFactory<ApplicationDbContext> DbContextFactory
+@inject SystemManagerService SystemManagerService
 
 @if (IsAdd)
 {
@@ -47,7 +49,11 @@ else
     <Submit/>
 </EditForm>
 
-@code {
+<ExecutionModal @ref="@_executionModal"/>
+
+@code 
+{
+    private ExecutionModal _executionModal;
 
     [Parameter]
     public Guid? SystemId { get; set; }
@@ -56,7 +62,7 @@ else
 
     private string CurrentDistributionString => _system?.Distribution.ToString() ?? "SelectDistribution";
 
-    private ManagedSystem _system = null;
+    private ManagedSystem _system;
 
     protected override void OnParametersSet()
     {
@@ -79,8 +85,18 @@ else
 
     private void HandleValidSubmit()
     {
-        DbContextFactory.Upsert(_system);
-        NavigationManager.NavigateTo("/systems/list");
+        _executionModal.ExecuteOperation(() =>
+        {
+            if (IsAdd)
+            {
+                SystemManagerService.AddSystem(_system);
+            }
+            else
+            {
+                DbContextFactory.Upsert(_system);
+            }
+        
+            NavigationManager.NavigateTo("/systems/list");
+        });
     }
-
 }

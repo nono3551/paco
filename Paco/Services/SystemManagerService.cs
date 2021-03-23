@@ -21,6 +21,13 @@ namespace Paco.Services
             _logger = loggerFactory.CreateLogger<SystemManagerService>();
         }
 
+        public void AddSystem(ManagedSystem managedSystem)
+        {
+            managedSystem.GetDistributionManager().SetupSystem();
+            
+            _dbContextFactory.Upsert(managedSystem);
+        }
+
         public void RefreshSystemInformation(ManagedSystem system)
         {
             _logger.LogInformation("Refreshing system information for {system}.", system.Name);

@@ -9,6 +9,7 @@ namespace Paco.SystemManagement
     public interface ISystemManager
     {
         ManagedSystem System { get; }
+        void SetupSystem();
         Dictionary<string, string> GetSystemInformation();
         List<object> GetPackagesActions();
         bool IsSystemUpdateAvailable();

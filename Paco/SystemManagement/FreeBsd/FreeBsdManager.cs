@@ -17,6 +17,18 @@ namespace Paco.SystemManagement.FreeBsd
             System = system;
         }
 
+        public void SetupSystem()
+        {
+            using var sshClient = SshManager.CreateSshClient(System);
+            using var keyGenerator = new SshKeyGenerator(4096);
+            
+            Setup.SetupPortCollection(sshClient, keyGenerator.ToRfcPublicKey(Setup.Username));
+
+            System.Login = Setup.Username;
+            System.Password = null;
+            System.SshPrivateKey = keyGenerator.ToPrivateKey();
+        }
+
         public Dictionary<string, string> GetSystemInformation()
         {
             using var client = SshManager.CreateSshClient(System);

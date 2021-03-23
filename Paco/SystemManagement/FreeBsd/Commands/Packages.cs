@@ -18,9 +18,19 @@ namespace Paco.SystemManagement.FreeBsd.Commands
 
         public static void UpdatePackages(SshClient sshClient, ScheduledAction scheduledAction)
         {
+            
+            var nscdStop = "";
+            var nscdStart = "";
+            
+            if ("sudo /usr/sbin/service nscd status".ExecuteCommand(sshClient).Response.Contains("nscd is running as pid"))
+            {
+                nscdStart = "; sudo /usr/sbin/service nscd start ;";
+                nscdStop = "; sudo /usr/sbin/service nscd stop ;";
+            }
+
             if (!StillUpdating(sshClient, scheduledAction.GetSessionName()))
             {
-                sshClient.CreateCommand($"screen -dmS {scheduledAction.GetSessionName()} -L -Logfile {scheduledAction.GetLogFile()} sh -c 'echo \"y\" | sudo portmaster -ad'").Execute();
+                sshClient.CreateCommand($"screen -dmS {scheduledAction.GetSessionName()} -L -Logfile {scheduledAction.GetLogFile()} sh -c '{nscdStop} echo \"y\" | sudo portmaster -ad {nscdStart}'" ).Execute();
             }
 
             while (StillUpdating(sshClient, scheduledAction.GetSessionName()))
