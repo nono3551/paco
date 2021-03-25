@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using Paco.Entities.Models.Updating;
 using Paco.SystemManagement;
 using Paco.SystemManagement.FreeBsd;
@@ -46,6 +47,21 @@ namespace Paco.Entities.Models
         public List<RoleManagedSystemPermissions> RoleManagedSystemPermissions { get; set; }
         public List<ScheduledAction> ScheduledActions { get; set; }
 
+        [NotMapped]
+        public Permissions Permissions
+        {
+            get
+            {
+                var permissions = ManagedSystemGroups
+                    .SelectMany(x => x.RoleManagedSystemGroupPermissions)
+                    .Union<IPermissionsEntity>(RoleManagedSystemPermissions).Select(x => x.Permissions);
+
+                var result = permissions.Aggregate(Permissions.None, (x, y) => x | y);
+                
+                return result;
+            }
+        }
+        
         public ISystemManager GetDistributionManager()
         {
             return new FreeBsdManager(this);

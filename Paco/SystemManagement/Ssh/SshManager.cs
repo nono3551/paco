@@ -38,7 +38,7 @@ namespace Paco.SystemManagement.Ssh
             }
             else
             {
-                throw new AuthenticationException("Could not create authentication for system.");
+                throw new AuthenticationException($"Could not create authentication for system {system.Name}.");
             }
 
 

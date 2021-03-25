@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Paco.Entities;
@@ -9,13 +10,31 @@ namespace Paco.Repositories.Database
 {
     public static class ManagedSystemRepository
     {
-        public static List<ManagedSystem> GetManagedSystemsForUser(this DbSet<ManagedSystem> systems, User user)
+        private static IQueryable<ManagedSystem> GetManagedSystemsForUserWithPermissionsQuery(this DbSet<ManagedSystem> systems, User user)
         {
             return systems
-                .Where(s => s.RoleManagedSystemPermissions.Any(p => p.Permissions > Permissions.None && p.Role.Users.Contains(user)) || 
-                            s.ManagedSystemGroups.Any(g => g.RoleManagedSystemGroupPermissions.Any(gp => gp.Role.Users.Contains(user) && gp.Permissions > Permissions.None)))
+                .Where(s => 
+                    s.RoleManagedSystemPermissions.Any(p =>
+                        p.Permissions.HasFlag(Permissions.Read) && p.Role.Users.Contains(user)) ||
+                    s.ManagedSystemGroups.Any(
+                        g => g.RoleManagedSystemGroupPermissions.Any(
+                            gp => gp.Role.Users.Contains(user) && gp.Permissions.HasFlag(Permissions.Read))
+                    )
+                )
                 .Include(s => s.RoleManagedSystemPermissions.Where(rp => rp.Role.Users.Contains(user)))
-                .ToList();
+                .Include(s => s.ManagedSystemGroups.Where(msg => msg.Roles.Any(role => role.Users.Contains(user))))
+                .ThenInclude(x => x.RoleManagedSystemGroupPermissions)
+                .AsSplitQuery();
+        }
+        
+        public static List<ManagedSystem> GetManagedSystemsForUserWithPermissions(this DbSet<ManagedSystem> systems, User user)
+        {
+            return GetManagedSystemsForUserWithPermissionsQuery(systems, user).ToList();
+        }
+        
+        public static ManagedSystem GetManagedSystemForUserWithPermissions(this DbSet<ManagedSystem> systems, Guid systemId, User user)
+        {
+            return GetManagedSystemsForUserWithPermissionsQuery(systems, user).FirstOrDefault(x => x.Id == systemId);
         }
         
         public static List<ManagedSystem> GetManagedSystemsForTermWithRolePermissionsForRole(this DbSet<ManagedSystem> systems, Role role, string term, int limit = 15)

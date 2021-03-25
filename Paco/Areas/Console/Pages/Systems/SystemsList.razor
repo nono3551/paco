@@ -146,7 +146,7 @@
     {
         await using var dbContext = DbContextFactory.CreateDbContext();
         var user = await UserManager.GetUserAsync((await AuthenticationStateProvider.GetAuthenticationStateAsync()).User);
-        _systems = dbContext.ManagedSystems.GetManagedSystemsForUser(user);
+        _systems = dbContext.ManagedSystems.GetManagedSystemsForUserWithPermissions(user);
         StateHasChanged();
     }
 

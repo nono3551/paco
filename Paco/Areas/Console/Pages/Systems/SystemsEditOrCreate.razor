@@ -4,53 +4,73 @@
 @attribute [Authorize]
 
 @using SystemManagement
+@using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
+@using Paco.Entities
 @using Paco.Entities.Models
+@using Paco.Entities.Models.Identity
 @using Paco.Repositories.Database
 @using Paco.Services
 @using Paco.SystemManagement.Ssh
 @inject NavigationManager NavigationManager
 @inject IDbContextFactory<ApplicationDbContext> DbContextFactory
 @inject SystemManagerService SystemManagerService
+@inject UserManager<User> UserManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
-@if (IsAdd)
+
+@if (_loaded)
 {
-    <h2>Add new system</h2>
-}
-else
-{
-    <h2>Edit system</h2>
-}
+    if (IsAdd || _system?.Permissions.HasFlag(Permissions.Write) == true)
+    {
+        if (IsAdd)
+        {
+            <h2>Add new system</h2>
+        }
+        else
+        {
+            <h2>Edit system</h2>
+        }
 
-<EditForm Model="@_system" OnValidSubmit="HandleValidSubmit">
-    <DataAnnotationsValidator/>
-    <ValidationSummary/>
-    <FormInput @bind-Value="@_system.Name" ElementId="SystemName" Label="System name" InputType="text" Placeholder="VM-City-Food-Bratislava" Help="Enter name which will represent this system."/>
-    <FormInput @bind-Value="@_system.Hostname" ElementId="SystemHostname" Label="Hostname" InputType="text" Placeholder="city.food.com:22" Help="Enter address or hostname of system."/>
-    <FormInput @bind-Value="@_system.OneTimeLogin" ElementId="SystemLogin" Label="One time login" InputType="text" Placeholder="user" Help="Enter username which will be used for first authentication and setup. Those credentials won't be stored."/>
-    <FormInput @bind-Value="@_system.OneTimePassword" ElementId="SystemPassword" Label="One time password" InputType="password" Help="Enter password which will be used for first authentication and setup. Those credentials won't be stored."/>
-    <FormInput @bind-Value="@_system.SystemFingerprint" ElementId="SystemFingerprint" Label="System Fingerprint" InputType="text" Placeholder="@Fingerprint.FingerprintPlaceholder" Help="Enter system's fingerprint or leave blank to autofill."/>
+        <EditForm Model="@_system" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator/>
+            <ValidationSummary/>
+            <FormInput @bind-Value="@_system.Name" ElementId="SystemName" Label="System name" InputType="text" Placeholder="VM-City-Food-Bratislava" Help="Enter name which will represent this system."/>
+            <FormInput @bind-Value="@_system.Hostname" ElementId="SystemHostname" Label="Hostname" InputType="text" Placeholder="city.food.com:22" Help="Enter address or hostname of system."/>
+            <FormInput @bind-Value="@_system.OneTimeLogin" ElementId="SystemLogin" Label="One time login" InputType="text" Placeholder="user" Help="Enter username which will be used for first authentication and setup. Those credentials won't be stored."/>
+            <FormInput @bind-Value="@_system.OneTimePassword" ElementId="SystemPassword" Label="One time password" InputType="password" Help="Enter password which will be used for first authentication and setup. Those credentials won't be stored."/>
+            <FormInput @bind-Value="@_system.SystemFingerprint" ElementId="SystemFingerprint" Label="System Fingerprint" InputType="text" Placeholder="@Fingerprint.FingerprintPlaceholder" Help="Enter system's fingerprint or leave blank to autofill."/>
 
-    <div class="dropdown py-3">
-        <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-            @CurrentDistributionString
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-            @foreach (Distribution item in Enum.GetValues(typeof(Distribution)))
-            {
-                <li>
-                    <a class="dropdown-item" @onclick="(() => SetDistribution(item))">@item.ToString()</a>
-                </li>
-            }
-        </ul>
-    </div>
-    
-    <Submit/>
-</EditForm>
+            <div class="dropdown py-3">
+                <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                    @CurrentDistributionString
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                    @foreach (Distribution item in Enum.GetValues(typeof(Distribution)))
+                    {
+                        <li>
+                            <a class="dropdown-item" @onclick="(() => SetDistribution(item))">@item.ToString()</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <Submit/>
+        </EditForm>
+    }
+    else if (_system != null)
+    {
+        <h2>Unauthorized</h2>
+    }
+    else
+    {
+        <h2>Not found</h2>
+    }
+}
 
 <ExecutionModal @ref="@_executionModal"/>
 
-@code 
+@code
 {
     private ExecutionModal _executionModal;
 
@@ -61,20 +81,28 @@ else
 
     private string CurrentDistributionString => _system?.Distribution.ToString() ?? "SelectDistribution";
 
+    private bool _loaded = false;
+
     private ManagedSystem _system;
 
-    protected override void OnParametersSet()
+    protected override async Task OnInitializedAsync()
     {
-        base.OnParametersSet();
-
         if (SystemId == null)
         {
             _system = new ManagedSystem();
         }
         else
         {
-            _system = DbContextFactory.Find<ManagedSystem>(SystemId);
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = await UserManager.GetUserAsync(authState.User);
+
+            await using var dbContext = DbContextFactory.CreateDbContext();
+            _system = dbContext.ManagedSystems.GetManagedSystemForUserWithPermissions(SystemId.Value, user);
         }
+
+        _loaded = true;
+
+        await base.OnInitializedAsync();
     }
 
     private void SetDistribution(Distribution distribution)
@@ -94,11 +122,8 @@ else
             {
                 DbContextFactory.Upsert(_system);
             }
-        
+
             NavigationManager.NavigateTo("/systems/list");
-        }, exception =>
-        {
-            InvokeAsync(StateHasChanged);
-        });
+        }, exception => { InvokeAsync(StateHasChanged); });
     }
 }
