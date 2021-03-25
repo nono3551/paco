@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-
+using Microsoft.AspNetCore.Identity;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting.Json;
@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 using Newtonsoft.Json.Linq;
 using Paco.Entities.Models;
+using Paco.Entities.Models.Identity;
 using Paco.Repositories.Database;
 
 namespace Paco.Logging

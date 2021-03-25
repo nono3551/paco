@@ -10,8 +10,8 @@ using Paco.Repositories.Database;
 namespace Paco.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210323161949_removedpassowrd")]
-    partial class removedpassowrd
+    [Migration("20210325120754_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -65,8 +65,8 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("a8345c1f-c8a8-4d19-9eb2-6cafe58726e4"),
-                            ConcurrencyStamp = "1be4d1da-0d94-4103-805e-07d4f9ac890f",
+                            Id = new Guid("be771a43-05f6-4efd-a2bf-f37aa401a621"),
+                            ConcurrencyStamp = "3b88d077-c1a7-4d0f-a59b-8ed7281048c3",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         });
@@ -181,7 +181,7 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("5e272134-e089-4ed0-b0dd-f21dab44d6da"),
+                            Id = new Guid("aeef0520-6b05-4795-86b9-22bdc10a5e00"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "34acbb54-9ae3-4742-af3c-89de44e306e0",
                             Email = "asd@asd.asd",
@@ -291,9 +291,9 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("ce6ec657-1bbd-4577-98dd-8c8db9f81761"),
-                            UserId = new Guid("5e272134-e089-4ed0-b0dd-f21dab44d6da"),
-                            RoleId = new Guid("a8345c1f-c8a8-4d19-9eb2-6cafe58726e4")
+                            Id = new Guid("cd7d0b16-774d-4ae8-87e5-750bd2b3f564"),
+                            UserId = new Guid("aeef0520-6b05-4795-86b9-22bdc10a5e00"),
+                            RoleId = new Guid("be771a43-05f6-4efd-a2bf-f37aa401a621")
                         });
                 });
 
@@ -408,10 +408,6 @@ namespace Paco.Migrations
                     b.Property<DateTime?>("LastAccessed")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Login")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -422,14 +418,13 @@ namespace Paco.Migrations
                     b.Property<int>("PackageActions")
                         .HasColumnType("int");
 
-                    b.Property<string>("Password")
+                    b.Property<string>("SshLogin")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SshPrivateKey")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SystemFingerprint")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SystemInformation")
@@ -448,26 +443,22 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("a5dc3b80-9048-4b26-8b81-3f784887d217"),
+                            Id = new Guid("63b6e77c-8fb7-477f-9fb1-8d6f1f78d1c4"),
                             Distribution = 0,
                             Hostname = "none.test.test",
-                            Login = "test",
                             Name = "PermNone",
                             NeedsInteraction = false,
                             PackageActions = 0,
-                            Password = "test",
                             SystemFingerprint = "12:f8:7e:78:61:b4:bf:e2:de:24:15:96:4e:d4:72:53"
                         },
                         new
                         {
-                            Id = new Guid("b05261e8-afb1-4880-8247-4f521a395e1b"),
+                            Id = new Guid("1b88e53e-6ecb-4e3f-a795-3b973fd8c44b"),
                             Distribution = 0,
                             Hostname = "multiple.test.test",
-                            Login = "test",
                             Name = "PermMultiple",
                             NeedsInteraction = false,
                             PackageActions = 0,
-                            Password = "test",
                             SystemFingerprint = "12:f8:7e:78:61:b4:bf:e2:de:24:15:96:4e:d4:72:53"
                         });
                 });
@@ -593,16 +584,16 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("618f0f36-bf6b-4ddf-9a5d-e84f3fffdfe8"),
-                            RoleId = new Guid("a8345c1f-c8a8-4d19-9eb2-6cafe58726e4"),
-                            ManagedSystemId = new Guid("a5dc3b80-9048-4b26-8b81-3f784887d217"),
+                            Id = new Guid("2b6e9c6e-d56b-4914-80f3-8a7415e0db62"),
+                            RoleId = new Guid("be771a43-05f6-4efd-a2bf-f37aa401a621"),
+                            ManagedSystemId = new Guid("63b6e77c-8fb7-477f-9fb1-8d6f1f78d1c4"),
                             Permissions = (short)0
                         },
                         new
                         {
-                            Id = new Guid("84e43fb6-c389-48c1-9119-3acf5a64562e"),
-                            RoleId = new Guid("a8345c1f-c8a8-4d19-9eb2-6cafe58726e4"),
-                            ManagedSystemId = new Guid("b05261e8-afb1-4880-8247-4f521a395e1b"),
+                            Id = new Guid("fa9fe6f4-b9bc-4962-8297-d07a46c9870c"),
+                            RoleId = new Guid("be771a43-05f6-4efd-a2bf-f37aa401a621"),
+                            ManagedSystemId = new Guid("1b88e53e-6ecb-4e3f-a795-3b973fd8c44b"),
                             Permissions = (short)7
                         });
                 });

@@ -25,12 +25,11 @@ else
 <EditForm Model="@_system" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator/>
     <ValidationSummary/>
-    <FormInput @bind-Value="@_system.Name" ElementId="SystemName" Label="System name" InputType="text" Placeholder="VM-City-Food-Bratislava" Help="Enter name which will represent this system"/>
-    <FormInput @bind-Value="@_system.Hostname" ElementId="SystemHostname" Label="Hostname" InputType="text" Placeholder="city.food.com:22" Help="Enter address or system"/>
-    <FormInput @bind-Value="@_system.Login" ElementId="SystemLogin" Label="Login" InputType="text" Placeholder="user" Help="Enter username which will be used for authentication"/>
-    <FormInput @bind-Value="@_system.Password" ElementId="SystemPassword" Label="Password" InputType="password" Help="Enter password which will be used for authentication"/>
-    <FormInput @bind-Value="@_system.SystemFingerprint" ElementId="SystemFingerprint" Label="System Fingerprint" InputType="text" Placeholder="@Fingerprint.FingerprintPlaceholder" Help="Paste system's fingerprint"/>
-    <FormInput @bind-Value="@_system.SshPrivateKey" ElementId="SystemSshPrivateKey" Label="SSH Private key" InputType="text" Help="Paste private key which will be used for authentication"/>
+    <FormInput @bind-Value="@_system.Name" ElementId="SystemName" Label="System name" InputType="text" Placeholder="VM-City-Food-Bratislava" Help="Enter name which will represent this system."/>
+    <FormInput @bind-Value="@_system.Hostname" ElementId="SystemHostname" Label="Hostname" InputType="text" Placeholder="city.food.com:22" Help="Enter address or hostname of system."/>
+    <FormInput @bind-Value="@_system.OneTimeLogin" ElementId="SystemLogin" Label="One time login" InputType="text" Placeholder="user" Help="Enter username which will be used for first authentication and setup. Those credentials won't be stored."/>
+    <FormInput @bind-Value="@_system.OneTimePassword" ElementId="SystemPassword" Label="One time password" InputType="password" Help="Enter password which will be used for first authentication and setup. Those credentials won't be stored."/>
+    <FormInput @bind-Value="@_system.SystemFingerprint" ElementId="SystemFingerprint" Label="System Fingerprint" InputType="text" Placeholder="@Fingerprint.FingerprintPlaceholder" Help="Enter system's fingerprint or leave blank to autofill."/>
 
     <div class="dropdown py-3">
         <button class="btn btn-dark dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
@@ -97,6 +96,9 @@ else
             }
         
             NavigationManager.NavigateTo("/systems/list");
+        }, exception =>
+        {
+            InvokeAsync(StateHasChanged);
         });
     }
 }

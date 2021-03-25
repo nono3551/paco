@@ -24,8 +24,8 @@ namespace Paco.SystemManagement.FreeBsd
             
             Setup.SetupPortCollection(sshClient, keyGenerator.ToRfcPublicKey(Setup.Username));
 
-            System.Login = Setup.Username;
-            System.Password = null;
+            System.SshLogin = Setup.Username;
+            System.OneTimePassword = null;
             System.SshPrivateKey = keyGenerator.ToPrivateKey();
         }
 

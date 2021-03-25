@@ -18,12 +18,8 @@ namespace Paco.Entities.Models
         public string Name { get; set; }
         [Required]
         public string Hostname { get; set; }
-        [Required]
-        public string Login { get; set; }
-        public string Password { get; set; }
-        public string SystemInformation { get; set; }
+        public string SshLogin { get; set; }
         public int PackageActions { get; set; }
-        [Required]
         [RegularExpression(Fingerprint.FingerprintRegex, ErrorMessage = Fingerprint.FingerprintRegexError)]
         public string SystemFingerprint { get; set; }
         public string SshPrivateKey { get; set; }
@@ -36,9 +32,14 @@ namespace Paco.Entities.Models
         
         public bool NeedsInteraction { get; set; }
         public string InteractionReason { get; set; }
+        public string SystemInformation { get; set; }
 
         [NotMapped]
-        public Fingerprint Fingerprint => new Fingerprint(SystemFingerprint);
+        public Fingerprint Fingerprint => new(SystemFingerprint);
+        [Required, NotMapped]
+        public string OneTimeLogin { get; set; }
+        [Required, NotMapped]
+        public string OneTimePassword { get; set; }
 
         public List<ManagedSystemGroup> ManagedSystemGroups { get; set; }
         public List<ManagedSystemManagedSystemGroup> ManagedSystemManagedSystemGroups { get; set; }

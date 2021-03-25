@@ -1,4 +1,6 @@
-﻿@using Serilog
+﻿@using Microsoft.Extensions.Logging
+
+@inject ILogger<ExecutionModal> Logger
 
 @if (_isExecuting)
 {
@@ -65,7 +67,8 @@ else if (_errorMessage != null)
             }
             catch (Exception e)
             {
-                Log.Error(e, "An error occured during execution \"{message}\".", e.Message);
+                Logger.LogError(e, "An error occured during execution \"{message}\".", e.Message);
+                
                 _errorMessage = $"An error occured during execution \"{e.Message}\".";
 
                 await InvokeAsync(() =>

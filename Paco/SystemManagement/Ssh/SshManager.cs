@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Security.Authentication;
 using System.Text;
 using Paco.Entities.Models;
 using Renci.SshNet;
@@ -11,12 +11,12 @@ namespace Paco.SystemManagement.Ssh
     {
         public static SshClient CreateSshClient(ManagedSystem system)
         {
-            var methods = new List<AuthenticationMethod>();
+            ConnectionInfo connectionInfo;
 
-            if (system.Password != null)
+            if (!string.IsNullOrEmpty(system.OneTimePassword) && !string.IsNullOrEmpty(system.OneTimeLogin))
             {
-                KeyboardInteractiveAuthenticationMethod keyboardAuth = new KeyboardInteractiveAuthenticationMethod(system.Login);
-                PasswordAuthenticationMethod passwordAuth = new PasswordAuthenticationMethod(system.Login, system.Password);
+                KeyboardInteractiveAuthenticationMethod keyboardAuth = new KeyboardInteractiveAuthenticationMethod(system.OneTimeLogin);
+                PasswordAuthenticationMethod passwordAuth = new PasswordAuthenticationMethod(system.OneTimeLogin, system.OneTimePassword);
 
                 keyboardAuth.AuthenticationPrompt += (sender, args) =>
                 {
@@ -24,21 +24,23 @@ namespace Paco.SystemManagement.Ssh
                     {
                         if (prompt.Request.IndexOf("Password:", StringComparison.InvariantCultureIgnoreCase) != -1)
                         {
-                            prompt.Response = system.Password;
+                            prompt.Response = system.OneTimePassword;
                         }
                     }
                 };
                 
-                methods.Add(keyboardAuth);
-                methods.Add(passwordAuth);
+                connectionInfo = new ConnectionInfo(system.Hostname, system.OneTimeLogin, keyboardAuth, passwordAuth);
+            }
+            else if (!string.IsNullOrEmpty(system.SshPrivateKey) && !string.IsNullOrEmpty(system.SshLogin))
+            {
+                PrivateKeyAuthenticationMethod pkMethod = new PrivateKeyAuthenticationMethod(system.SshLogin, new PrivateKeyFile(new MemoryStream(Encoding.UTF8.GetBytes(system.SshPrivateKey ?? string.Empty))));
+                connectionInfo = new ConnectionInfo(system.Hostname, system.SshLogin, pkMethod);
             }
             else
             {
-                PrivateKeyAuthenticationMethod pkMethod = new PrivateKeyAuthenticationMethod(system.Login, new PrivateKeyFile(new MemoryStream(Encoding.UTF8.GetBytes(system.SshPrivateKey ?? string.Empty))));
-                methods.Add(pkMethod);
+                throw new AuthenticationException("Could not create authentication for system.");
             }
 
-            ConnectionInfo connectionInfo = new ConnectionInfo(system.Hostname, system.Login, methods.ToArray());
 
             var client = new SshClient(connectionInfo);
 
@@ -46,6 +48,12 @@ namespace Paco.SystemManagement.Ssh
             {
                 var receivedFingerprint = new Fingerprint(hostKeyArgs.FingerPrint);
                 hostKeyArgs.CanTrust = system.Fingerprint.Matches(receivedFingerprint);
+                
+                if (string.IsNullOrEmpty(system.SystemFingerprint))
+                {
+                    system.SystemFingerprint = receivedFingerprint.Text;
+                    throw new AuthenticationException("System fingerprint was filled automatically.");
+                }
             };
             client.Connect();
 

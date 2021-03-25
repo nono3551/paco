@@ -208,8 +208,8 @@ namespace Paco.Repositories.Database
                 Name = "PermNone",
                 Hostname = "none.test.test",
                 Distribution = Distribution.FreeBsd,
-                Login = "test",
-                Password = "test",
+                OneTimeLogin = "test",
+                OneTimePassword = "test",
                 SshPrivateKey = null,
                 SystemFingerprint = Fingerprint.FingerprintPlaceholder
             };
@@ -220,8 +220,8 @@ namespace Paco.Repositories.Database
                 Name = "PermMultiple",
                 Hostname = "multiple.test.test",
                 Distribution = Distribution.FreeBsd,
-                Login = "test",
-                Password = "test",
+                OneTimeLogin = "test",
+                OneTimePassword = "test",
                 SshPrivateKey = null,
                 SystemFingerprint = Fingerprint.FingerprintPlaceholder
             };
