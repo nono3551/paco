@@ -31,8 +31,8 @@ namespace Paco.Entities.Models
         public DateTime? DeletedAt { get ; set ; }
         public Distribution Distribution { get; set; }
         
-        public bool NeedsInteraction { get; set; }
-        public string InteractionReason { get; set; }
+        public bool HasProblems { get; set; }
+        public string ProblemDescription { get; set; }
         public string SystemInformation { get; set; }
 
         [NotMapped]

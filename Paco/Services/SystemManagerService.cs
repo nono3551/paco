@@ -44,8 +44,8 @@ namespace Paco.Services
             }, managedSystem =>
             {
                 managedSystem.SystemInformation = JsonSerializer.Serialize(systemInformation);
-                managedSystem.NeedsInteraction &= updateNeedsInteraction;
-                managedSystem.InteractionReason = $"{managedSystem.NeedsInteraction}\n{interactionReason}";
+                managedSystem.HasProblems &= updateNeedsInteraction;
+                managedSystem.ProblemDescription = $"{managedSystem.HasProblems}\n\n{DateTime.UtcNow}\n{interactionReason}".Trim();
             });
         }
 
@@ -105,6 +105,7 @@ namespace Paco.Services
             }, managedSystem =>
             {
                 update.ScheduledActionStatus = ScheduledActionStatus.Failure;
+                _dbContextFactory.Upsert(update);
             });
         }
 
@@ -150,7 +151,7 @@ namespace Paco.Services
 
                 dbContext.Entry(system).Reload();
 
-                system.NeedsInteraction = false;
+                system.HasProblems = false;
 
                 system.LastAccessed = DateTime.UtcNow;
                 onSuccess(system);
@@ -159,8 +160,8 @@ namespace Paco.Services
             {
                 dbContext.Entry(system).Reload();
 
-                system.NeedsInteraction = true;
-                system.InteractionReason = $"{system.InteractionReason}\n{e.Message}";
+                system.HasProblems = true;
+                system.ProblemDescription = $"{system.ProblemDescription}\n\n {DateTime.UtcNow}\n{e.Message}".Trim();
 
                 _logger.LogError(e, "While executing work with {system}: {exception}", system.Name, e.Message);
 

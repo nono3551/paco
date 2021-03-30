@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Paco.Entities.Models.Updating;
 using Renci.SshNet;
 
@@ -30,12 +31,19 @@ namespace Paco.SystemManagement.FreeBsd.Commands
 
             if (!StillUpdating(sshClient, scheduledAction.GetSessionName()))
             {
-                sshClient.CreateCommand($"screen -dmS {scheduledAction.GetSessionName()} -L -Logfile {scheduledAction.GetLogFile()} sh -c '{nscdStop} echo \"y\" | sudo portmaster -ad {nscdStart}'" ).Execute();
+                sshClient.CreateCommand($"screen -dmS {scheduledAction.GetSessionName()} -L -Logfile {scheduledAction.GetLogFile()} sh -c '{nscdStop} echo \"y\" | sudo portmaster -ad {nscdStart} ; echo -n $?'" ).Execute();
             }
 
             while (StillUpdating(sshClient, scheduledAction.GetSessionName()))
             {
                 Thread.Sleep(10000);
+            }
+
+            var success = sshClient.CreateCommand($"tail -n 1 {scheduledAction.GetLogFile()}").Execute() == "0";
+
+            if (!success)
+            {
+                throw new ApplicationException($"Update of {scheduledAction.ManagedSystem.Name} was unsuccessful.");
             }
         }
 

@@ -14,8 +14,7 @@ namespace Paco.SystemManagement.FreeBsd.Commands
 
             if (!detailed)
             {
-                auditOutput = string.Join("\n",
-                    auditOutput.Split("\n\n").Select(packageInfo => packageInfo.Split("\n").First()));
+                auditOutput = string.Join("\n", auditOutput.Split("\n\n").Select(packageInfo => packageInfo.Split("\n").First()));
             }
 
             return auditOutput;
@@ -30,10 +29,9 @@ namespace Paco.SystemManagement.FreeBsd.Commands
         
         public static KeyValuePair<bool, string> PackagesActionsNeedsInteraction(SshClient sshClient)
         {
-            var reason = sshClient.CreateCommand("sudo portmaster -L ; echo $?").Execute();
-            var needs = reason.Replace("\n\n", "\n").Split('\n').Last(x => !string.IsNullOrEmpty(x)) != "0";
-
-            return new KeyValuePair<bool, string>(needs, reason);
+            var result = "sudo portmaster -L".ExecuteCommand(sshClient);
+            
+            return new KeyValuePair<bool, string>(!result.Success, result.Response);
         }
 
         public static void UpdatePortsCollection(SshClient sshClient)

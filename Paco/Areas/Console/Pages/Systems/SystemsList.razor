@@ -6,6 +6,7 @@
 @using Ancestor.Extensions
 @using Microsoft.EntityFrameworkCore
 @using Paco.Areas.Console.Pages.Systems.FreeBsd
+@using Paco.Entities
 @using Paco.Entities.Models
 @using Paco.Entities.Models.Identity
 @using Paco.Repositories.Database
@@ -32,7 +33,7 @@
     @foreach (var system in _systems)
     {
         var background = "";
-        if (system.NeedsInteraction)
+        if (system.HasProblems)
         {
             background = "error-background";
         }
@@ -76,43 +77,71 @@
                                         }
                                     }
                                 }
+                                if (system.HasProblems)
+                                {
+                                    <div class="row mb-2">
+                                        <div class="text-sm-right col-sm-3">
+                                            <b style="white-space: pre-line">Problems</b>
+                                        </div>
+                                        <div class="col">
+                                            <p style="white-space: pre-line">@system.ProblemDescription</p>
+                                        </div>
+                                    </div>
+                                }
                             }
 
 
-                            <div class="dropdown">
-                                <button class="btn btn-dark dropdown-toggle" type="button" id="actionsMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                                    More
+                            @if (system.Permissions.HasFlag(Permissions.Execute))
+                            {
+                                <div class="dropdown">
+                                    <button class="btn btn-dark dropdown-toggle" type="button" id="actionsMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                        More
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="actionsMenuButton">
+                                        <li>
+                                            <a class="dropdown-item" @onclick="() => RefreshSystemInformation(system)">Refresh</a>
+                                        </li>
+
+                                        @if (system.Permissions.HasFlag(Permissions.Write))
+                                        {
+                                            <li>
+                                                <a class="dropdown-item" @onclick="() => EditSystem(system)">Edit</a>
+                                            </li>
+                                            <li>
+                                                <hr class="dropdown-divider">
+                                            </li>
+                                        }
+                                        <li>
+                                            <a class="dropdown-item" @onclick="() => ListPackages(system)">List packages</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" @onclick="() => SchedulePackagesActions(system)">Schedule packages actions</a>
+                                        </li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" @onclick="() => ViewSchedule(system)">View schedule</a>
+                                        </li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" @onclick="() => ClearProblems(system)">Clear problems</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item btn-danger" @onclick="() => DeleteSystem(system)">Delete</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            }
+                            else if (system.Permissions.HasFlag(Permissions.Write))
+                            {
+                                <button class="btn btn-dark" @onclick="() => EditSystem(system)" type="button" id="edit" aria-expanded="false">
+                                    Edit
                                 </button>
-                                <ul class="dropdown-menu" aria-labelledby="actionsMenuButton">
-                                    <li>
-                                        <a class="dropdown-item" @onclick="() => RefreshSystemInformation(system)">Refresh</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" @onclick="() => EditSystem(system)">Edit</a>
-                                    </li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" @onclick="() => ListPackages(system)">List packages</a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" @onclick="() => SchedulePackagesActions(system)">Schedule packages actions</a>
-                                    </li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" @onclick="() => ViewSchedule(system)">View schedule</a>
-                                    </li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item btn-danger" @onclick="() => DeleteSystem(system)">Delete</a>
-                                    </li>
-                                </ul>
-                            </div>
+                            }
+
                         </div>
                     </div>
                 </td>
@@ -203,5 +232,14 @@
     private void ListPackages(ManagedSystem system)
     {
         _freeBsdPackagesViewer.ShowModal(system);
+    }
+
+    private void ClearProblems(ManagedSystem system)
+    {
+        system.HasProblems = false;
+        system.ProblemDescription = null;
+
+        DbContextFactory.Upsert(system);
+        StateHasChanged();
     }
 }
