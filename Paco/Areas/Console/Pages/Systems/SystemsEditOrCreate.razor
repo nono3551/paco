@@ -21,7 +21,11 @@
 
 @if (_loaded)
 {
-    if (IsAdd || _system?.Permissions.HasFlag(Permissions.Write) == true)
+    if (IsAdd && @_canAddNewSystem)
+    {
+        <h2>Unauthorized</h2>
+    }
+    else if (IsAdd || _system?.Permissions.HasFlag(Permissions.Write) == true)
     {
         if (IsAdd)
         {
@@ -85,6 +89,8 @@
 
     private ManagedSystem _system;
 
+    private bool _canAddNewSystem = false;
+
     protected override async Task OnInitializedAsync()
     {
         if (SystemId == null)
@@ -96,6 +102,8 @@
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var user = await UserManager.GetUserAsync(authState.User);
 
+            _canAddNewSystem = authState.User.IsInRole("Administrator");
+            
             await using var dbContext = DbContextFactory.CreateDbContext();
             _system = dbContext.ManagedSystems.GetManagedSystemForUserWithPermissions(SystemId.Value, user);
         }
