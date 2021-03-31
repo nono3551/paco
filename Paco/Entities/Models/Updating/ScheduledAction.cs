@@ -21,5 +21,8 @@ namespace Paco.Entities.Models.Updating
         public DateTime? DeletedAt { get ; set ; }
         
         public ManagedSystem ManagedSystem { get; set; }
+
+        public string FreeBsdSessionName => $"paco.{Id}";
+        public string FreeBsdLogPath => $"/tmp/{FreeBsdSessionName}.log";
     }
 }

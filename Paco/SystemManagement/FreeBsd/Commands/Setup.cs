@@ -9,7 +9,8 @@ namespace Paco.SystemManagement.FreeBsd.Commands
         public const string Username = "paco";
         private const string Homedir = "/usr/home/paco";
 
-        private const string SudoPrivileges = "paco ALL=NOPASSWD: /usr/sbin/portsnap\n" +
+        private const string SudoPrivileges = "Defaults:paco env_keep+=PAGER\n" + 
+                                              "paco ALL=NOPASSWD: /usr/sbin/portsnap\n" +
                                               "paco ALL=NOPASSWD: /usr/local/sbin/portmaster\n" +
                                               "paco ALL=NOPASSWD: /usr/sbin/pkg\n" +
                                               "paco ALL=NOPASSWD: /usr/local/sbin/pkg\n" +

@@ -202,32 +202,7 @@ namespace Paco.Repositories.Database
             };
             builder.Entity<User>().HasData(user);
 
-            var system1 = new ManagedSystem()
-            {
-                Id = Guid.NewGuid(),
-                Name = "PermNone",
-                Hostname = "none.test.test",
-                Distribution = Distribution.FreeBsd,
-                OneTimeLogin = "test",
-                OneTimePassword = "test",
-                SshPrivateKey = null,
-                SystemFingerprint = Fingerprint.FingerprintPlaceholder
-            };
-
-            var system2 = new ManagedSystem()
-            {
-                Id = Guid.NewGuid(),
-                Name = "PermMultiple",
-                Hostname = "multiple.test.test",
-                Distribution = Distribution.FreeBsd,
-                OneTimeLogin = "test",
-                OneTimePassword = "test",
-                SshPrivateKey = null,
-                SystemFingerprint = Fingerprint.FingerprintPlaceholder
-            };
-            builder.Entity<ManagedSystem>().HasData(system1);
-            builder.Entity<ManagedSystem>().HasData(system2);
-
+            
             var role = new Role {Id = Guid.NewGuid(), Name = "Administrator", NormalizedName = "ADMINISTRATOR"};
             builder.Entity<Role>().HasData(role);
 
@@ -236,20 +211,6 @@ namespace Paco.Repositories.Database
                 Id = Guid.NewGuid(),
                 RoleId = role.Id,
                 UserId = user.Id
-            });
-
-            builder.Entity<RoleManagedSystemPermissions>().HasData(new RoleManagedSystemPermissions()
-            {
-                Id = Guid.NewGuid(),
-                RoleId = role.Id,
-                ManagedSystemId = system1.Id,
-                Permissions = Permissions.None
-            }, new RoleManagedSystemPermissions()
-            {
-                Id = Guid.NewGuid(),
-                RoleId = role.Id,
-                ManagedSystemId = system2.Id,
-                Permissions = Permissions.Read | Permissions.Execute | Permissions.Write
             });
         }
     }

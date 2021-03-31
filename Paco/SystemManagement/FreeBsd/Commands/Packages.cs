@@ -7,54 +7,35 @@ namespace Paco.SystemManagement.FreeBsd.Commands
 {
     public static class Packages
     {
-        private static string GetLogFile(this ScheduledAction action)
-        {
-            return $"/tmp/{action.GetSessionName()}.log";
-        }
-        
-        private static string GetSessionName(this ScheduledAction action)
-        {
-            return $"paco.update.{action.Id}";
-        }
-
         public static void UpdatePackages(SshClient sshClient, ScheduledAction scheduledAction)
         {
-            
             var nscdStop = "";
             var nscdStart = "";
+
+            var resultKey = $"{scheduledAction.FreeBsdSessionName} finished with result ";
             
             if ("sudo /usr/sbin/service nscd status".ExecuteCommand(sshClient).Response.Contains("nscd is running as pid"))
             {
-                nscdStart = "; sudo /usr/sbin/service nscd start ;";
-                nscdStop = "; sudo /usr/sbin/service nscd stop ;";
+                nscdStart = "sudo /usr/sbin/service nscd start";
+                nscdStop = "sudo /usr/sbin/service nscd stop";
             }
 
-            if (!StillUpdating(sshClient, scheduledAction.GetSessionName()))
+            if (!Screen.Exists(sshClient, scheduledAction))
             {
-                sshClient.CreateCommand($"screen -dmS {scheduledAction.GetSessionName()} -L -Logfile {scheduledAction.GetLogFile()} sh -c '{nscdStop} echo \"y\" | sudo portmaster -ad {nscdStart} ; echo -n $?'" ).Execute();
+                Screen.StartScheduledActionCommand(sshClient, scheduledAction, $"{nscdStop} ; echo \"y\" | sudo portmaster -ad ; echo {resultKey}$? ; {nscdStart} ; ");
             }
 
-            while (StillUpdating(sshClient, scheduledAction.GetSessionName()))
+            while (Screen.Exists(sshClient, scheduledAction))
             {
                 Thread.Sleep(10000);
             }
 
-            var success = sshClient.CreateCommand($"tail -n 1 {scheduledAction.GetLogFile()}").Execute() == "0";
+            var success = sshClient.CreateCommand($"tail -n 100 {scheduledAction.FreeBsdLogPath} | grep \"{resultKey}\"").Execute().Replace(resultKey, "").Trim() == "0";
 
             if (!success)
             {
-                throw new ApplicationException($"Update of {scheduledAction.ManagedSystem.Name} was unsuccessful.");
+                throw new ApplicationException($"Packages action execution of {scheduledAction.ManagedSystem.Name} was unsuccessful.");
             }
-        }
-
-        private static bool StillUpdating(SshClient sshClient, string sessionName)
-        {
-            return sshClient.CreateCommand("screen -list").Execute().Contains(sessionName);
-        }
-
-        public static string GetScheduledActionDetail(SshClient sshClient, ScheduledAction scheduledAction)
-        {
-            return sshClient.CreateCommand($"tail -n 10 {scheduledAction.GetLogFile()} | sed -r \"s/\\x1B\\[([0-9]{{1,2}}(;[0-9]{{1,2}})?)?[mGK]//g\" | sed \"s/\\x0f//g\"").Execute();
         }
     }
 }

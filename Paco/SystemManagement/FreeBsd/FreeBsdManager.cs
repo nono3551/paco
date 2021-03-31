@@ -1,4 +1,5 @@
-﻿using Paco.SystemManagement.FreeBsd.Commands;
+﻿using System;
+using Paco.SystemManagement.FreeBsd.Commands;
 using System.Collections.Generic;
 using System.Linq;
 using Paco.Entities;
@@ -10,7 +11,7 @@ namespace Paco.SystemManagement.FreeBsd
 {
     public class FreeBsdManager : ISystemManager
     {
-        public ManagedSystem System { get; }
+        private ManagedSystem System { get; }
 
         public FreeBsdManager(ManagedSystem system)
         {
@@ -35,7 +36,8 @@ namespace Paco.SystemManagement.FreeBsd
 
             var packagesActions = ActionsProvider.GetPackagesActions(client).ToList();
 
-            System.PackageActions = packagesActions.Count();
+            System.PackageActions = packagesActions.Count;
+            System.UpdatesFetchedAt = DateTime.Now;
             
             return new Dictionary<string, string>
             {
@@ -45,12 +47,6 @@ namespace Paco.SystemManagement.FreeBsd
                 { "Vulnerable packages", Audit.GetVulnerablePackages(client) },
                 { $"Packages actions ({System.PackageActions})", string.Join("\n", packagesActions)},
             };
-        }
-
-        public KeyValuePair<bool, string> PackagesActionsNeedsInteraction()
-        {
-            using var client = SshManager.CreateSshClient(System);
-            return Audit.PackagesActionsNeedsInteraction(client);
         }
 
         public void PreparePackagesActions(List<object> actions)
@@ -66,19 +62,16 @@ namespace Paco.SystemManagement.FreeBsd
             {
                 Packages.UpdatePackages(client, scheduledAction);
             }
+            else if (scheduledAction.ScheduledActionType == ScheduledActionType.System)
+            {
+                SystemUpdate.ExecuteUpdate(client, scheduledAction);
+            }
         }
 
         public string GetScheduledActionDetails(ScheduledAction scheduledAction)
         {
             using var client = SshManager.CreateSshClient(System);
-            if (scheduledAction.ScheduledActionType == ScheduledActionType.Packages)
-            {
-                return Packages.GetScheduledActionDetail(client, scheduledAction);
-            }
-            else
-            {
-                return "Not yet supported";
-            }
+            return Screen.GetScreenOutput(client, scheduledAction);
         }
 
         public List<PackageInformation> GetPackagesList()
@@ -87,16 +80,17 @@ namespace Paco.SystemManagement.FreeBsd
             return Audit.ListAllPackages(client);
         }
 
+        public SystemUpdateInfo GetSystemUpdateInfo()
+        {
+            using var client = SshManager.CreateSshClient(System);
+            return SystemUpdate.GetUpdateInfo(client);
+        }
+
         public List<object> GetPackagesActions()
         {
             using var client = SshManager.CreateSshClient(System);
             var actions = ActionsProvider.GetPackagesActions(client);
             return new List<object>(actions);
-        }
-
-        public bool IsSystemUpdateAvailable()
-        {
-            return new CheckVersion().IsNewVersionVersionAvailable(SshManager.CreateSshClient(System));
         }
     }
 }

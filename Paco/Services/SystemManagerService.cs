@@ -33,19 +33,13 @@ namespace Paco.Services
             _logger.LogInformation("Refreshing system information for {system}.", system.Name);
 
             Dictionary<string, string> systemInformation = null;
-            bool updateNeedsInteraction = false;
-            string interactionReason = null;
 
             ExecuteWorkWithSystem(system, managedSystem =>
             {
-                var distribution = managedSystem.GetDistributionManager();
-                systemInformation = distribution.GetSystemInformation();
-                (updateNeedsInteraction, interactionReason) = distribution.PackagesActionsNeedsInteraction();
+                systemInformation = managedSystem.GetDistributionManager().GetSystemInformation();
             }, managedSystem =>
             {
                 managedSystem.SystemInformation = JsonSerializer.Serialize(systemInformation);
-                managedSystem.HasProblems &= updateNeedsInteraction;
-                managedSystem.ProblemDescription = $"{managedSystem.HasProblems}\n\n{DateTime.UtcNow}\n{interactionReason}".Trim();
             });
         }
 
@@ -122,7 +116,7 @@ namespace Paco.Services
             });
         }
 
-        public string GetUpdateDetails(ScheduledAction scheduledAction)
+        public string GetScheduledActionDetails(ScheduledAction scheduledAction)
         {
             var result = "Could not retrieve scheduled action details.";
             
@@ -140,7 +134,7 @@ namespace Paco.Services
         
         private void ExecuteWorkWithSystem(ManagedSystem system,
             Action<ManagedSystem> action,
-            Action<ManagedSystem> onSuccess,
+            Action<ManagedSystem> onSuccess = null,
             Action<ManagedSystem> onFailure = null)
         {
             using var dbContext = _dbContextFactory.CreateDbContext();
@@ -154,7 +148,7 @@ namespace Paco.Services
                 system.HasProblems = false;
 
                 system.LastAccessed = DateTime.UtcNow;
-                onSuccess(system);
+                onSuccess?.Invoke(system);
             }
             catch (Exception e)
             {
@@ -174,6 +168,20 @@ namespace Paco.Services
                 dbContext.Update(system);
                 dbContext.SaveChanges();
             }
+        }
+
+        public SystemUpdateInfo GetSystemUpdateInfo(ManagedSystem system)
+        {
+            _logger.LogInformation("Getting update info for {system}.", system.Name);
+                
+            SystemUpdateInfo updateInfo = null;
+            
+            ExecuteWorkWithSystem(system, managedSystem =>
+            {
+                updateInfo = managedSystem.GetDistributionManager().GetSystemUpdateInfo();
+            });
+
+            return updateInfo;
         }
     }
 }

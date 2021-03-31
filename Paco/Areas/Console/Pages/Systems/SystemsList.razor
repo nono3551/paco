@@ -118,6 +118,9 @@
                                             <a class="dropdown-item" @onclick="() => SchedulePackagesActions(system)">Schedule packages actions</a>
                                         </li>
                                         <li>
+                                            <a class="dropdown-item" @onclick="() => ScheduleSystemUpdate(system)">Schedule system update</a>
+                                        </li>
+                                        <li>
                                             <hr class="dropdown-divider">
                                         </li>
                                         <li>
@@ -152,6 +155,7 @@
 </table>
 
 <FreeBsdPackagesActionsScheduler @ref="@_freeBsdPackagesActionsScheduler"/>
+<FreeBsdSystemUpdateScheduler @ref="@_freeBsdSystemUpdateScheduler"/>
 <FreeBsdScheduleViewer @ref="@_freeBsdScheduleViewer"/>
 <FreeBsdPackagesViewer @ref="@_freeBsdPackagesViewer"/>
 <ExecutionModal @ref="@_executionModal"/>
@@ -161,6 +165,7 @@
     private List<ManagedSystem> _systems = new();
     private readonly List<ManagedSystem> _systemsWithDetailOpened = new();
 
+    private FreeBsdSystemUpdateScheduler _freeBsdSystemUpdateScheduler;
     private FreeBsdPackagesActionsScheduler _freeBsdPackagesActionsScheduler;
     private FreeBsdScheduleViewer _freeBsdScheduleViewer;
     private FreeBsdPackagesViewer _freeBsdPackagesViewer;
@@ -220,6 +225,14 @@
         if (system.Distribution == Distribution.FreeBsd)
         {
             _freeBsdPackagesActionsScheduler.ShowModal(system);
+        }
+    }
+    
+    private void ScheduleSystemUpdate(ManagedSystem system)
+    {
+        if (system.Distribution == Distribution.FreeBsd)
+        {
+            _freeBsdSystemUpdateScheduler.ShowModal(system);
         }
     }
 

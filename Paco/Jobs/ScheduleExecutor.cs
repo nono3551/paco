@@ -41,11 +41,11 @@ namespace Paco.Jobs
                 _logger.LogInformation("Schedule execution started.");
 
                 using IServiceScope workScope = _serviceScopeFactory.CreateScope();
-                
+
                 SystemManagerService manager = workScope
                     .ServiceProvider
                     .GetRequiredService<SystemManagerService>();
-                
+
                 var updates = workScope
                     .ServiceProvider
                     .GetRequiredService<ApplicationDbContext>()
@@ -54,30 +54,43 @@ namespace Paco.Jobs
 
                 _logger.LogInformation($"Scheduler found {updates.Count()} actions.");
 
-                Parallel.ForEach(updates, (update) =>
+                Parallel.ForEach(updates, async (update) =>
                 {
+                    var alreadyWatching = false;
                     try
                     {
-                        if (update.ScheduledActionType == ScheduledActionType.Packages)
+                        lock (_lock)
                         {
-                            lock (_lock)
+                            if (!_startedActions.Contains(update.Id))
                             {
-                                if (!_startedActions.Contains(update.Id))
-                                {
-                                    _startedActions.Add(update.Id);
-                                    manager.ExecuteScheduledAction(update);
-                                }
+                                _startedActions.Add(update.Id);
                             }
+                            else
+                            {
+                                alreadyWatching = true;
+                            }
+                        }
+
+                        if (!alreadyWatching)
+                        {
+                            await Task.Run(() =>
+                            {
+                                manager.ExecuteScheduledAction(update);
+                            });
                         }
                     }
                     catch (Exception exception)
                     {
-                        _logger.LogError(exception, "While trying to execute update {updateId}: {exception}", update.Id, exception.Message);
+                        _logger.LogError(exception, "While trying to execute update {updateId}: {exception}", update.Id,
+                            exception.Message);
                     }
 
-                    lock (_lock)
+                    if (!alreadyWatching)
                     {
-                        _startedActions.Remove(update.Id);
+                        lock (_lock)
+                        {
+                            _startedActions.Remove(update.Id);
+                        }
                     }
                 });
             }

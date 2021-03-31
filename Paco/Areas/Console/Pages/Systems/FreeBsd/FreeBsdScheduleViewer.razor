@@ -80,6 +80,7 @@
 
                     <!-- Modal footer -->
                     <div class="modal-footer">
+                        <button type="button" class="btn btn-dark" @onclick="@Refresh">Refresh</button>
                         <button type="button" class="btn" @onclick="@CloseModal">Close</button>
                     </div>
                 </div>
@@ -121,7 +122,7 @@
         _executionModal.ExecuteOperation(() =>
         {
             _detailsText = null;
-            _detailsText = SystemManagerService.GetUpdateDetails(scheduledAction);
+            _detailsText = SystemManagerService.GetScheduledActionDetails(scheduledAction);
 
             StateHasChanged();
         });
@@ -138,5 +139,10 @@
     {
         _detailsText = null;
         StateHasChanged();
+    }
+
+    private void Refresh()
+    {
+        Show(_system);
     }
 }
