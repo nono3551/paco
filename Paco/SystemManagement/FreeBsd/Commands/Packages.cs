@@ -16,13 +16,13 @@ namespace Paco.SystemManagement.FreeBsd.Commands
             
             if ("sudo /usr/sbin/service nscd status".ExecuteCommand(sshClient).Response.Contains("nscd is running as pid"))
             {
-                nscdStart = "sudo /usr/sbin/service nscd start";
-                nscdStop = "sudo /usr/sbin/service nscd stop";
+                nscdStart = " ; sudo /usr/sbin/service nscd start";
+                nscdStop = "sudo /usr/sbin/service nscd stop ; ";
             }
 
             if (!Screen.Exists(sshClient, scheduledAction))
             {
-                Screen.StartScheduledActionCommand(sshClient, scheduledAction, $"{nscdStop} ; echo \"y\" | sudo portmaster -ad ; echo {resultKey}$? ; {nscdStart} ; ");
+                Screen.StartScheduledActionCommand(sshClient, scheduledAction, $"{nscdStop} PAGER=cat echo \"y\" | sudo portmaster -ad ; echo {resultKey}$? {nscdStart}");
             }
 
             while (Screen.Exists(sshClient, scheduledAction))

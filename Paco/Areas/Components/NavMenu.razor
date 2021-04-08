@@ -75,7 +75,7 @@
                 </AuthorizeView>
                 <li class="nav-item px-3">
                     <NavLink class="nav-link px-3" href="Identity/Account/Manage">
-                        <span class="oi oi-person" aria-hidden="true"></span> @context.User.Identity.Name
+                        <span class="oi oi-person" aria-hidden="true"></span> @context.User.Identity?.Name?.Split("@").First()
                     </NavLink>
                 </li>
             </ul>

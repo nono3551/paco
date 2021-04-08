@@ -12,14 +12,14 @@ using Timer = System.Threading.Timer;
 
 namespace Paco.Jobs
 {
-    public class Fetcher : IHostedService
+    public class Refresher : IHostedService
     {
-        private readonly ILogger<Fetcher> _logger;
+        private readonly ILogger<Refresher> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private Timer _timer;
         private volatile bool _isTimerRunning;
 
-        public Fetcher(ILogger<Fetcher> logger, IServiceScopeFactory serviceScopeFactory)
+        public Refresher(ILogger<Refresher> logger, IServiceScopeFactory serviceScopeFactory)
         {
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
@@ -66,7 +66,7 @@ namespace Paco.Jobs
                 finally
                 {
                     _isTimerRunning = false;
-                    _logger.LogError("Refresher finished.");
+                    _logger.LogInformation("Refresher finished.");
                 }
             }
         }

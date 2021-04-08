@@ -19,8 +19,9 @@ namespace Paco
                     webBuilder.UseStartup<Startup>();
                 }).ConfigureServices(services =>
                 {
-                    services.AddHostedService<Fetcher>();
+                    services.AddHostedService<Refresher>();
                     services.AddHostedService<ScheduleExecutor>();
+                    services.AddHostedService<EmailSender>();
                 });
     }
 }

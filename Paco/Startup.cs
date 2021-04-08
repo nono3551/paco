@@ -61,7 +61,7 @@ namespace Paco
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddScoped<IEmailSender>(configure => new EmailService());
+            services.AddSingleton<EmailQueueService>();
 
             services.AddRazorPages().AddRazorPagesOptions(options => 
             { 

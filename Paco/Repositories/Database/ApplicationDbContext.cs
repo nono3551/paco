@@ -25,6 +25,8 @@ namespace Paco.Repositories.Database
         public DbSet<ManagedSystemManagedSystemGroup> ManagedSystemManagedSystemGroups { get; set; }
         public DbSet<RoleManagedSystemGroupPermissions> RoleManagedSystemGroupPermissions { get; set; }
         public DbSet<ScheduledAction> ScheduledActions { get; set; }
+        public DbSet<QueuedEmail> QueuedEmails { get; set; }
+        public DbSet<EmailRecipient> EmailRecipients { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ILoggerFactory loggerFactory): base(options)
         {
@@ -120,6 +122,11 @@ namespace Paco.Repositories.Database
                 .WithMany(ms => ms.ScheduledActions)
                 .HasForeignKey(su => su.ManagedSystemId);
             
+            builder.Entity<ScheduledAction>()
+                .HasOne(su => su.ScheduledBy)
+                .WithMany(ms => ms.ActionsScheduled)
+                .HasForeignKey(su => su.ScheduledById);
+            
             builder.Entity<User>()
                 .HasMany(u => u.Roles)
                 .WithMany(r => r.Users)
@@ -165,6 +172,23 @@ namespace Paco.Repositories.Database
                     {
                         typeBuilder.HasKey(ur => new { ur.Id, ur.ManagedSystemId, ur.ManagedSystemGroupId });
                     });
+
+            builder.Entity<QueuedEmail>()
+                .HasMany(r => r.Recipients)
+                .WithMany(r => r.QueuedEmails)
+                .UsingEntity<EmailRecipient>(
+                    typeBuilder => typeBuilder
+                        .HasOne(ur => ur.Recipient)
+                        .WithMany(p => p.EmailRecipientUser)
+                        .HasForeignKey(pt => pt.UserId),
+                    typeBuilder => typeBuilder
+                        .HasOne(ur => ur.QueuedEmail)
+                        .WithMany(t => t.EmailRecipients)
+                        .HasForeignKey(ur => ur.QueuedEmailId),
+                    typeBuilder =>
+                    {
+                        typeBuilder.HasKey(ur => new { ur.Id });
+                    });
         }
 
         private void SetupQueryFilters(ModelBuilder builder)
@@ -183,17 +207,22 @@ namespace Paco.Repositories.Database
             builder.Entity<ManagedSystemManagedSystemGroup>().HasQueryFilter(p => p.DeletedAt == null);
             builder.Entity<RoleManagedSystemGroupPermissions>().HasQueryFilter(p => p.DeletedAt == null);
             builder.Entity<ScheduledAction>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<QueuedEmail>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<EmailRecipient>().HasQueryFilter(p => p.DeletedAt == null);
         }
 
         private void SeedDatabase(ModelBuilder builder)
         {
+            var email = "michal.zahradnik@backbone.sk";
+            var emailUpper = email.ToUpper();
+            
             var user = new User
             {
                 Id = Guid.NewGuid(),
-                UserName = "asd@asd.asd",
-                Email = "asd@asd.asd",
-                NormalizedEmail = "ASD@ASD.ASD",
-                NormalizedUserName = "ASD@ASD.ASD",
+                UserName = email,
+                Email = email,
+                NormalizedEmail = emailUpper,
+                NormalizedUserName = emailUpper,
                 PasswordHash = "AQAAAAEAACcQAAAAEJdyASTL66Dd+IQPIPJsne7GQnFQ+H8G7ngSPb5+OUNH8+PU7YuCzPjjLMvj947dcg==",
                 SecurityStamp = "JBIW2JAV2THPAPR3NGHSE3ZVXUCHEBPU",
                 ConcurrencyStamp = "34acbb54-9ae3-4742-af3c-89de44e306e0",

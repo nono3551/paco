@@ -14,6 +14,7 @@ namespace Paco.Repositories.Database
             return updates
                 .Where(x => x.ScheduledAt <= DateTime.Now && (x.ScheduledActionStatus == ScheduledActionStatus.Queued || x.ScheduledActionStatus == ScheduledActionStatus.Started))
                 .Include(x => x.ManagedSystem)
+                .Include(x => x.ScheduledBy)
                 .ToList();
         }
         

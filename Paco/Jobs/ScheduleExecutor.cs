@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Paco.Entities.Models.Identity;
 using Paco.Entities.Models.Updating;
 using Paco.Repositories.Database;
 using Paco.Services;
@@ -19,12 +20,14 @@ namespace Paco.Jobs
         private readonly List<Guid> _startedActions = new();
         private readonly ILogger<ScheduleExecutor> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly EmailQueueService _emailQueueService;
         private Timer _timer;
 
-        public ScheduleExecutor(ILogger<ScheduleExecutor> logger, IServiceScopeFactory serviceScopeFactory)
+        public ScheduleExecutor(ILogger<ScheduleExecutor> logger, IServiceScopeFactory serviceScopeFactory, EmailQueueService emailQueueService)
         {
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
+            _emailQueueService = emailQueueService;
         }
 
         public Task StartAsync(CancellationToken stoppingToken)
@@ -46,11 +49,9 @@ namespace Paco.Jobs
                     .ServiceProvider
                     .GetRequiredService<SystemManagerService>();
 
-                var updates = workScope
-                    .ServiceProvider
-                    .GetRequiredService<ApplicationDbContext>()
-                    .ScheduledActions
-                    .GetQueuedAndStartedScheduledActions();
+                var dbContext = workScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                var updates = dbContext.ScheduledActions.GetQueuedAndStartedScheduledActions();
+                var administrators = dbContext.Users.GetAllAdministrators();
 
                 _logger.LogInformation($"Scheduler found {updates.Count()} actions.");
 
@@ -75,14 +76,14 @@ namespace Paco.Jobs
                         {
                             await Task.Run(() =>
                             {
+                                _emailQueueService.ScheduledActionEmail(update);
                                 manager.ExecuteScheduledAction(update);
                             });
                         }
                     }
                     catch (Exception exception)
                     {
-                        _logger.LogError(exception, "While trying to execute update {updateId}: {exception}", update.Id,
-                            exception.Message);
+                        _logger.LogError(exception, "While trying to execute update {updateId}: {exception}", update.Id, exception.Message);
                     }
 
                     if (!alreadyWatching)
@@ -90,6 +91,7 @@ namespace Paco.Jobs
                         lock (_lock)
                         {
                             _startedActions.Remove(update.Id);
+                            _emailQueueService.ScheduledActionEmail(update);
                         }
                     }
                 });

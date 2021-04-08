@@ -3,15 +3,18 @@
 @using Paco.Entities.FreeBsd
 @using System.ComponentModel.DataAnnotations
 @using System.Globalization
+@using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
 @using Paco.Entities.FreeBsd.PackagesActions
 @using Paco.Entities.Models.Updating
 @using Paco.Repositories.Database
-@using Sentry.Protocol
+@using User = Paco.Entities.Models.Identity.User
 
 @inject SystemManagerService SystemManagerService
 @inject IJSRuntime JsRuntime
 @inject IDbContextFactory<ApplicationDbContext> DbContextFactory
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject UserManager<User> UserManager
 
 @if (_showModal)
 {
@@ -255,11 +258,15 @@
     {
         _executionModal.ExecuteOperation(async () =>
         {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = await UserManager.GetUserAsync(authState.User);
+            
             var packagesAction = new ScheduledAction()
             {
                 ScheduledActionType = ScheduledActionType.Packages,
                 ScheduledAt = _scheduleDate + _scheduleTime + TimeSpan.FromMinutes(await JsRuntime.InvokeAsync<int>("blazorGetTimezoneOffset")),
-                ManagedSystemId = _system.Id
+                ManagedSystemId = _system.Id,
+                ScheduledById = user.Id
             };
 
             DbContextFactory.Upsert(packagesAction);

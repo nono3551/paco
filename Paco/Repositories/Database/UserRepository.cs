@@ -24,5 +24,10 @@ namespace Paco.Repositories.Database
                 .OrderBy(x => x.UserName)
                 .ToList();
         }
+
+        public static List<User> GetAllAdministrators(this DbSet<User> users)
+        {
+            return users.Where(x => x.EmailNotifications && x.Roles.Any(r => r.NormalizedName == "ADMINISTRATOR")).ToList();
+        }
     }
 }

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Paco.Repositories.Database;
 
 namespace Paco.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210407165639_SentAt")]
+    partial class SentAt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -93,8 +95,8 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("9029f7c6-f6d0-4265-842b-30a85b250f56"),
-                            ConcurrencyStamp = "397e9bbe-0340-4306-afb7-d6f88527e87b",
+                            Id = new Guid("8fc9b9c9-b82f-4ebc-baaa-f748a33a68fb"),
+                            ConcurrencyStamp = "444f297b-8f7f-4b25-90d4-7b4f85846299",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         });
@@ -212,7 +214,7 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("182ffe8e-efd0-4e32-8bbc-9f0581b8e3ff"),
+                            Id = new Guid("5ef9019f-0773-4176-86df-db1cd8b993c1"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "34acbb54-9ae3-4742-af3c-89de44e306e0",
                             Email = "michal.zahradnik@backbone.sk",
@@ -323,9 +325,9 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("f3e3f342-8211-4131-8ca4-99ccaefde5fa"),
-                            UserId = new Guid("182ffe8e-efd0-4e32-8bbc-9f0581b8e3ff"),
-                            RoleId = new Guid("9029f7c6-f6d0-4265-842b-30a85b250f56")
+                            Id = new Guid("3d94ddb2-d810-48d5-b982-a62b54e5ec6e"),
+                            UserId = new Guid("5ef9019f-0773-4176-86df-db1cd8b993c1"),
+                            RoleId = new Guid("8fc9b9c9-b82f-4ebc-baaa-f748a33a68fb")
                         });
                 });
 
