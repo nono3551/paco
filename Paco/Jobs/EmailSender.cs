@@ -31,11 +31,6 @@ namespace Paco.Jobs
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
             Configuration = configuration;
-            
-            var smtpOptions = new SmtpOptions();
-            Configuration.GetSection(SmtpOptions.Smtp).Bind(smtpOptions);
-
-            var i = 1;
         }
 
         public Task StartAsync(CancellationToken stoppingToken)

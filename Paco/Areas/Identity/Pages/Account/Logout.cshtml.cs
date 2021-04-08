@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -23,22 +20,27 @@ namespace Paco.Areas.Identity.Pages.Account
             _logger = logger;
         }
 
-        public void OnGet()
+        public async Task<IActionResult> OnGet(string returnUrl = null)
         {
+            return await Logout(returnUrl);
         }
 
         public async Task<IActionResult> OnPost(string returnUrl = null)
         {
-            await _signInManager.SignOutAsync();
-            _logger.LogInformation("User logged out.");
-            if (returnUrl != null)
+            return await Logout(returnUrl);
+        }
+
+        private async Task<IActionResult> Logout(string returnUrl = null)
+        {
+            returnUrl ??= Url.Content("~/");
+
+            if (_signInManager.IsSignedIn(HttpContext.User))
             {
-                return LocalRedirect(returnUrl);
+                await _signInManager.SignOutAsync();
+                _logger.LogInformation("User logged out.");
             }
-            else
-            {
-                return RedirectToPage();
-            }
+            
+            return LocalRedirect(returnUrl);
         }
     }
 }
