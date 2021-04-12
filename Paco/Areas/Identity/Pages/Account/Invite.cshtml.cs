@@ -125,6 +125,9 @@ namespace Paco.Areas.Identity.Pages.Account
                 return Page();
             }
 
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var confirmResult = _userManager.ConfirmEmailAsync(user, code);
+
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your password has been set.";
 
