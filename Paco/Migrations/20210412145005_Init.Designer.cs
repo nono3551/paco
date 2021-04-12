@@ -10,7 +10,7 @@ using Paco.Repositories.Database;
 namespace Paco.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210407163638_Init")]
+    [Migration("20210412145005_Init")]
     partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -95,8 +95,8 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("85e31306-d9e2-4e2c-baec-d07e7a0685bf"),
-                            ConcurrencyStamp = "043faf98-3ecb-4a1a-bb39-b6db80df878c",
+                            Id = new Guid("5906f4b6-e160-4c50-888e-f9a450e3c8b5"),
+                            ConcurrencyStamp = "df55248f-ee97-4d42-9f49-f69138d3443d",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         });
@@ -214,20 +214,20 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("30ef7f2a-e239-40ae-9b06-b1dab04bf461"),
+                            Id = new Guid("dbb44967-8708-4aac-9d97-f27efcb3ff01"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "34acbb54-9ae3-4742-af3c-89de44e306e0",
-                            Email = "asd@asd.asd",
+                            Email = "michal.zahradnik@backbone.sk",
                             EmailConfirmed = true,
                             EmailNotifications = true,
                             LockoutEnabled = true,
-                            NormalizedEmail = "ASD@ASD.ASD",
-                            NormalizedUserName = "ASD@ASD.ASD",
+                            NormalizedEmail = "MICHAL.ZAHRADNIK@BACKBONE.SK",
+                            NormalizedUserName = "MICHAL.ZAHRADNIK@BACKBONE.SK",
                             PasswordHash = "AQAAAAEAACcQAAAAEJdyASTL66Dd+IQPIPJsne7GQnFQ+H8G7ngSPb5+OUNH8+PU7YuCzPjjLMvj947dcg==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "JBIW2JAV2THPAPR3NGHSE3ZVXUCHEBPU",
                             TwoFactorEnabled = false,
-                            UserName = "asd@asd.asd"
+                            UserName = "michal.zahradnik@backbone.sk"
                         });
                 });
 
@@ -325,9 +325,9 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("6da139c2-f794-41f3-9176-7dcf7c40f515"),
-                            UserId = new Guid("30ef7f2a-e239-40ae-9b06-b1dab04bf461"),
-                            RoleId = new Guid("85e31306-d9e2-4e2c-baec-d07e7a0685bf")
+                            Id = new Guid("61800742-e011-4274-8f82-249a3cf7db34"),
+                            UserId = new Guid("dbb44967-8708-4aac-9d97-f27efcb3ff01"),
+                            RoleId = new Guid("5906f4b6-e160-4c50-888e-f9a450e3c8b5")
                         });
                 });
 
@@ -668,6 +668,44 @@ namespace Paco.Migrations
                     b.ToTable("ScheduledActions");
                 });
 
+            modelBuilder.Entity("Paco.Entities.Models.UserEmailInvite", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("InviterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TargetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("Used")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InviterId");
+
+                    b.HasIndex("TargetId")
+                        .IsUnique();
+
+                    b.ToTable("UserEmailInvite");
+                });
+
             modelBuilder.Entity("Paco.Entities.Models.EmailRecipient", b =>
                 {
                     b.HasOne("Paco.Entities.Models.QueuedEmail", "QueuedEmail")
@@ -825,6 +863,25 @@ namespace Paco.Migrations
                     b.Navigation("ScheduledBy");
                 });
 
+            modelBuilder.Entity("Paco.Entities.Models.UserEmailInvite", b =>
+                {
+                    b.HasOne("Paco.Entities.Models.Identity.User", "Inviter")
+                        .WithMany("UserEmailInvites")
+                        .HasForeignKey("InviterId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Paco.Entities.Models.Identity.User", "Target")
+                        .WithOne("Invite")
+                        .HasForeignKey("Paco.Entities.Models.UserEmailInvite", "TargetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Inviter");
+
+                    b.Navigation("Target");
+                });
+
             modelBuilder.Entity("Paco.Entities.Models.Identity.Role", b =>
                 {
                     b.Navigation("RoleManagedSystemGroupPermissions");
@@ -839,6 +896,10 @@ namespace Paco.Migrations
                     b.Navigation("ActionsScheduled");
 
                     b.Navigation("EmailRecipientUser");
+
+                    b.Navigation("Invite");
+
+                    b.Navigation("UserEmailInvites");
 
                     b.Navigation("UserRoles");
                 });

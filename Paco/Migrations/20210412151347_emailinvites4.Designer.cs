@@ -10,8 +10,8 @@ using Paco.Repositories.Database;
 namespace Paco.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210407165639_SentAt")]
-    partial class SentAt
+    [Migration("20210412151347_emailinvites4")]
+    partial class emailinvites4
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -20,6 +20,43 @@ namespace Paco.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "6.0.0-preview.1.21102.2")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            modelBuilder.Entity("Paco.Entities.Models.EmailInvite", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("InviterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TargetId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("Used")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InviterId");
+
+                    b.HasIndex("TargetId");
+
+                    b.ToTable("EmailInvites");
+                });
 
             modelBuilder.Entity("Paco.Entities.Models.EmailRecipient", b =>
                 {
@@ -95,8 +132,8 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("8fc9b9c9-b82f-4ebc-baaa-f748a33a68fb"),
-                            ConcurrencyStamp = "444f297b-8f7f-4b25-90d4-7b4f85846299",
+                            Id = new Guid("e781a250-cbe3-4fd0-96a8-cc247f6a4e7d"),
+                            ConcurrencyStamp = "e436f44d-32fe-42b9-997a-61360947287a",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         });
@@ -214,7 +251,7 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("5ef9019f-0773-4176-86df-db1cd8b993c1"),
+                            Id = new Guid("6253809a-2ad3-4bf0-9db7-7d33b576a111"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "34acbb54-9ae3-4742-af3c-89de44e306e0",
                             Email = "michal.zahradnik@backbone.sk",
@@ -325,9 +362,9 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("3d94ddb2-d810-48d5-b982-a62b54e5ec6e"),
-                            UserId = new Guid("5ef9019f-0773-4176-86df-db1cd8b993c1"),
-                            RoleId = new Guid("8fc9b9c9-b82f-4ebc-baaa-f748a33a68fb")
+                            Id = new Guid("7b73ad76-c1e3-4cae-ad61-a37a588defef"),
+                            UserId = new Guid("6253809a-2ad3-4bf0-9db7-7d33b576a111"),
+                            RoleId = new Guid("e781a250-cbe3-4fd0-96a8-cc247f6a4e7d")
                         });
                 });
 
@@ -668,6 +705,25 @@ namespace Paco.Migrations
                     b.ToTable("ScheduledActions");
                 });
 
+            modelBuilder.Entity("Paco.Entities.Models.EmailInvite", b =>
+                {
+                    b.HasOne("Paco.Entities.Models.Identity.User", "Inviter")
+                        .WithMany("SendInvites")
+                        .HasForeignKey("InviterId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Paco.Entities.Models.Identity.User", "Target")
+                        .WithMany("ReceivedInvites")
+                        .HasForeignKey("TargetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Inviter");
+
+                    b.Navigation("Target");
+                });
+
             modelBuilder.Entity("Paco.Entities.Models.EmailRecipient", b =>
                 {
                     b.HasOne("Paco.Entities.Models.QueuedEmail", "QueuedEmail")
@@ -839,6 +895,10 @@ namespace Paco.Migrations
                     b.Navigation("ActionsScheduled");
 
                     b.Navigation("EmailRecipientUser");
+
+                    b.Navigation("ReceivedInvites");
+
+                    b.Navigation("SendInvites");
 
                     b.Navigation("UserRoles");
                 });

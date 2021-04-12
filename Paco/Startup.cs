@@ -11,6 +11,7 @@ using System;
 using Paco.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Logging;
+using Paco.Entities.Models;
 using Paco.Entities.Models.Identity;
 using Paco.Logging;
 using Paco.Repositories.Database;
@@ -61,7 +62,8 @@ namespace Paco
 
             services.AddDatabaseDeveloperPageExceptionFilter();
 
-            services.AddSingleton<EmailQueueService>();
+            services.AddScoped<EmailQueueService>();
+            services.AddScoped<UserInviteService>();
 
             services.AddRazorPages().AddRazorPagesOptions(options => 
             { 

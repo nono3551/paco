@@ -27,6 +27,7 @@ namespace Paco.Repositories.Database
         public DbSet<ScheduledAction> ScheduledActions { get; set; }
         public DbSet<QueuedEmail> QueuedEmails { get; set; }
         public DbSet<EmailRecipient> EmailRecipients { get; set; }
+        public DbSet<EmailInvite> EmailInvites { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ILoggerFactory loggerFactory): base(options)
         {
@@ -126,6 +127,18 @@ namespace Paco.Repositories.Database
                 .HasOne(su => su.ScheduledBy)
                 .WithMany(ms => ms.ActionsScheduled)
                 .HasForeignKey(su => su.ScheduledById);
+
+            builder.Entity<EmailInvite>()
+                .HasOne(x => x.Inviter)
+                .WithMany(x => x.SendInvites)
+                .HasForeignKey(x => x.InviterId)
+                .OnDelete(DeleteBehavior.NoAction);
+            
+            builder.Entity<EmailInvite>()
+                .HasOne(x => x.Target)
+                .WithMany(x => x.ReceivedInvites)
+                .HasForeignKey(x => x.TargetId)
+                .OnDelete(DeleteBehavior.Cascade);
             
             builder.Entity<User>()
                 .HasMany(u => u.Roles)
@@ -209,6 +222,7 @@ namespace Paco.Repositories.Database
             builder.Entity<ScheduledAction>().HasQueryFilter(p => p.DeletedAt == null);
             builder.Entity<QueuedEmail>().HasQueryFilter(p => p.DeletedAt == null);
             builder.Entity<EmailRecipient>().HasQueryFilter(p => p.DeletedAt == null);
+            builder.Entity<EmailInvite>().HasQueryFilter(p => p.DeletedAt == null);
         }
 
         private void SeedDatabase(ModelBuilder builder)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Paco.Entities.Models;
 using Paco.Entities.Models.Identity;
 using Paco.Entities.Models.Updating;
@@ -12,10 +13,12 @@ namespace Paco.Services
     public class EmailQueueService
     {
         private IDbContextFactory<ApplicationDbContext> DbContextFactory { get; }
+        public IConfiguration Configuration { get; }
 
-        public EmailQueueService(IDbContextFactory<ApplicationDbContext> dbContextFactory)
+        public EmailQueueService(IDbContextFactory<ApplicationDbContext> dbContextFactory, IConfiguration configuration)
         {
             DbContextFactory = dbContextFactory;
+            Configuration = configuration;
         }
 
         private void QueueEmail(string subject, string body, params User[] recipients)
@@ -60,6 +63,17 @@ namespace Paco.Services
             }
 
             return recipients.ToArray();
+        }
+
+        public void InviteUser(EmailInvite invite)
+        {
+            var serverAddress = Configuration.GetValue<string>(OptionsKeys.ServerAddress);
+            
+            var body = $"<p>You have been invited to use Paco. Use this link to setup account.</p><a href=\"{serverAddress}/Identity/Account/Invite?invite={invite.Id}\">Click here</a>";
+
+            var subject = $"Paco invite";
+
+            QueueEmail(subject, body, invite.Target);
         }
     }
 }

@@ -3,39 +3,39 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Paco.Migrations
 {
-    public partial class SentAt : Migration
+    public partial class Init2 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DeleteData(
                 table: "AspNetUserRoles",
                 keyColumns: new[] { "Id", "RoleId", "UserId" },
-                keyValues: new object[] { new Guid("6da139c2-f794-41f3-9176-7dcf7c40f515"), new Guid("85e31306-d9e2-4e2c-baec-d07e7a0685bf"), new Guid("30ef7f2a-e239-40ae-9b06-b1dab04bf461") });
+                keyValues: new object[] { new Guid("61800742-e011-4274-8f82-249a3cf7db34"), new Guid("5906f4b6-e160-4c50-888e-f9a450e3c8b5"), new Guid("dbb44967-8708-4aac-9d97-f27efcb3ff01") });
 
             migrationBuilder.DeleteData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
-                keyValue: new Guid("85e31306-d9e2-4e2c-baec-d07e7a0685bf"));
+                keyValue: new Guid("5906f4b6-e160-4c50-888e-f9a450e3c8b5"));
 
             migrationBuilder.DeleteData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
-                keyValue: new Guid("30ef7f2a-e239-40ae-9b06-b1dab04bf461"));
+                keyValue: new Guid("dbb44967-8708-4aac-9d97-f27efcb3ff01"));
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "CreatedAt", "DeletedAt", "ManagedSystemGroupId", "Name", "NormalizedName", "UpdatedAt" },
-                values: new object[] { new Guid("8fc9b9c9-b82f-4ebc-baaa-f748a33a68fb"), "444f297b-8f7f-4b25-90d4-7b4f85846299", null, null, null, "Administrator", "ADMINISTRATOR", null });
+                values: new object[] { new Guid("9359bfdf-31a5-4d89-b025-bd0cbbdf5cf3"), "9d110ccd-7663-4ec1-816f-57c79caf103f", null, null, null, "Administrator", "ADMINISTRATOR", null });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "CreatedAt", "DeletedAt", "Email", "EmailConfirmed", "EmailNotifications", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UpdatedAt", "UserName" },
-                values: new object[] { new Guid("5ef9019f-0773-4176-86df-db1cd8b993c1"), 0, "34acbb54-9ae3-4742-af3c-89de44e306e0", null, null, "michal.zahradnik@backbone.sk", true, true, true, null, "MICHAL.ZAHRADNIK@BACKBONE.SK", "MICHAL.ZAHRADNIK@BACKBONE.SK", "AQAAAAEAACcQAAAAEJdyASTL66Dd+IQPIPJsne7GQnFQ+H8G7ngSPb5+OUNH8+PU7YuCzPjjLMvj947dcg==", null, false, "JBIW2JAV2THPAPR3NGHSE3ZVXUCHEBPU", false, null, "michal.zahradnik@backbone.sk" });
+                values: new object[] { new Guid("57ada597-8b88-4941-b5b4-5d724e9d19a8"), 0, "34acbb54-9ae3-4742-af3c-89de44e306e0", null, null, "michal.zahradnik@backbone.sk", true, true, true, null, "MICHAL.ZAHRADNIK@BACKBONE.SK", "MICHAL.ZAHRADNIK@BACKBONE.SK", "AQAAAAEAACcQAAAAEJdyASTL66Dd+IQPIPJsne7GQnFQ+H8G7ngSPb5+OUNH8+PU7YuCzPjjLMvj947dcg==", null, false, "JBIW2JAV2THPAPR3NGHSE3ZVXUCHEBPU", false, null, "michal.zahradnik@backbone.sk" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
                 columns: new[] { "Id", "RoleId", "UserId", "CreatedAt", "DeletedAt", "UpdatedAt" },
-                values: new object[] { new Guid("3d94ddb2-d810-48d5-b982-a62b54e5ec6e"), new Guid("8fc9b9c9-b82f-4ebc-baaa-f748a33a68fb"), new Guid("5ef9019f-0773-4176-86df-db1cd8b993c1"), null, null, null });
+                values: new object[] { new Guid("1981aade-0a36-4e24-9ff5-ec4b296804a9"), new Guid("9359bfdf-31a5-4d89-b025-bd0cbbdf5cf3"), new Guid("57ada597-8b88-4941-b5b4-5d724e9d19a8"), null, null, null });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -43,32 +43,32 @@ namespace Paco.Migrations
             migrationBuilder.DeleteData(
                 table: "AspNetUserRoles",
                 keyColumns: new[] { "Id", "RoleId", "UserId" },
-                keyValues: new object[] { new Guid("3d94ddb2-d810-48d5-b982-a62b54e5ec6e"), new Guid("8fc9b9c9-b82f-4ebc-baaa-f748a33a68fb"), new Guid("5ef9019f-0773-4176-86df-db1cd8b993c1") });
+                keyValues: new object[] { new Guid("1981aade-0a36-4e24-9ff5-ec4b296804a9"), new Guid("9359bfdf-31a5-4d89-b025-bd0cbbdf5cf3"), new Guid("57ada597-8b88-4941-b5b4-5d724e9d19a8") });
 
             migrationBuilder.DeleteData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
-                keyValue: new Guid("8fc9b9c9-b82f-4ebc-baaa-f748a33a68fb"));
+                keyValue: new Guid("9359bfdf-31a5-4d89-b025-bd0cbbdf5cf3"));
 
             migrationBuilder.DeleteData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
-                keyValue: new Guid("5ef9019f-0773-4176-86df-db1cd8b993c1"));
+                keyValue: new Guid("57ada597-8b88-4941-b5b4-5d724e9d19a8"));
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "CreatedAt", "DeletedAt", "ManagedSystemGroupId", "Name", "NormalizedName", "UpdatedAt" },
-                values: new object[] { new Guid("85e31306-d9e2-4e2c-baec-d07e7a0685bf"), "043faf98-3ecb-4a1a-bb39-b6db80df878c", null, null, null, "Administrator", "ADMINISTRATOR", null });
+                values: new object[] { new Guid("5906f4b6-e160-4c50-888e-f9a450e3c8b5"), "df55248f-ee97-4d42-9f49-f69138d3443d", null, null, null, "Administrator", "ADMINISTRATOR", null });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "CreatedAt", "DeletedAt", "Email", "EmailConfirmed", "EmailNotifications", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UpdatedAt", "UserName" },
-                values: new object[] { new Guid("30ef7f2a-e239-40ae-9b06-b1dab04bf461"), 0, "34acbb54-9ae3-4742-af3c-89de44e306e0", null, null, "asd@asd.asd", true, true, true, null, "ASD@ASD.ASD", "ASD@ASD.ASD", "AQAAAAEAACcQAAAAEJdyASTL66Dd+IQPIPJsne7GQnFQ+H8G7ngSPb5+OUNH8+PU7YuCzPjjLMvj947dcg==", null, false, "JBIW2JAV2THPAPR3NGHSE3ZVXUCHEBPU", false, null, "asd@asd.asd" });
+                values: new object[] { new Guid("dbb44967-8708-4aac-9d97-f27efcb3ff01"), 0, "34acbb54-9ae3-4742-af3c-89de44e306e0", null, null, "michal.zahradnik@backbone.sk", true, true, true, null, "MICHAL.ZAHRADNIK@BACKBONE.SK", "MICHAL.ZAHRADNIK@BACKBONE.SK", "AQAAAAEAACcQAAAAEJdyASTL66Dd+IQPIPJsne7GQnFQ+H8G7ngSPb5+OUNH8+PU7YuCzPjjLMvj947dcg==", null, false, "JBIW2JAV2THPAPR3NGHSE3ZVXUCHEBPU", false, null, "michal.zahradnik@backbone.sk" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
                 columns: new[] { "Id", "RoleId", "UserId", "CreatedAt", "DeletedAt", "UpdatedAt" },
-                values: new object[] { new Guid("6da139c2-f794-41f3-9176-7dcf7c40f515"), new Guid("85e31306-d9e2-4e2c-baec-d07e7a0685bf"), new Guid("30ef7f2a-e239-40ae-9b06-b1dab04bf461"), null, null, null });
+                values: new object[] { new Guid("61800742-e011-4274-8f82-249a3cf7db34"), new Guid("5906f4b6-e160-4c50-888e-f9a450e3c8b5"), new Guid("dbb44967-8708-4aac-9d97-f27efcb3ff01"), null, null, null });
         }
     }
 }

@@ -1,29 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
+using System.Globalization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using Paco.Entities.Models;
 using Paco.Entities.Models.Identity;
+using Paco.Repositories.Database;
 
-namespace Paco.Areas.Identity.Pages.Account.Manage
+namespace Paco.Areas.Identity.Pages.Account
 {
     public class SetPasswordModel : PageModel
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly IDbContextFactory<ApplicationDbContext> _dbContextFactory;
 
-        public SetPasswordModel(
-            UserManager<User> userManager,
-            SignInManager<User> signInManager)
+        public SetPasswordModel(UserManager<User> userManager, SignInManager<User> signInManager, IDbContextFactory<ApplicationDbContext> dbContextFactory)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _dbContextFactory = dbContextFactory;
         }
 
-        [BindProperty]
+        [BindProperty(SupportsGet = true)]
         public InputModel Input { get; set; }
 
         [TempData]
@@ -31,6 +34,12 @@ namespace Paco.Areas.Identity.Pages.Account.Manage
 
         public class InputModel
         {
+            [Required]
+            [EmailAddress]
+            [DataType(DataType.EmailAddress)]
+            [Display(Name = "Email")]
+            public string Email { get; set; }
+            
             [Required]
             [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
             [DataType(DataType.Password)]
@@ -43,9 +52,24 @@ namespace Paco.Areas.Identity.Pages.Account.Manage
             public string ConfirmPassword { get; set; }
         }
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(Guid invite)
         {
-            var user = await _userManager.GetUserAsync(User);
+            await _signInManager.SignOutAsync();
+            
+            
+            var emailInvite = _dbContextFactory.Find<EmailInvite>(invite);
+            
+            if (emailInvite == null)
+            {
+                return NotFound($"Unable find invite.");
+            }
+
+            if (!emailInvite.IsValid)
+            {
+                return BadRequest("Invite is not valid anymore. Request new invite.");
+            }
+            
+            var user = await _userManager.FindByEmailAsync(emailInvite.Email);
             if (user == null)
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
@@ -55,20 +79,37 @@ namespace Paco.Areas.Identity.Pages.Account.Manage
 
             if (hasPassword)
             {
-                return RedirectToPage("./ChangePassword");
+                await _signInManager.SignInAsync(user, true);
+                return LocalRedirect(Url.Content("~/Identity/Account/Manage"));
             }
+
+            Input.Email = emailInvite.Email;
+            
+            ModelState.SetModelValue("Email", new ValueProviderResult(Input.Email, CultureInfo.InvariantCulture));
 
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(Guid invite)
         {
             if (!ModelState.IsValid)
             {
                 return Page();
             }
 
-            var user = await _userManager.GetUserAsync(User);
+            var emailInvite = _dbContextFactory.Find<EmailInvite>(invite);
+            
+            if (emailInvite == null)
+            {
+                return NotFound($"Unable find invite.");
+            }
+
+            if (!emailInvite.IsValid)
+            {
+                return BadRequest("Invite is not valid anymore. Request new invite.");
+            }
+            
+            var user = await _userManager.FindByEmailAsync(emailInvite.Email);
             if (user == null)
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
@@ -87,7 +128,11 @@ namespace Paco.Areas.Identity.Pages.Account.Manage
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your password has been set.";
 
-            return RedirectToPage();
+            emailInvite.Used = true;
+
+            _dbContextFactory.Upsert(emailInvite);
+            
+            return LocalRedirect(Url.Content("~/Identity/Account/Manage"));
         }
     }
 }

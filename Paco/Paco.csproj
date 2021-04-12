@@ -14,6 +14,9 @@
     <EmbeddedResource Remove="SystemManagement\FreeBsd\Entities\**" />
     <None Remove="Data\Migrations\**" />
     <None Remove="SystemManagement\FreeBsd\Entities\**" />
+    <Content Update="appsettings.Development.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

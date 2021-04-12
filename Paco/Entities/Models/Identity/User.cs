@@ -20,5 +20,7 @@ namespace Paco.Entities.Models.Identity
         public List<QueuedEmail> QueuedEmails { get; set; }
         public List<EmailRecipient> EmailRecipientUser { get; set; }
         public List<ScheduledAction> ActionsScheduled { get; set; }
+        public List<EmailInvite> SendInvites { get; set; }
+        public List<EmailInvite> ReceivedInvites { get; set; }
     }
 }

@@ -94,7 +94,7 @@ namespace Paco.Jobs
             try
             {
                 var smtpOptions = new SmtpOptions();
-                Configuration.GetSection(SmtpOptions.Smtp).Bind(smtpOptions);
+                Configuration.GetSection(OptionsKeys.Smtp).Bind(smtpOptions);
             
                 using SmtpClient client = new SmtpClient
                 {
@@ -114,12 +114,15 @@ namespace Paco.Jobs
                     SubjectEncoding = Encoding.UTF8,
                 };
 
-                foreach (var recipient in queuedEmail.Recipients)
+                if (queuedEmail.Recipients?.Any() == true)
                 {
-                    message.To.Add(new MailAddress(recipient.Email));
-                }
+                    foreach (var recipient in queuedEmail.Recipients)
+                    {
+                        message.To.Add(new MailAddress(recipient.Email));
+                    }
 
-                client.Send(message);
+                    client.Send(message);
+                }
             
                 using var scope = _serviceScopeFactory.CreateScope();
                 queuedEmail.WasSent = true;

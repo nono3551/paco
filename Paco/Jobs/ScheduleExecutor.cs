@@ -20,14 +20,12 @@ namespace Paco.Jobs
         private readonly List<Guid> _startedActions = new();
         private readonly ILogger<ScheduleExecutor> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly EmailQueueService _emailQueueService;
         private Timer _timer;
 
-        public ScheduleExecutor(ILogger<ScheduleExecutor> logger, IServiceScopeFactory serviceScopeFactory, EmailQueueService emailQueueService)
+        public ScheduleExecutor(ILogger<ScheduleExecutor> logger, IServiceScopeFactory serviceScopeFactory)
         {
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
-            _emailQueueService = emailQueueService;
         }
 
         public Task StartAsync(CancellationToken stoppingToken)
@@ -52,6 +50,7 @@ namespace Paco.Jobs
                 var dbContext = workScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var updates = dbContext.ScheduledActions.GetQueuedAndStartedScheduledActions();
                 var administrators = dbContext.Users.GetAllAdministrators();
+                var emailQueueService = workScope.ServiceProvider.GetService<EmailQueueService>();
 
                 _logger.LogInformation($"Scheduler found {updates.Count()} actions.");
 
@@ -76,7 +75,7 @@ namespace Paco.Jobs
                         {
                             await Task.Run(() =>
                             {
-                                _emailQueueService.ScheduledActionEmail(update);
+                                emailQueueService?.ScheduledActionEmail(update);
                                 manager.ExecuteScheduledAction(update);
                             });
                         }
@@ -91,7 +90,7 @@ namespace Paco.Jobs
                         lock (_lock)
                         {
                             _startedActions.Remove(update.Id);
-                            _emailQueueService.ScheduledActionEmail(update);
+                            emailQueueService?.ScheduledActionEmail(update);
                         }
                     }
                 });

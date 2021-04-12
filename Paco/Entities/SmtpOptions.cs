@@ -2,7 +2,6 @@
 {
     public class SmtpOptions
     {
-        public const string Smtp = "Smtp";
 
         public string Host { get; set; }
         public int Port { get; set; }
