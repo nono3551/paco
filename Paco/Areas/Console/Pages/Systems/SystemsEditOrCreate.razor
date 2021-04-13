@@ -132,6 +132,7 @@
             }
 
             NavigationManager.NavigateTo("/systems/list");
-        }, exception => { InvokeAsync(StateHasChanged); });
+        }, $"HandleValidSubmit in SystemEditOrCreate for {_system.Name}. IsAdd:{IsAdd}."
+            , exception => { InvokeAsync(StateHasChanged); });
     }
 }

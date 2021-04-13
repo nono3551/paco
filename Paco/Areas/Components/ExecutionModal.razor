@@ -1,6 +1,22 @@
-﻿@using Microsoft.Extensions.Logging
+﻿@attribute [Authorize]
+
+@using Microsoft.Extensions.Logging
+@using SystemManagement
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
+@using Paco.Entities
+@using Paco.Entities.Models
+@using Paco.Entities.Models.Identity
+@using Paco.Repositories.Database
+@using Paco.Services
+@using Paco.SystemManagement.Ssh
 
 @inject ILogger<ExecutionModal> Logger
+@inject UserManager<User> UserManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+
+
 
 @if (_isExecuting)
 {
@@ -50,24 +66,36 @@ else if (_errorMessage != null)
 }
 
 @code {
-
     private string _errorMessage;
     private bool _isExecuting;
+
+    private async Task<User> GetUser()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = await UserManager.GetUserAsync(authState.User);
+        return user;
+    }
     
-    public void ExecuteOperation(Action operation, Action<Exception> onFailure = null)
+    public void ExecuteOperation(Action operation, string description, Action<Exception> onFailure = null)
     {
         _isExecuting = true;
         StateHasChanged();
         
         Task.Run(async () =>
         {
+            var actionId = Guid.NewGuid();
+
+            User user = null;
+            
             try
             {
+                user = await GetUser();
+                Logger.LogInformation("{user} invoked \"{description}\" with action ID {actionId}.", user.UserName, description, actionId);
                 await InvokeAsync(operation);
             }
             catch (Exception e)
             {
-                Logger.LogError(e, "An error occured during execution \"{message}\".", e.Message);
+                Logger.LogError(e, "Action {actionId} invoked by {user} finished with error \"{message}\".", actionId, user?.UserName, e.Message);
                 
                 _errorMessage = $"An error occured during execution \"{e.Message}\".";
 

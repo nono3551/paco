@@ -207,7 +207,7 @@
         {
             ManagerService.RefreshSystemInformation(system);
             InvokeAsync(StateHasChanged);
-        });
+        }, $"RefreshSystemInformation of system {system.Name}");
     }
 
     private void ViewSchedule(ManagedSystem system)

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using Paco.Entities;
 using Paco.Entities.Models.Updating;
+using Serilog;
 
 namespace Paco.SystemManagement.FreeBsd.Commands
 {
@@ -77,6 +78,10 @@ namespace Paco.SystemManagement.FreeBsd.Commands
 
             var success = sshClient.CreateCommand($"tail -n 10 {scheduledAction.FreeBsdLogPath} | grep \"{resultKey}\"").Execute().Replace(resultKey, "").Trim() == "0";
 
+            var fullOutput = sshClient.CreateCommand($"cat {scheduledAction.FreeBsdLogPath}");
+            
+            Log.Information($"Scheduled action {scheduledAction.Id} full output: {fullOutput}");
+            
             if (!success)
             {
                 throw new ApplicationException($"System update of {scheduledAction.ManagedSystem.Name} was unsuccessful.");

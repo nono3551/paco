@@ -2,6 +2,8 @@
 using System.Threading;
 using Paco.Entities.Models.Updating;
 using Renci.SshNet;
+using Serilog;
+using Serilog.Core;
 
 namespace Paco.SystemManagement.FreeBsd.Commands
 {
@@ -32,6 +34,10 @@ namespace Paco.SystemManagement.FreeBsd.Commands
 
             var success = sshClient.CreateCommand($"tail -n 100 {scheduledAction.FreeBsdLogPath} | grep \"{resultKey}\"").Execute().Replace(resultKey, "").Trim() == "0";
 
+            var fullOutput = sshClient.CreateCommand($"cat {scheduledAction.FreeBsdLogPath}");
+            
+            Log.Information($"Scheduled action {scheduledAction.Id} full output: {fullOutput}");
+            
             if (!success)
             {
                 throw new ApplicationException($"Packages action execution of {scheduledAction.ManagedSystem.Name} was unsuccessful.");

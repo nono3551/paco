@@ -92,7 +92,7 @@
             _updateInfo = SystemManagerService.GetSystemUpdateInfo(managedSystem);
             _showModal = true;
             InvokeAsync(StateHasChanged);
-        });
+        }, $"Showing FreeBsdSystemUpdateScheduler for {managedSystem.Name}");
     }
 
     private void CloseModal()
@@ -102,17 +102,19 @@
         InvokeAsync(StateHasChanged);
     }
 
-    private void ScheduleUpdate()
+    private async Task ScheduleUpdate()
     {
+        var time = _scheduleDate + _scheduleTime + TimeSpan.FromMinutes(await JsRuntime.InvokeAsync<int>("blazorGetTimezoneOffset"));
+        
         _executionModal.ExecuteOperation(async () =>
         {
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var user = await UserManager.GetUserAsync(authState.User);
             
-            var packagesAction = new ScheduledAction()
+            ScheduledAction packagesAction = new ScheduledAction()
             {
                 ScheduledActionType = ScheduledActionType.System,
-                ScheduledAt = _scheduleDate + _scheduleTime + TimeSpan.FromMinutes(await JsRuntime.InvokeAsync<int>("blazorGetTimezoneOffset")),
+                ScheduledAt = time,
                 ManagedSystemId = _system.Id,
                 ScheduledById = user.Id
             };
@@ -120,6 +122,6 @@
             DbContextFactory.Upsert(packagesAction);
 
             CloseModal();
-        });
+        }, $"ScheduleUpdate for system {_system.Name}. {time}");
     }
 }

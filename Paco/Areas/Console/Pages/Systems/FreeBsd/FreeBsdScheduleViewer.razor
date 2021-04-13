@@ -112,7 +112,7 @@
             using var context = DbContextFactory.CreateDbContext();
             _scheduledActions = context.ScheduledActions.GetScheduledActionsForSystem(_system);
             InvokeAsync(StateHasChanged);
-        });
+        }, $"Showing schedule for ${managedSystem}");
     }
 
     private void ShowActionDetails(ScheduledAction scheduledAction)
@@ -125,7 +125,7 @@
             _detailsText = SystemManagerService.GetScheduledActionDetails(scheduledAction);
 
             StateHasChanged();
-        });
+        }, $"Showing schedule details for scheduled action with ID {scheduledAction.Id}");
     }
 
     private void CloseModal()

@@ -3,6 +3,7 @@
 @using Paco.Entities.FreeBsd
 @using System.ComponentModel.DataAnnotations
 @using System.Globalization
+@using Ancestor.Extensions
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.EntityFrameworkCore
 @using Paco.Entities.FreeBsd.PackagesActions
@@ -195,7 +196,7 @@
             _packagesActions = SystemManagerService.GetPackagesActions(_system);
             _showModal = true;
             InvokeAsync(StateHasChanged);
-        });
+        }, $"Showing FreeBsdPackagesActionsScheduler for {managedSystem.Name}");
     }
 
     private void OpenPackageActionSettings(PackageAction packageAction)
@@ -231,7 +232,7 @@
             _scheduling = true;
 
             InvokeAsync(StateHasChanged);
-        });
+        }, $"PrepareActions for {_system.Name}. Actions: {_packagesActions.ToJson()}");
     }
 
 
@@ -251,7 +252,7 @@
             _currentPackageAction = null;
 
             InvokeAsync(StateHasChanged);
-        });
+        }, $"OnApplyOptionsSettings for {_system.Name}. Settings: {_currentPackageAction.ToJson()}");
     }
 
     private void SchedulePackagesActions()
@@ -272,7 +273,7 @@
             DbContextFactory.Upsert(packagesAction);
 
             CloseModal();
-        });
+        }, $"SchedulePackagesActions for {_system.Name}.");
     }
 
     private void OnOptionChanged(PackageOption option, object value)
