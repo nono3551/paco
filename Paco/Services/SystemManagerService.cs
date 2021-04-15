@@ -144,9 +144,7 @@ namespace Paco.Services
                 action(system);
 
                 dbContext.Entry(system).Reload();
-
-                system.HasProblems = false;
-
+                
                 system.LastAccessed = DateTime.UtcNow;
                 onSuccess?.Invoke(system);
             }
@@ -154,9 +152,8 @@ namespace Paco.Services
             {
                 dbContext.Entry(system).Reload();
 
-                system.HasProblems = true;
-                system.ProblemDescription = $"{system.ProblemDescription}\n\n {DateTime.UtcNow}\n{e.Message}".Trim();
-
+                system.AddProblem($"{system.ProblemDescription}\n\n {DateTime.UtcNow}\n{e.Message}".Trim());
+                
                 _logger.LogError(e, "While executing work with {system}: {exception}", system.Name, e.Message);
 
                 onFailure?.Invoke(system);

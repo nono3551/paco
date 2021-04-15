@@ -32,19 +32,28 @@ namespace Paco.SystemManagement.FreeBsd
 
         public Dictionary<string, string> GetSystemInformation()
         {
-            using var client = SshManager.CreateSshClient(System);
+            using var sshClient = SshManager.CreateSshClient(System);
 
-            var packagesActions = ActionsProvider.GetPackagesActions(client).ToList();
+            var packagesActions = ActionsProvider.GetPackagesActions(sshClient).ToList();
 
-            System.PackageActions = packagesActions.Count;
-            System.UpdatesFetchedAt = DateTime.Now;
+            var vulnerablePackages = Audit.GetVulnerablePackages(sshClient);
+            var systemUpdateInfo = SystemUpdate.GetUpdateInfo(sshClient);
             
+            System.PackageActions = packagesActions.Count;
+            System.HasSystemUpdateAvailable = systemUpdateInfo.HasUpdate;
+            System.UpdatesFetchedAt = DateTime.Now;
+
+            if (!string.IsNullOrEmpty(vulnerablePackages?.Trim()))
+            {
+                System.AddProblem("Has vulnerable packages");
+            }
+
             return new Dictionary<string, string>
             {
-                { "Hostname", new Hostname().GetHostname(client) },
-                { "Logged users", Uptime.CurrentLoggedUsers(client) },
-                { "Karnel\nUserland\nRunning", $"{SystemVersion.GetKarnel(client)}{SystemVersion.GetUserland(client)}{SystemVersion.GetRunning(client)}" },
-                { "Vulnerable packages", Audit.GetVulnerablePackages(client) },
+                { "Hostname", new Hostname().GetHostname(sshClient) },
+                { "Logged users", Uptime.CurrentLoggedUsers(sshClient) },
+                { "Karnel\nUserland\nRunning", $"{SystemVersion.GetKarnel(sshClient)}{SystemVersion.GetUserland(sshClient)}{SystemVersion.GetRunning(sshClient)}" },
+                { "Vulnerable packages", vulnerablePackages },
                 { $"Packages actions ({System.PackageActions})", string.Join("\n", packagesActions)},
             };
         }
