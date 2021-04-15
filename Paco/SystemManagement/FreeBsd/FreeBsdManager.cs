@@ -45,17 +45,27 @@ namespace Paco.SystemManagement.FreeBsd
 
             if (!string.IsNullOrEmpty(vulnerablePackages?.Trim()))
             {
-                System.AddProblem("Has vulnerable packages");
+                System.AddProblem("Found vulnerable packages!!!");
             }
 
-            return new Dictionary<string, string>
+            var result = new Dictionary<string, string>
             {
-                { "Hostname", new Hostname().GetHostname(sshClient) },
-                { "Logged users", Uptime.CurrentLoggedUsers(sshClient) },
-                { "Karnel\nUserland\nRunning", $"{SystemVersion.GetKarnel(sshClient)}{SystemVersion.GetUserland(sshClient)}{SystemVersion.GetRunning(sshClient)}" },
-                { "Vulnerable packages", vulnerablePackages },
-                { $"Packages actions ({System.PackageActions})", string.Join("\n", packagesActions)},
+                {"Hostname", new Hostname().GetHostname(sshClient)},
+                {"Logged users", Uptime.CurrentLoggedUsers(sshClient)},
+                {
+                    "Karnel\nUserland\nRunning",
+                    $"{SystemVersion.GetKarnel(sshClient)}{SystemVersion.GetUserland(sshClient)}{SystemVersion.GetRunning(sshClient)}"
+                },
+                {"Vulnerable packages", vulnerablePackages},
+                {$"Packages actions ({System.PackageActions})", string.Join("\n", packagesActions)},
             };
+
+            if (System.HasSystemUpdateAvailable)
+            {
+                result.Add("Has system update", System.HasSystemUpdateAvailable.ToString());
+            }
+            
+            return result;
         }
 
         public void PreparePackagesActions(List<object> actions)
