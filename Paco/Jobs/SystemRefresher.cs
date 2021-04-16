@@ -39,7 +39,7 @@ namespace Paco.Jobs
                 try
                 {
                     _isTimerRunning = true;
-                    _logger.LogInformation("Refresh started.");
+                    _logger.LogInformation("SystemRefresh started.");
 
                     using IServiceScope workScope = _serviceScopeFactory.CreateScope();
                     SystemManagerService manager = workScope.ServiceProvider.GetRequiredService<SystemManagerService>();
@@ -66,7 +66,7 @@ namespace Paco.Jobs
                 finally
                 {
                     _isTimerRunning = false;
-                    _logger.LogInformation("Refresher finished.");
+                    _logger.LogInformation("SystemRefresh finished.");
                 }
             }
         }
@@ -74,7 +74,7 @@ namespace Paco.Jobs
 
         public Task StopAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Refresher is stopping.");
+            _logger.LogInformation("SystemRefresh is stopping.");
 
             _timer?.Change(Timeout.Infinite, 0);
             _timer?.Dispose();
