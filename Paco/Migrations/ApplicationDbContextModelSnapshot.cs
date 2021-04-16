@@ -130,8 +130,8 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("e781a250-cbe3-4fd0-96a8-cc247f6a4e7d"),
-                            ConcurrencyStamp = "e436f44d-32fe-42b9-997a-61360947287a",
+                            Id = new Guid("cbe38f69-845d-426f-9490-8ef24c56f0e5"),
+                            ConcurrencyStamp = "a1f3b296-5f11-4010-9e0a-444c0add3071",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         });
@@ -249,7 +249,7 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("6253809a-2ad3-4bf0-9db7-7d33b576a111"),
+                            Id = new Guid("45a09434-06b3-4931-b9c2-553634cfe2e8"),
                             AccessFailedCount = 0,
                             ConcurrencyStamp = "34acbb54-9ae3-4742-af3c-89de44e306e0",
                             Email = "michal.zahradnik@backbone.sk",
@@ -360,9 +360,9 @@ namespace Paco.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("7b73ad76-c1e3-4cae-ad61-a37a588defef"),
-                            UserId = new Guid("6253809a-2ad3-4bf0-9db7-7d33b576a111"),
-                            RoleId = new Guid("e781a250-cbe3-4fd0-96a8-cc247f6a4e7d")
+                            Id = new Guid("75e47a9a-546e-4048-a3f1-54bb2fcb3d0b"),
+                            UserId = new Guid("45a09434-06b3-4931-b9c2-553634cfe2e8"),
+                            RoleId = new Guid("cbe38f69-845d-426f-9490-8ef24c56f0e5")
                         });
                 });
 
@@ -468,6 +468,9 @@ namespace Paco.Migrations
                         .HasColumnType("int");
 
                     b.Property<bool>("HasProblems")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasSystemUpdateAvailable")
                         .HasColumnType("bit");
 
                     b.Property<string>("Hostname")

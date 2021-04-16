@@ -21,6 +21,7 @@ namespace Paco.Entities.Models
         public string Hostname { get; set; }
         public string SshLogin { get; set; }
         public int PackageActions { get; set; }
+        public bool HasSystemUpdateAvailable { get; set; }
         [RegularExpression(Fingerprint.FingerprintRegex, ErrorMessage = Fingerprint.FingerprintRegexError)]
         public string SystemFingerprint { get; set; }
         public string SshPrivateKey { get; set; }
@@ -65,6 +66,12 @@ namespace Paco.Entities.Models
         public ISystemManager GetDistributionManager()
         {
             return new FreeBsdManager(this);
+        }
+
+        public void AddProblem(string problemDescription)
+        {
+            HasProblems = true;
+            ProblemDescription = $"{ProblemDescription}\n\n {DateTime.UtcNow}\n{problemDescription}".Trim();
         }
     }
 }

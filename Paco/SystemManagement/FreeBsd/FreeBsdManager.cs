@@ -32,21 +32,40 @@ namespace Paco.SystemManagement.FreeBsd
 
         public Dictionary<string, string> GetSystemInformation()
         {
-            using var client = SshManager.CreateSshClient(System);
+            using var sshClient = SshManager.CreateSshClient(System);
 
-            var packagesActions = ActionsProvider.GetPackagesActions(client).ToList();
+            var packagesActions = ActionsProvider.GetPackagesActions(sshClient).ToList();
 
-            System.PackageActions = packagesActions.Count;
-            System.UpdatesFetchedAt = DateTime.Now;
+            var vulnerablePackages = Audit.GetVulnerablePackages(sshClient);
+            var systemUpdateInfo = SystemUpdate.GetUpdateInfo(sshClient);
             
-            return new Dictionary<string, string>
+            System.PackageActions = packagesActions.Count;
+            System.HasSystemUpdateAvailable = systemUpdateInfo.HasUpdate;
+            System.UpdatesFetchedAt = DateTime.Now;
+
+            if (!string.IsNullOrEmpty(vulnerablePackages?.Trim()))
             {
-                { "Hostname", new Hostname().GetHostname(client) },
-                { "Logged users", Uptime.CurrentLoggedUsers(client) },
-                { "Karnel\nUserland\nRunning", $"{SystemVersion.GetKarnel(client)}{SystemVersion.GetUserland(client)}{SystemVersion.GetRunning(client)}" },
-                { "Vulnerable packages", Audit.GetVulnerablePackages(client) },
-                { $"Packages actions ({System.PackageActions})", string.Join("\n", packagesActions)},
+                System.AddProblem("Found vulnerable packages!!!");
+            }
+
+            var result = new Dictionary<string, string>
+            {
+                {"Hostname", new Hostname().GetHostname(sshClient)},
+                {"Logged users", Uptime.CurrentLoggedUsers(sshClient)},
+                {
+                    "Karnel\nUserland\nRunning",
+                    $"{SystemVersion.GetKarnel(sshClient)}{SystemVersion.GetUserland(sshClient)}{SystemVersion.GetRunning(sshClient)}"
+                },
+                {"Vulnerable packages", vulnerablePackages},
+                {$"Packages actions ({System.PackageActions})", string.Join("\n", packagesActions)},
             };
+
+            if (System.HasSystemUpdateAvailable)
+            {
+                result.Add("Has system update", System.HasSystemUpdateAvailable.ToString());
+            }
+            
+            return result;
         }
 
         public void PreparePackagesActions(List<object> actions)

@@ -37,6 +37,14 @@
         {
             background = "error-background";
         }
+        else if (system.PackageActions != 0)
+        {
+            background = "packages-actions-background";
+        }
+        else if (system.HasSystemUpdateAvailable)
+        {
+            background = "system-update-background";
+        }
 
         <tr @onclick="() => ToggleSystemDetail(system)" style='cursor: pointer;' class="@background">
             <td>
