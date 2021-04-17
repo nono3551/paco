@@ -53,10 +53,8 @@ namespace Paco.Logging
                 }
                 else
                 {
-                    //Is database log
-                    //Todo: Write to file
-                    int i = 0;
-                    i++;
+                    Console.WriteLine(logEvent.RenderMessage());
+                    Console.WriteLine(logEvent.Exception);
                 }
             }
         }
