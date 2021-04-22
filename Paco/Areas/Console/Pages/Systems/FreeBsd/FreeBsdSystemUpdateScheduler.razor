@@ -111,15 +111,13 @@
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var user = await UserManager.GetUserAsync(authState.User);
             
-            ScheduledAction packagesAction = new ScheduledAction()
+            SystemManagerService.ScheduleAction(new ScheduledAction()
             {
                 ScheduledActionType = ScheduledActionType.System,
                 ScheduledAt = time,
                 ManagedSystemId = _system.Id,
                 ScheduledById = user.Id
-            };
-
-            DbContextFactory.Upsert(packagesAction);
+            });
 
             CloseModal();
         }, $"ScheduleUpdate for system {_system.Name}. {time}");
