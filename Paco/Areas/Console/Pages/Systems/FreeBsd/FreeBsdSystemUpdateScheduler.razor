@@ -89,7 +89,7 @@
         _executionModal.ExecuteOperation(() =>
         {
             _system = managedSystem;
-            _updateInfo = SystemManagerService.GetSystemUpdateInfo(managedSystem);
+            _updateInfo = SystemManagerService.GetInformationAboutSystemUpdate(managedSystem);
             _showModal = true;
             InvokeAsync(StateHasChanged);
         }, $"Showing FreeBsdSystemUpdateScheduler for {managedSystem.Name}");

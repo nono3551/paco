@@ -93,13 +93,13 @@ namespace Paco.SystemManagement.FreeBsd
             return Screen.GetScreenOutput(client, scheduledAction);
         }
 
-        public List<PackageInformation> GetPackagesList()
+        public List<PackageInformation> GetListOfPackages()
         {
             using var client = SshManager.CreateSshClient(System);
             return Audit.ListAllPackages(client);
         }
 
-        public SystemUpdateInfo GetSystemUpdateInfo()
+        public SystemUpdateInfo GetInformationAboutSystemUpdate()
         {
             using var client = SshManager.CreateSshClient(System);
             return SystemUpdate.GetUpdateInfo(client);

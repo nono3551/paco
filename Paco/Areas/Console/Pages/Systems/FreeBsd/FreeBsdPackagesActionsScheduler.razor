@@ -261,7 +261,7 @@
         {
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var user = await UserManager.GetUserAsync(authState.User);
-            
+
             var packagesAction = new ScheduledAction()
             {
                 ScheduledActionType = ScheduledActionType.Packages,
@@ -269,8 +269,9 @@
                 ManagedSystemId = _system.Id,
                 ScheduledById = user.Id
             };
-
-            DbContextFactory.Upsert(packagesAction);
+            
+            SystemManagerService.ScheduleAction(packagesAction);
+            
 
             CloseModal();
         }, $"SchedulePackagesActions for {_system.Name}.");

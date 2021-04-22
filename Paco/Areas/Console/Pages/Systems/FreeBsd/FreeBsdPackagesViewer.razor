@@ -71,7 +71,7 @@
         _executionModal.ExecuteOperation(() =>
         {
             _system = managedSystem;
-            _packageInformation = SystemManagerService.GetPackagesList(_system);
+            _packageInformation = SystemManagerService.GetListOfPackages(_system);
             _showModal = true;
             StateHasChanged();
         }, $"Showing packages for {managedSystem.Name}");

@@ -60,7 +60,7 @@ namespace Paco.Services
             return updates;
         }
         
-        public List<PackageInformation> GetPackagesList(ManagedSystem system)
+        public List<PackageInformation> GetListOfPackages(ManagedSystem system)
         {
             _logger.LogInformation("Getting packages list for {system}.", system.Name);
 
@@ -68,7 +68,7 @@ namespace Paco.Services
             
             ExecuteWorkWithSystem(system, managedSystem =>
             {
-                updates = managedSystem.GetDistributionManager().GetPackagesList();
+                updates = managedSystem.GetDistributionManager().GetListOfPackages();
             }, managedSystem =>
             {
                 
@@ -167,7 +167,7 @@ namespace Paco.Services
             }
         }
 
-        public SystemUpdateInfo GetSystemUpdateInfo(ManagedSystem system)
+        public SystemUpdateInfo GetInformationAboutSystemUpdate(ManagedSystem system)
         {
             _logger.LogInformation("Getting update info for {system}.", system.Name);
                 
@@ -175,10 +175,15 @@ namespace Paco.Services
             
             ExecuteWorkWithSystem(system, managedSystem =>
             {
-                updateInfo = managedSystem.GetDistributionManager().GetSystemUpdateInfo();
+                updateInfo = managedSystem.GetDistributionManager().GetInformationAboutSystemUpdate();
             });
 
             return updateInfo;
+        }
+
+        public void ScheduleAction(ScheduledAction scheduledAction)
+        {
+            _dbContextFactory.Upsert(scheduledAction);
         }
     }
 }

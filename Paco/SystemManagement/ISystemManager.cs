@@ -12,7 +12,7 @@ namespace Paco.SystemManagement
         void PreparePackagesActions(List<object> actions);
         void ExecuteScheduledAction(ScheduledAction scheduledAction);
         string GetScheduledActionDetails(ScheduledAction scheduledAction);
-        List<PackageInformation> GetPackagesList();
-        SystemUpdateInfo GetSystemUpdateInfo();
+        List<PackageInformation> GetListOfPackages();
+        SystemUpdateInfo GetInformationAboutSystemUpdate();
     }
 }
