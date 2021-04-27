@@ -28,11 +28,14 @@ namespace Paco.SystemManagement.FreeBsd.Commands
             {"OPTIONS_GROUP", OptionsGroupType.Group}
         };
 
-        public static List<PackageAction> GetPackagesActions(SshClient sshClient)
+        public static List<PackageAction> GetPackagesActions(SshClient sshClient, bool skipFetchingPortsCollection)
         {
             var actions = new List<PackageAction>();
-
-            Audit.UpdatePortsCollection(sshClient);
+            
+            if (!skipFetchingPortsCollection)
+            {
+                Audit.UpdatePortsCollection(sshClient);
+            }
 
             var fullCommandOutput = sshClient.CreateCommand("echo n | sudo portmaster -aGn").Execute();
             if (!fullCommandOutput.Contains(AllPortsAreUpToDateKey))

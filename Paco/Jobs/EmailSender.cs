@@ -36,7 +36,7 @@ namespace Paco.Jobs
         public Task StartAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("Timed Hosted Service running.");
-            _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromMinutes(1));
+            _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromMinutes(Configuration.GetEmailSenderInterval()));
             return Task.CompletedTask;
         }
 
@@ -93,9 +93,8 @@ namespace Paco.Jobs
         {
             try
             {
-                var smtpOptions = new SmtpOptions();
-                Configuration.GetSection(OptionsKeys.Smtp).Bind(smtpOptions);
-            
+                var smtpOptions = Configuration.GetSmtpOptions();
+
                 using SmtpClient client = new SmtpClient
                 {
                     Host = smtpOptions.Host,

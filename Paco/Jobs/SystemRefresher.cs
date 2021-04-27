@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -16,19 +17,21 @@ namespace Paco.Jobs
     {
         private readonly ILogger<Refresher> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly IConfiguration _configuration;
         private Timer _timer;
         private volatile bool _isTimerRunning;
 
-        public Refresher(ILogger<Refresher> logger, IServiceScopeFactory serviceScopeFactory)
+        public Refresher(ILogger<Refresher> logger, IServiceScopeFactory serviceScopeFactory, IConfiguration configuration)
         {
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
+            _configuration = configuration;
         }
 
         public Task StartAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("Timed Hosted Service running.");
-            _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromHours(4));
+            _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromMinutes(_configuration.GetSystemRefresherInterval()));
             return Task.CompletedTask;
         }
 
@@ -43,8 +46,7 @@ namespace Paco.Jobs
 
                     using IServiceScope workScope = _serviceScopeFactory.CreateScope();
                     SystemManagerService manager = workScope.ServiceProvider.GetRequiredService<SystemManagerService>();
-                    var systems = workScope.ServiceProvider.GetRequiredService<ApplicationDbContext>().ManagedSystems
-                        .ToList();
+                    var systems = workScope.ServiceProvider.GetRequiredService<ApplicationDbContext>().ManagedSystems.ToList();
 
                     foreach (ManagedSystem managedSystem in systems)
                     {

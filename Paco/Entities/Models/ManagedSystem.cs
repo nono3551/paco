@@ -63,11 +63,6 @@ namespace Paco.Entities.Models
             }
         }
         
-        public ISystemManager GetDistributionManager()
-        {
-            return new FreeBsdManager(this);
-        }
-
         public void AddProblem(string problemDescription)
         {
             HasProblems = true;

@@ -33,5 +33,13 @@ namespace Paco.Repositories.Database
                 .Include(x => x.ManagedSystem)
                 .ToList();
         }
+        
+        public static bool SystemHasNotFinishedUpdate(this DbSet<ScheduledAction> updates, ManagedSystem managedSystem)
+        {
+            return updates.Any(x => x.ManagedSystemId == managedSystem.Id &&
+                                                                  (x.ScheduledActionStatus == ScheduledActionStatus.Queued ||
+                                                                   x.ScheduledActionStatus == ScheduledActionStatus.Started ||
+                                                                   x.ScheduledActionStatus == ScheduledActionStatus.Unknown));
+        }
     }
 }

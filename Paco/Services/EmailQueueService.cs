@@ -13,7 +13,7 @@ namespace Paco.Services
     public class EmailQueueService
     {
         private IDbContextFactory<ApplicationDbContext> DbContextFactory { get; }
-        public IConfiguration Configuration { get; }
+        private IConfiguration Configuration { get; }
 
         public EmailQueueService(IDbContextFactory<ApplicationDbContext> dbContextFactory, IConfiguration configuration)
         {
@@ -67,7 +67,7 @@ namespace Paco.Services
 
         public void InviteUser(EmailInvite invite)
         {
-            var serverAddress = Configuration.GetValue<string>(OptionsKeys.ServerAddress);
+            var serverAddress = Configuration.GetServerAddress();
             
             var body = $"<p>You have been invited to use Paco. Use this link to setup account.</p><a href=\"{serverAddress}/Identity/Account/Invite?invite={invite.Id}\">Click here</a>";
 

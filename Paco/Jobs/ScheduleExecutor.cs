@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -20,18 +21,20 @@ namespace Paco.Jobs
         private readonly List<Guid> _startedActions = new();
         private readonly ILogger<ScheduleExecutor> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly IConfiguration _configuration;
         private Timer _timer;
 
-        public ScheduleExecutor(ILogger<ScheduleExecutor> logger, IServiceScopeFactory serviceScopeFactory)
+        public ScheduleExecutor(ILogger<ScheduleExecutor> logger, IServiceScopeFactory serviceScopeFactory, IConfiguration configuration)
         {
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
+            _configuration = configuration;
         }
 
         public Task StartAsync(CancellationToken stoppingToken)
         {
             _logger.LogInformation("Timed Hosted Service running.");
-            _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromSeconds(60));
+            _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromMinutes(_configuration.GetScheduleExecutorInterval()));
             return Task.CompletedTask;
         }
 

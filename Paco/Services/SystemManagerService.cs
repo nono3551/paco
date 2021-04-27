@@ -7,36 +7,38 @@ using Paco.Entities;
 using Paco.Entities.Models;
 using Paco.Entities.Models.Updating;
 using Paco.Repositories.Database;
+using Paco.SystemManagement;
+using Paco.SystemManagement.FreeBsd;
 
 namespace Paco.Services
 {
     public class SystemManagerService
     {
-        private readonly IDbContextFactory<ApplicationDbContext> _dbContextFactory;
-        private readonly ILogger _logger;
+        private IDbContextFactory<ApplicationDbContext> DbContextFactory { get; }
+        private ILogger Logger { get; }
 
         public SystemManagerService(IDbContextFactory<ApplicationDbContext> dbContextFactory, ILoggerFactory loggerFactory)
         {
-            _dbContextFactory = dbContextFactory;
-            _logger = loggerFactory.CreateLogger<SystemManagerService>();
+            DbContextFactory = dbContextFactory;
+            Logger = loggerFactory.CreateLogger<SystemManagerService>();
         }
 
         public void AddSystem(ManagedSystem managedSystem)
         {
-            managedSystem.GetDistributionManager().SetupSystem();
+            GetDistributionManager(managedSystem).SetupSystem();
             
-            _dbContextFactory.Upsert(managedSystem);
+            DbContextFactory.Upsert(managedSystem);
         }
 
         public void RefreshSystemInformation(ManagedSystem system)
         {
-            _logger.LogInformation("Refreshing system information for {system}.", system.Name);
+            Logger.LogInformation("Refreshing system information for {system}.", system.Name);
 
             Dictionary<string, string> systemInformation = null;
 
             ExecuteWorkWithSystem(system, managedSystem =>
             {
-                systemInformation = managedSystem.GetDistributionManager().GetSystemInformation();
+                systemInformation = GetDistributionManager(managedSystem).GetSystemInformation();
             }, managedSystem =>
             {
                 managedSystem.SystemInformation = JsonSerializer.Serialize(systemInformation);
@@ -45,13 +47,13 @@ namespace Paco.Services
 
         public List<object> GetPackagesActions(ManagedSystem system)
         {
-            _logger.LogInformation("Getting packages actions for {system}.", system.Name);
+            Logger.LogInformation("Getting packages actions for {system}.", system.Name);
 
             List<object> updates = null;
             
             ExecuteWorkWithSystem(system, managedSystem =>
             {
-                updates = managedSystem.GetDistributionManager().GetPackagesActions();
+                updates = GetDistributionManager(managedSystem).GetPackagesActions();
             }, managedSystem =>
             {
                 managedSystem.UpdatesFetchedAt = DateTime.UtcNow;
@@ -62,13 +64,13 @@ namespace Paco.Services
         
         public List<PackageInformation> GetListOfPackages(ManagedSystem system)
         {
-            _logger.LogInformation("Getting packages list for {system}.", system.Name);
+            Logger.LogInformation("Getting packages list for {system}.", system.Name);
 
             List<PackageInformation> updates = null;
             
             ExecuteWorkWithSystem(system, managedSystem =>
             {
-                updates = managedSystem.GetDistributionManager().GetListOfPackages();
+                updates = GetDistributionManager(managedSystem).GetListOfPackages();
             }, managedSystem =>
             {
                 
@@ -79,7 +81,7 @@ namespace Paco.Services
         
         public void ExecuteScheduledAction(ScheduledAction update)
         {
-            _logger.LogInformation("Starting scheduled action {actionId}.", update.Id);
+            Logger.LogInformation("Starting scheduled action {actionId}.", update.Id);
 
             ExecuteWorkWithSystem(update.ManagedSystem, managedSystem =>
             {
@@ -89,27 +91,27 @@ namespace Paco.Services
                     update.StartedAt = DateTime.Now;
                 }
                 
-                _dbContextFactory.Upsert(update);
+                DbContextFactory.Upsert(update);
                 
-                managedSystem.GetDistributionManager().ExecuteScheduledAction(update);
+                GetDistributionManager(managedSystem).ExecuteScheduledAction(update);
             }, managedSystem =>
             {
                 update.ScheduledActionStatus = ScheduledActionStatus.Successful;
-                _dbContextFactory.Upsert(update);
+                DbContextFactory.Upsert(update);
             }, managedSystem =>
             {
                 update.ScheduledActionStatus = ScheduledActionStatus.Failure;
-                _dbContextFactory.Upsert(update);
+                DbContextFactory.Upsert(update);
             });
         }
 
         public void PreparePackagesActions(ManagedSystem system, List<object> actions)
         {
-            _logger.LogInformation("Preparing packages actions for {system}.", system.Name);
+            Logger.LogInformation("Preparing packages actions for {system}.", system.Name);
             
             ExecuteWorkWithSystem(system, managedSystem =>
             {
-                managedSystem.GetDistributionManager().PreparePackagesActions(actions);
+                GetDistributionManager(managedSystem).PreparePackagesActions(actions);
             }, managedSystem =>
             {
                 
@@ -122,7 +124,7 @@ namespace Paco.Services
             
             ExecuteWorkWithSystem(scheduledAction.ManagedSystem, system =>
             {
-                var manager = scheduledAction.ManagedSystem.GetDistributionManager();
+                var manager = GetDistributionManager(scheduledAction.ManagedSystem);
                 result = manager.GetScheduledActionDetails(scheduledAction);
             }, system =>
             {
@@ -137,7 +139,7 @@ namespace Paco.Services
             Action<ManagedSystem> onSuccess = null,
             Action<ManagedSystem> onFailure = null)
         {
-            using var dbContext = _dbContextFactory.CreateDbContext();
+            using var dbContext = DbContextFactory.CreateDbContext();
 
             try
             {
@@ -154,7 +156,7 @@ namespace Paco.Services
 
                 system.AddProblem($"{system.ProblemDescription}\n\n {DateTime.UtcNow}\n{e.Message}".Trim());
                 
-                _logger.LogError(e, "While executing work with {system}: {exception}", system.Name, e.Message);
+                Logger.LogError(e, "While executing work with {system}: {exception}", system.Name, e.Message);
 
                 onFailure?.Invoke(system);
 
@@ -169,13 +171,13 @@ namespace Paco.Services
 
         public SystemUpdateInfo GetInformationAboutSystemUpdate(ManagedSystem system)
         {
-            _logger.LogInformation("Getting update info for {system}.", system.Name);
+            Logger.LogInformation("Getting update info for {system}.", system.Name);
                 
             SystemUpdateInfo updateInfo = null;
             
             ExecuteWorkWithSystem(system, managedSystem =>
             {
-                updateInfo = managedSystem.GetDistributionManager().GetInformationAboutSystemUpdate();
+                updateInfo = GetDistributionManager(managedSystem).GetInformationAboutSystemUpdate();
             });
 
             return updateInfo;
@@ -183,7 +185,12 @@ namespace Paco.Services
 
         public void ScheduleAction(ScheduledAction scheduledAction)
         {
-            _dbContextFactory.Upsert(scheduledAction);
+            DbContextFactory.Upsert(scheduledAction);
+        }
+        
+        private ISystemManager GetDistributionManager(ManagedSystem managedSystem)
+        {
+            return new FreeBsdManager(DbContextFactory, managedSystem);
         }
     }
 }
