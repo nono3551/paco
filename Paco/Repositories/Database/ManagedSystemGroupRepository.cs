@@ -10,8 +10,6 @@ namespace Paco.Repositories.Database
     {
         public static List<ManagedSystemGroup> GetManagedSystemsForTermWithRolePermissionsForRole(this DbSet<ManagedSystemGroup> groups, Role role, string term, int limit = 15)
         {
-            var xx = groups.Include(x => x.RoleManagedSystemGroupPermissions).ToList();
-            
             return groups.Where(x => x.Name.Contains(term))
                 .Include(x => x.RoleManagedSystemGroupPermissions.Where(y => y.Role.Id == role.Id))
                 .OrderBy(x => x.Name)
