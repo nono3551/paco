@@ -46,9 +46,11 @@ namespace Paco.Logging
                     {
                         _dbContextProvider.Add(ConvertLogEventToLogRecord(logEvent));
                     }
-                    catch
+                    catch (Exception exception)
                     {
-                        // ignored
+                        Console.WriteLine(logEvent.RenderMessage());
+                        Console.WriteLine(logEvent.Exception);
+                        Console.WriteLine(exception);
                     }
                 }
                 else
@@ -66,7 +68,7 @@ namespace Paco.Logging
                 return null;
             }
 
-            string json = this.ConvertLogEventToJson(logEvent);
+            string json = ConvertLogEventToJson(logEvent);
 
             JObject jObject = JObject.Parse(json);
             JToken properties = jObject["Properties"];
