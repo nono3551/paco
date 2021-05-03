@@ -167,6 +167,23 @@ namespace Paco.Repositories.Database
                 .HasOne(a => a.ManagedSystemGroup)
                 .WithMany(b => b.RoleManagedSystemGroupPermissions)
                 .HasForeignKey(a => a.ManagedSystemGroupId);
+
+            builder.Entity<Role>()
+                .HasMany(u => u.ManagedSystemGroups)
+                .WithMany(r => r.Roles)
+                .UsingEntity<RoleManagedSystemGroupPermissions>(
+                    typeBuilder => typeBuilder
+                        .HasOne(ur => ur.ManagedSystemGroup)
+                        .WithMany(t => t.RoleManagedSystemGroupPermissions)
+                        .HasForeignKey(ur => ur.ManagedSystemGroupId),
+                    typeBuilder => typeBuilder
+                        .HasOne(ur => ur.Role)
+                        .WithMany(p => p.RoleManagedSystemGroupPermissions)
+                        .HasForeignKey(pt => pt.RoleId),
+                    typeBuilder =>
+                    {
+                        typeBuilder.HasKey(x => new {x.Id, x.RoleId, x.ManagedSystemGroupId});
+                    });
             
             builder.Entity<ManagedSystem>()
                 .HasMany(u => u.ManagedSystemGroups)

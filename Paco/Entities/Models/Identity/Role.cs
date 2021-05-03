@@ -13,5 +13,6 @@ namespace Paco.Entities.Models.Identity
         public List<RoleManagedSystemGroupPermissions> RoleManagedSystemGroupPermissions { get; set; }
         public List<User> Users { get; set; }
         public List<UserRole> UserRoles { get; set; }
+        public List<ManagedSystemGroup> ManagedSystemGroups { get; set; }
     }
 }
