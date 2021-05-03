@@ -35,8 +35,26 @@ namespace Paco
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            var postgreString = Configuration.GetPostgreSqlServerConnectionString();
+            var sqlString = Configuration.GetSqlServerConnectionString();
+
+            if (!string.IsNullOrEmpty(postgreString))
+            {
+                services.AddDbContextFactory<ApplicationDbContext>(options => options.UseNpgsql(postgreString));
+                services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(postgreString));
+            }
+            else if (!string.IsNullOrEmpty(sqlString))
+            {
+                services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer(sqlString));
+                services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(sqlString));
+            }
+            else
+            {
+                throw new NullReferenceException("Connection string for database is not valid. You must provide valid connection string for SQL Server of PostgreSQL Server in appsettings.json");
+            }
+            
+            services.AddDbContextFactory<ApplicationDbContext>(options => options.UseSqlServer());
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer());
             
             services
                 .AddIdentity<User, Role>(options => options.SignIn.RequireConfirmedAccount = true)

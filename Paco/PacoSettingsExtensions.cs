@@ -10,6 +10,8 @@ namespace Paco
         private const string SystemRefresherInterval = "SystemRefresherInterval";
         private const string ScheduleExecutorInterval = "ScheduleExecutorInterval";
         private const string Smtp = "Smtp";
+        private const string PostgreSqlServerConnectionString = "PostgreSqlServer";
+        private const string SqlServerConnectionString = "SqlServer";
 
         public static string GetServerAddress(this IConfiguration configuration)
         {
@@ -36,6 +38,16 @@ namespace Paco
             var smtpOptions = new SmtpOptions();
             configuration.GetSection(PacoSettingsExtensions.Smtp).Bind(smtpOptions);
             return smtpOptions;
+        }
+
+        public static string GetPostgreSqlServerConnectionString(this IConfiguration configuration)
+        {
+            return configuration.GetConnectionString(PostgreSqlServerConnectionString);
+        }
+        
+        public static string GetSqlServerConnectionString(this IConfiguration configuration)
+        {
+            return configuration.GetConnectionString(SqlServerConnectionString);
         }
     }
 }
