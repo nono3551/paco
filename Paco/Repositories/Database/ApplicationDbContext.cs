@@ -101,7 +101,6 @@ namespace Paco.Repositories.Database
 
             SetupQueryFilters(builder);
             SetupNavigationAndKeys(builder);
-            SeedDatabase(builder);
         }
 
         private void SetupNavigationAndKeys(ModelBuilder builder)
@@ -223,38 +222,6 @@ namespace Paco.Repositories.Database
             builder.Entity<QueuedEmail>().HasQueryFilter(p => p.DeletedAt == null);
             builder.Entity<EmailRecipient>().HasQueryFilter(p => p.DeletedAt == null);
             builder.Entity<EmailInvite>().HasQueryFilter(p => p.DeletedAt == null);
-        }
-
-        private void SeedDatabase(ModelBuilder builder)
-        {
-            var email = "michal.zahradnik@backbone.sk";
-            var emailUpper = email.ToUpper();
-            
-            var user = new User
-            {
-                Id = Guid.NewGuid(),
-                UserName = email,
-                Email = email,
-                NormalizedEmail = emailUpper,
-                NormalizedUserName = emailUpper,
-                PasswordHash = "AQAAAAEAACcQAAAAEJdyASTL66Dd+IQPIPJsne7GQnFQ+H8G7ngSPb5+OUNH8+PU7YuCzPjjLMvj947dcg==",
-                SecurityStamp = "JBIW2JAV2THPAPR3NGHSE3ZVXUCHEBPU",
-                ConcurrencyStamp = "34acbb54-9ae3-4742-af3c-89de44e306e0",
-                EmailConfirmed = true,
-                LockoutEnabled = true
-            };
-            builder.Entity<User>().HasData(user);
-
-            
-            var role = new Role {Id = Guid.NewGuid(), Name = "Administrator", NormalizedName = "ADMINISTRATOR"};
-            builder.Entity<Role>().HasData(role);
-
-            builder.Entity<UserRole>().HasData(new UserRole
-            {
-                Id = Guid.NewGuid(),
-                RoleId = role.Id,
-                UserId = user.Id
-            });
         }
     }
 }

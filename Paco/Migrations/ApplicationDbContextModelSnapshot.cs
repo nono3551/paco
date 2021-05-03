@@ -126,15 +126,6 @@ namespace Paco.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("42fb97d3-a862-4036-8a89-91806a6c79eb"),
-                            ConcurrencyStamp = "33b059e2-a7cc-4f81-b24c-f457eab43d06",
-                            Name = "Administrator",
-                            NormalizedName = "ADMINISTRATOR"
-                        });
                 });
 
             modelBuilder.Entity("Paco.Entities.Models.Identity.RoleClaim", b =>
@@ -245,25 +236,6 @@ namespace Paco.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("91fb5d6b-1c8b-47f0-8863-b8f1e65ab705"),
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "34acbb54-9ae3-4742-af3c-89de44e306e0",
-                            Email = "michal.zahradnik@backbone.sk",
-                            EmailConfirmed = true,
-                            EmailNotifications = true,
-                            LockoutEnabled = true,
-                            NormalizedEmail = "MICHAL.ZAHRADNIK@BACKBONE.SK",
-                            NormalizedUserName = "MICHAL.ZAHRADNIK@BACKBONE.SK",
-                            PasswordHash = "AQAAAAEAACcQAAAAEJdyASTL66Dd+IQPIPJsne7GQnFQ+H8G7ngSPb5+OUNH8+PU7YuCzPjjLMvj947dcg==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "JBIW2JAV2THPAPR3NGHSE3ZVXUCHEBPU",
-                            TwoFactorEnabled = false,
-                            UserName = "michal.zahradnik@backbone.sk"
-                        });
                 });
 
             modelBuilder.Entity("Paco.Entities.Models.Identity.UserClaim", b =>
@@ -356,14 +328,6 @@ namespace Paco.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("AspNetUserRoles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("ffb1bc71-d9e1-423d-b7ee-5c9f2bd22e80"),
-                            UserId = new Guid("91fb5d6b-1c8b-47f0-8863-b8f1e65ab705"),
-                            RoleId = new Guid("42fb97d3-a862-4036-8a89-91806a6c79eb")
-                        });
                 });
 
             modelBuilder.Entity("Paco.Entities.Models.Identity.UserToken", b =>

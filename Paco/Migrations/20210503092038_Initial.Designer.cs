@@ -10,8 +10,8 @@ using Paco.Repositories.Database;
 namespace Paco.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210415134157_INIT")]
-    partial class INIT
+    [Migration("20210503092038_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -128,15 +128,6 @@ namespace Paco.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("cbe38f69-845d-426f-9490-8ef24c56f0e5"),
-                            ConcurrencyStamp = "a1f3b296-5f11-4010-9e0a-444c0add3071",
-                            Name = "Administrator",
-                            NormalizedName = "ADMINISTRATOR"
-                        });
                 });
 
             modelBuilder.Entity("Paco.Entities.Models.Identity.RoleClaim", b =>
@@ -247,25 +238,6 @@ namespace Paco.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("45a09434-06b3-4931-b9c2-553634cfe2e8"),
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "34acbb54-9ae3-4742-af3c-89de44e306e0",
-                            Email = "michal.zahradnik@backbone.sk",
-                            EmailConfirmed = true,
-                            EmailNotifications = true,
-                            LockoutEnabled = true,
-                            NormalizedEmail = "MICHAL.ZAHRADNIK@BACKBONE.SK",
-                            NormalizedUserName = "MICHAL.ZAHRADNIK@BACKBONE.SK",
-                            PasswordHash = "AQAAAAEAACcQAAAAEJdyASTL66Dd+IQPIPJsne7GQnFQ+H8G7ngSPb5+OUNH8+PU7YuCzPjjLMvj947dcg==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "JBIW2JAV2THPAPR3NGHSE3ZVXUCHEBPU",
-                            TwoFactorEnabled = false,
-                            UserName = "michal.zahradnik@backbone.sk"
-                        });
                 });
 
             modelBuilder.Entity("Paco.Entities.Models.Identity.UserClaim", b =>
@@ -358,14 +330,6 @@ namespace Paco.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("AspNetUserRoles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("75e47a9a-546e-4048-a3f1-54bb2fcb3d0b"),
-                            UserId = new Guid("45a09434-06b3-4931-b9c2-553634cfe2e8"),
-                            RoleId = new Guid("cbe38f69-845d-426f-9490-8ef24c56f0e5")
-                        });
                 });
 
             modelBuilder.Entity("Paco.Entities.Models.Identity.UserToken", b =>

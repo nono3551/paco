@@ -1,5 +1,5 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Paco.Entities;
@@ -15,40 +15,64 @@ namespace Paco.Services
         private IDbContextFactory<ApplicationDbContext> DbContextFactory { get; }
         private EmailQueueService EmailQueueService { get; }
 
-        public UserInviteService(IDbContextFactory<ApplicationDbContext> dbContextFactory, EmailQueueService emailQueueService, UserManager<User> userManager)
+        public UserInviteService(IDbContextFactory<ApplicationDbContext> dbContextFactory,
+            EmailQueueService emailQueueService, UserManager<User> userManager)
         {
             _userManager = userManager;
             DbContextFactory = dbContextFactory;
             EmailQueueService = emailQueueService;
         }
-        
-        public async void InviteUser(UserInviteModel userInviteModel)
-        {
-            await using var context = DbContextFactory.CreateDbContext();
-            context.EmailInvites.Where(x => !x.Used && x.Email == userInviteModel.Email).ToList().ForEach(x => x.Used = false);
-            await context.SaveChangesAsync();
 
-            
-            var user = await _userManager.FindByEmailAsync(userInviteModel.Email);
+        private async Task<User> CreateUser(string emailAddress)
+        {
+            var user = await _userManager.FindByEmailAsync(emailAddress);
 
             if (user == null)
             {
-                var result = await _userManager.CreateAsync(new User { UserName = userInviteModel.Email, Email = userInviteModel.Email });
-                user = await _userManager.FindByEmailAsync(userInviteModel.Email);
+                await _userManager.CreateAsync(new User {UserName = emailAddress, Email = emailAddress});
+                user = await _userManager.FindByEmailAsync(emailAddress);
             }
 
-            var userInvite = new EmailInvite()
-            {
-                InviterId = userInviteModel.Inviter.Id,
-                Email = userInviteModel.Email,
-                TargetId = user!.Id
-            };
+            return user;
+        }
 
-            DbContextFactory.Upsert(userInvite);
+        private async Task SetAllPreviousInvitesAsUnused(string email)
+        {
+            await using var context = DbContextFactory.CreateDbContext();
+            context.EmailInvites.Where(x => !x.Used && x.Email == email).ToList().ForEach(x => x.Used = false);
+            await context.SaveChangesAsync();
+        }
 
-            var invite = context.EmailInvites.Where(x => x == userInvite).Include(x => x.Inviter).Include(x => x.Target).FirstOrDefault();
-            
-            EmailQueueService.InviteUser(invite);
+        public async Task<User> InviteNewAdministrator(string email)
+        {
+            await SetAllPreviousInvitesAsUnused(email);
+
+            var user = await CreateUser(email);
+
+            EmailQueueService.InviteUser(DbContextFactory.Upsert(new EmailInvite()
+                {
+                    InviterId = user.Id,
+                    Email = email,
+                    TargetId = user!.Id
+                })
+            );
+
+            return user;
+        }
+
+        public async Task InviteUser(UserInviteModel userInviteModel)
+        {
+            await SetAllPreviousInvitesAsUnused(userInviteModel.Email);
+
+            var user = await CreateUser(userInviteModel.Email);
+
+            EmailQueueService.InviteUser(DbContextFactory.Upsert(new EmailInvite()
+                {
+                    InviterId = userInviteModel.Inviter.Id,
+                    Email = userInviteModel.Email,
+                    TargetId = user!.Id
+                })
+            );
         }
     }
 }

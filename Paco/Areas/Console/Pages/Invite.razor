@@ -34,7 +34,7 @@
 
         _inviteModel.Inviter = user;
         
-        UserInviteService.InviteUser(_inviteModel);
+        await UserInviteService.InviteUser(_inviteModel);
         
         NavigationManager.NavigateTo("");
     }

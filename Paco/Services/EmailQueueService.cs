@@ -64,7 +64,7 @@ namespace Paco.Services
 
             return recipients.ToArray();
         }
-
+        
         public void InviteUser(EmailInvite invite)
         {
             var serverAddress = Configuration.GetServerAddress();
@@ -73,7 +73,10 @@ namespace Paco.Services
 
             var subject = $"Paco invite";
 
-            QueueEmail(subject, body, invite.Target);
+            using var db = DbContextFactory.CreateDbContext();
+            var inviteWithUser = db.EmailInvites.Where(x => x == invite).Include(x => x.Inviter).Include(x => x.Target).First();
+            
+            QueueEmail(subject, body, inviteWithUser.Target);
         }
     }
 }
