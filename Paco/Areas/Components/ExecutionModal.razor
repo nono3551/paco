@@ -90,14 +90,14 @@ else if (_errorMessage != null)
             try
             {
                 user = await GetUser();
-                Logger.LogInformation("{user} invoked \"{description}\" with action ID {actionId}.", user.UserName, description, actionId);
+                Logger.LogInformation("{user} invoked {description} with action ID {actionId}.", user.UserName, description, actionId);
                 await InvokeAsync(operation);
             }
             catch (Exception e)
             {
-                Logger.LogError(e, "Action {actionId} invoked by {user} finished with error \"{message}\".", actionId, user?.UserName, e.Message);
+                Logger.LogError(e, "Action {actionId} invoked by {user} finished with error: {message}.", actionId, user?.UserName, e.Message);
                 
-                _errorMessage = $"An error occured during execution \"{e.Message}\".";
+                _errorMessage = $"An error occured during execution: \"{e.Message}\".";
 
                 await InvokeAsync(() =>
                 {

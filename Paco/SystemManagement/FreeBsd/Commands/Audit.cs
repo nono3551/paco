@@ -14,7 +14,7 @@ namespace Paco.SystemManagement.FreeBsd.Commands
 
             if (!detailed)
             {
-                auditOutput = string.Join("\n", auditOutput.Split("\n\n").Select(packageInfo => packageInfo.Split("\n").First()));
+                auditOutput = string.Join("\n", auditOutput.Split("\n", StringSplitOptions.RemoveEmptyEntries));
             }
 
             return auditOutput;

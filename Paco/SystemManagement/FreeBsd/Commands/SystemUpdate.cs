@@ -78,7 +78,7 @@ namespace Paco.SystemManagement.FreeBsd.Commands
 
             var success = sshClient.CreateCommand($"tail -n 10 {scheduledAction.FreeBsdLogPath} | grep \"{resultKey}\"").Execute().Replace(resultKey, "").Trim() == "0";
 
-            var fullOutput = sshClient.CreateCommand($"cat {scheduledAction.FreeBsdLogPath}");
+            var fullOutput = sshClient.CreateCommand($"cat {scheduledAction.FreeBsdLogPath}").Execute();
             
             Log.Information($"Scheduled action {scheduledAction.Id} full output: {fullOutput}");
             

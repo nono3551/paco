@@ -143,9 +143,9 @@ namespace Paco.Services
 
             try
             {
-                action(system);
-
                 dbContext.Entry(system).Reload();
+
+                action(system);
                 
                 system.LastAccessed = DateTime.UtcNow;
                 onSuccess?.Invoke(system);
