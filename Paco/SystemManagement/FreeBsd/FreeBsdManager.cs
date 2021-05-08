@@ -59,8 +59,8 @@ namespace Paco.SystemManagement.FreeBsd
                 {"Hostname", new Hostname().GetHostname(sshClient)},
                 {"Logged users", Uptime.CurrentLoggedUsers(sshClient)},
                 {
-                    "Karnel\nUserland\nRunning",
-                    $"{SystemVersion.GetKarnel(sshClient)}{SystemVersion.GetUserland(sshClient)}{SystemVersion.GetRunning(sshClient)}"
+                    "Kernel\nUserland\nRunning",
+                    $"{SystemVersion.GetKernel(sshClient)}{SystemVersion.GetUserland(sshClient)}{SystemVersion.GetRunning(sshClient)}"
                 },
                 {"Vulnerable packages", vulnerablePackages},
                 {$"Packages actions ({System.PackageActions})", string.Join("\n", packagesActions)},
