@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Paco.Areas.Identity;
 using System;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Rewrite;
 using Paco.Services;
 using Microsoft.Extensions.Logging;
 using Paco.Entities.Models.Identity;
@@ -153,7 +154,7 @@ namespace Paco
 
             if (configuration.GetHttpsRedirect())
             {
-                app.UseHttpsRedirection();
+                //app.UseHttpsRedirection();
             }
             
             app.UseStaticFiles();
@@ -169,6 +170,12 @@ namespace Paco
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
             });
+
+            if (configuration.GetHttpsUrlRewriter())
+            {
+                var options = new RewriteOptions().AddRedirectToHttpsPermanent();
+                app.UseRewriter(options);
+            }
         }
     }
 }
