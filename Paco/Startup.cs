@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Paco.Areas.Identity;
 using System;
+using Microsoft.AspNetCore.Http;
 using Paco.Services;
 using Microsoft.Extensions.Logging;
 using Paco.Entities.Models.Identity;
@@ -123,6 +124,7 @@ namespace Paco
                 options.SlidingExpiration = true;
 
                 // Cookie settings
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.Cookie.HttpOnly = true;
                 options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
             });
