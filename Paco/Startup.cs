@@ -124,9 +124,9 @@ namespace Paco
                 options.SlidingExpiration = true;
 
                 // Cookie settings
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                options.Cookie.HttpOnly = true;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                options.Cookie.HttpOnly = false;
+                options.ExpireTimeSpan = TimeSpan.FromDays(5);
             });
         }
 
