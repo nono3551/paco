@@ -13,6 +13,7 @@ namespace Paco
         private const string PostgreSqlServerConnectionString = "PostgreSqlServer";
         private const string SqlServerConnectionString = "SqlServer";
         private const string HttpsRedirectString = "HttpsRedirect";
+        private const string HttpsUrlRewriterString = "HttpsUrlRewriter";
 
         public static string GetServerAddress(this IConfiguration configuration)
         {
@@ -37,6 +38,11 @@ namespace Paco
         public static bool GetHttpsRedirect(this IConfiguration configuration)
         {
             return configuration.GetValue<bool>(HttpsRedirectString);
+        }
+
+        public static bool GetHttpsUrlRewriter(this IConfiguration configuration)
+        {
+            return configuration.GetValue<bool>(HttpsUrlRewriterString);
         }
 
         public static SmtpOptions GetSmtpOptions(this IConfiguration configuration)
