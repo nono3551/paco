@@ -67,7 +67,8 @@ namespace Paco
 #if DEBUG
             if (_env.IsDevelopment())
             {
-                builder.AddRazorRuntimeCompilation();
+                // There was bug in this library and no page was ever show when activated
+                //builder.AddRazorRuntimeCompilation();
             }
 #endif
             
