@@ -341,3 +341,4 @@ healthchecksdb
 dist/
 
 Paco/appsettings.Development.json
+Paco/Migrations
