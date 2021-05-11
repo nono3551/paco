@@ -91,7 +91,7 @@ namespace Paco.SystemManagement.FreeBsd.Commands
             
                 if (!rootCommandFactory($"getent passwd {Username}").ExecuteCommand(sshClient).Success)
                 {
-                    throw new PolicyException($"Could not create user \"{Username}\". {userCommandResult.Response}");
+                    throw new InvalidOperationException($"Could not create user \"{Username}\". {userCommandResult.Response}");
                 }
             }
 
@@ -103,7 +103,7 @@ namespace Paco.SystemManagement.FreeBsd.Commands
 
                 if (!sudoersResult.Success)
                 {
-                    throw new PolicyException($"Could not create create sudo privileges for \"{Username}\". {sudoersResult.Response}");
+                    throw new InvalidOperationException($"Could not create create sudo privileges for \"{Username}\". {sudoersResult.Response}");
                 }
             }
             
