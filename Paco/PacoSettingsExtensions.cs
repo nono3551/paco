@@ -12,31 +12,37 @@ namespace Paco
         private const string Smtp = "Smtp";
         private const string PostgreSqlServerConnectionString = "PostgreSqlServer";
         private const string SqlServerConnectionString = "SqlServer";
+        private const string HttpsRedirectString = "HttpsRedirect";
 
         public static string GetServerAddress(this IConfiguration configuration)
         {
-            return configuration.GetValue<string>(PacoSettingsExtensions.ServerAddress);
+            return configuration.GetValue<string>(ServerAddress);
         }
         
         public static int GetEmailSenderInterval(this IConfiguration configuration)
         {
-            return configuration.GetValue<int>(PacoSettingsExtensions.EmailSenderInterval);
+            return configuration.GetValue<int>(EmailSenderInterval);
         }
         
         public static int GetSystemRefresherInterval(this IConfiguration configuration)
         {
-            return configuration.GetValue<int>(PacoSettingsExtensions.SystemRefresherInterval);
+            return configuration.GetValue<int>(SystemRefresherInterval);
         }
         
         public static int GetScheduleExecutorInterval(this IConfiguration configuration)
         {
-            return configuration.GetValue<int>(PacoSettingsExtensions.ScheduleExecutorInterval);
+            return configuration.GetValue<int>(ScheduleExecutorInterval);
         }
-        
+
+        public static bool GetHttpsRedirect(this IConfiguration configuration)
+        {
+            return configuration.GetValue<bool>(HttpsRedirectString);
+        }
+
         public static SmtpOptions GetSmtpOptions(this IConfiguration configuration)
         {
             var smtpOptions = new SmtpOptions();
-            configuration.GetSection(PacoSettingsExtensions.Smtp).Bind(smtpOptions);
+            configuration.GetSection(Smtp).Bind(smtpOptions);
             return smtpOptions;
         }
 

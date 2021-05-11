@@ -129,7 +129,7 @@ namespace Paco
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, ApplicationDbContext dataContext)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, ApplicationDbContext dataContext, IConfiguration configuration)
         {
             dataContext.Database.Migrate();
             
@@ -149,7 +149,11 @@ namespace Paco
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            if (configuration.GetHttpsRedirect())
+            {
+                app.UseHttpsRedirection();
+            }
+            
             app.UseStaticFiles();
 
             app.UseRouting();
